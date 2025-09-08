@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,14 +12,28 @@ import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { ProfileNFTCustomizer } from "@/components/profile-nft-customizer";
 import { ProfileSkills } from "@/components/profile-skills";
 import { ProfileAnalytics } from "@/components/profile-analytics";
+import { useState } from "react";
 
 export default function ProfilePage() {
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  const handleMobileSidebarToggle = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  };
+
+  const handleMobileSidebarClose = () => {
+    setIsMobileSidebarOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <DashboardNav />
+      <DashboardNav onMobileSidebarToggle={handleMobileSidebarToggle} />
       <div className="flex">
-        <DashboardSidebar />
-        <main className="flex-1 p-6 overflow-y-scroll h-[calc(100vh-4rem)]">
+        <DashboardSidebar
+          isMobileOpen={isMobileSidebarOpen}
+          onMobileClose={handleMobileSidebarClose}
+        />
+        <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] dashboard-main">
           <div className="max-w-6xl mx-auto">
             {/* Profile Header */}
             <div className="mb-8">

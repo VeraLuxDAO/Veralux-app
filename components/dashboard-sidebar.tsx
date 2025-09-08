@@ -22,11 +22,11 @@ export function DashboardSidebar({
 
   return (
     <>
-      {/* Desktop Toggle Button - Only visible on screens >= 600px */}
+      {/* Desktop Toggle Button - Only visible on screens >= 1024px */}
       <Button
         variant="ghost"
         size="sm"
-        className="fixed top-20 right-4 z-50 bg-card/95 backdrop-blur-sm border border-border hover:bg-accent hidden sm:flex"
+        className="fixed top-20 right-4 z-50 bg-card/95 backdrop-blur-sm border border-border hover:bg-accent hidden lg:flex"
         onClick={() => setIsOpen(!isOpen)}
       >
         {isOpen ? (
@@ -36,30 +36,30 @@ export function DashboardSidebar({
         )}
       </Button>
 
-      {/* Mobile Overlay - Only visible on screens < 600px */}
+      {/* Mobile Overlay - Only visible on screens < 1024px */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 sm:hidden"
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 lg:hidden"
           onClick={onMobileClose}
         />
       )}
 
       <aside
         className={`w-64 border-l border-border h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] transition-all duration-300 z-50 ${
-          // Mobile: hidden by default, show only when isMobileOpen is true
+          // Mobile/Tablet: hidden by default, show only when isMobileOpen is true
           // Desktop: show by default, hide when isOpen is false
           isMobileOpen
             ? "translate-x-0 bg-card/80 backdrop-blur-xl border-white/20 shadow-2xl"
             : isOpen
-            ? "translate-x-0 sm:translate-x-0 bg-card/95 backdrop-blur-sm"
-            : "translate-x-full sm:translate-x-full bg-card/95 backdrop-blur-sm"
-        } fixed sm:relative top-14 sm:top-0 dashboard-sidebar ${
+            ? "translate-x-0 lg:translate-x-0 bg-card/95 backdrop-blur-sm"
+            : "translate-x-full lg:translate-x-full bg-card/95 backdrop-blur-sm"
+        } fixed lg:relative top-14 lg:top-0 dashboard-sidebar ${
           isMobileOpen ? "mobile-open glass-effect" : ""
         }`}
       >
         <div className="p-3 sm:p-4 md:p-6 overflow-y-auto h-full">
           {/* Mobile Close Button */}
-          <div className="flex justify-end mb-4 sm:hidden">
+          <div className="flex justify-end mb-4 lg:hidden">
             <Button
               variant="ghost"
               size="sm"

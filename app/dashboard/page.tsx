@@ -29,8 +29,8 @@ export default function DashboardPage() {
           isMobileOpen={isMobileSidebarOpen}
           onMobileClose={handleMobileSidebarClose}
         />
-        <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] dashboard-main">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 p-6 sm:p-7 md:p-9 overflow-y-auto h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] dashboard-main">
+          <div className="max-w-full mx-auto">
             {/* Dashboard Header */}
             <div className="mb-4 sm:mb-6 md:mb-8">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-1 sm:mb-2">

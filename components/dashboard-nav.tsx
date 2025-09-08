@@ -20,21 +20,21 @@ export function DashboardNav({ onMobileSidebarToggle }: DashboardNavProps) {
     <>
       <header className="border-b border-border bg-card/95 backdrop-blur-sm">
         <div className="flex h-12 sm:h-14 md:h-16 items-center px-3 sm:px-4 md:px-6">
-          {/* Mobile Sidebar Toggle Button - Only visible on screens < 600px */}
+          {/* Mobile Sidebar Toggle Button - Only visible on screens < 1024px */}
           <Button
             variant="ghost"
             size="sm"
-            className="mr-2 hover:bg-accent sm:hidden"
+            className="mr-2 hover:bg-accent lg:hidden"
             onClick={onMobileSidebarToggle}
           >
             <PanelLeft className="h-5 w-5 text-foreground" />
           </Button>
 
-          {/* Mobile Menu Button - Only visible on screens < 600px */}
+          {/* Mobile Menu Button - Only visible on screens < 1024px */}
           <Button
             variant="ghost"
             size="sm"
-            className="md:hidden hover:bg-accent"
+            className="lg:hidden hover:bg-accent"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             <Menu className="h-5 w-5 text-foreground" />
@@ -115,7 +115,7 @@ export function DashboardNav({ onMobileSidebarToggle }: DashboardNavProps) {
 
         {/* Mobile Search Bar */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-card/95 backdrop-blur-sm p-3 sm:p-4">
+          <div className="lg:hidden border-t border-border bg-card/95 backdrop-blur-sm p-3 sm:p-4">
             <div className="relative">
               <input
                 type="text"

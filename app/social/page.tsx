@@ -31,8 +31,8 @@ export default function SocialHubPage() {
           isMobileOpen={isMobileSidebarOpen}
           onMobileClose={handleMobileSidebarClose}
         />
-        <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] dashboard-main">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 p-6 sm:p-7 md:p-9 overflow-y-auto h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] dashboard-main">
+          <div className="max-w-full mx-auto">
             {/* Social Hub Header */}
             <div className="mb-8">
               <div className="flex items-center justify-between">
