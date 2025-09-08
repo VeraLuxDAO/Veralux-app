@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,14 +11,28 @@ import { SocialFeed } from "@/components/social-feed";
 import { CreateFlowModal } from "@/components/create-flow-modal";
 import { TrendingTopics } from "@/components/trending-topics";
 import { SuggestedConnections } from "@/components/suggested-connections";
+import { useState } from "react";
 
 export default function SocialHubPage() {
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  const handleMobileSidebarToggle = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  };
+
+  const handleMobileSidebarClose = () => {
+    setIsMobileSidebarOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <DashboardNav />
+      <DashboardNav onMobileSidebarToggle={handleMobileSidebarToggle} />
       <div className="flex">
-        <DashboardSidebar />
-        <main className="flex-1 p-6 overflow-y-auto h-[calc(100vh-4rem)]">
+        <DashboardSidebar
+          isMobileOpen={isMobileSidebarOpen}
+          onMobileClose={handleMobileSidebarClose}
+        />
+        <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] dashboard-main">
           <div className="max-w-7xl mx-auto">
             {/* Social Hub Header */}
             <div className="mb-8">
@@ -35,7 +51,7 @@ export default function SocialHubPage() {
 
             {/* Social Hub Tabs */}
             <Tabs defaultValue="feed" className="space-y-6">
-              <TabsList className="grid w-fit grid-cols-4 bg-card border border-border max-w-md">
+              <TabsList className="grid w-fit grid-cols-4 bg-card border border-border max-w-md flex justify-between w-full">
                 <TabsTrigger
                   value="feed"
                   className="data-[state=active]:bg-electric-blue data-[state=active]:text-white"

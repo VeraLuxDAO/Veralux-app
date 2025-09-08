@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useWalletUtils } from "@/hooks/use-wallet-utils";
 import { Transaction } from "@mysten/sui/transactions";
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { SUPPORTED_WALLETS, EXPLORER_URLS } from "@/lib/constants";
 import {
   Copy,
   ExternalLink,
@@ -30,20 +31,20 @@ export function WalletDemo() {
   const [signResult, setSignResult] = useState<string | null>(null);
   const [txResult, setTxResult] = useState<string | null>(null);
 
-  const copyAddress = async () => {
+  const copyAddress = useCallback(async () => {
     if (address) {
       await navigator.clipboard.writeText(address);
       // You could add a toast notification here
     }
-  };
+  }, [address]);
 
-  const openExplorer = () => {
+  const openExplorer = useCallback(() => {
     if (address) {
-      window.open(`https://suiexplorer.com/address/${address}`, "_blank");
+      window.open(`${EXPLORER_URLS.SUI}${address}`, "_blank");
     }
-  };
+  }, [address]);
 
-  const handleSignMessage = async () => {
+  const handleSignMessage = useCallback(async () => {
     try {
       setSignResult(null);
       const result = await signMessage("Hello from VeraLux!");
@@ -54,9 +55,9 @@ export function WalletDemo() {
         `❌ Error: ${err instanceof Error ? err.message : "Unknown error"}`
       );
     }
-  };
+  }, [signMessage]);
 
-  const handleExecuteTransaction = async () => {
+  const handleExecuteTransaction = useCallback(async () => {
     try {
       setTxResult(null);
       const tx = new Transaction();
@@ -74,7 +75,7 @@ export function WalletDemo() {
         `❌ Error: ${err instanceof Error ? err.message : "Unknown error"}`
       );
     }
-  };
+  }, [executeTransaction, address]);
 
   if (!mounted) {
     return (
@@ -240,13 +241,11 @@ export function WalletDemo() {
             Supported wallets:
           </p>
           <div className="flex flex-wrap gap-1">
-            {["Suiet", "Phantom", "Martian", "OKX", "Glass", "Slush"].map(
-              (name) => (
-                <Badge key={name} variant="outline" className="text-xs">
-                  {name}
-                </Badge>
-              )
-            )}
+            {SUPPORTED_WALLETS.map((name) => (
+              <Badge key={name} variant="outline" className="text-xs">
+                {name}
+              </Badge>
+            ))}
           </div>
         </div>
       </CardContent>

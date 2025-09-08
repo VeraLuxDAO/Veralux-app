@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,27 +8,41 @@ import { Separator } from "@/components/ui/separator";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { WalletDemo } from "@/components/wallet-demo";
+import { useState } from "react";
 
 export default function DashboardPage() {
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  const handleMobileSidebarToggle = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  };
+
+  const handleMobileSidebarClose = () => {
+    setIsMobileSidebarOpen(false);
+  };
+
   return (
-    <div className="min-h-screen bg-background overflow-hidden">
-      <DashboardNav />
+    <div className="min-h-screen bg-background">
+      <DashboardNav onMobileSidebarToggle={handleMobileSidebarToggle} />
       <div className="flex">
-        <DashboardSidebar />
-        <main className="flex-1 p-6 overflow-y-auto h-[calc(100vh-4rem)]">
+        <DashboardSidebar
+          isMobileOpen={isMobileSidebarOpen}
+          onMobileClose={handleMobileSidebarClose}
+        />
+        <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] dashboard-main">
           <div className="max-w-7xl mx-auto">
             {/* Dashboard Header */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-foreground mb-2">
+            <div className="mb-4 sm:mb-6 md:mb-8">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-1 sm:mb-2">
                 Welcome back, Alex
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
                 Here's what's happening in your Web3 world today
               </p>
             </div>
 
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
               <Card className="bg-card border-border">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground">

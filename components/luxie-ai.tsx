@@ -1,23 +1,24 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { X, Send, Sparkles, Zap, TrendingUp, Users } from "lucide-react"
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { X, Send, Sparkles, Zap, TrendingUp, Users } from "lucide-react";
+import { AI_RESPONSES, QUICK_ACTIONS } from "@/lib/constants";
 
 interface Message {
-  id: string
-  type: "user" | "ai"
-  content: string
-  timestamp: Date
+  id: string;
+  type: "user" | "ai";
+  content: string;
+  timestamp: Date;
 }
 
 interface LuxieAIProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function LuxieAI({ isOpen, onClose }: LuxieAIProps) {
@@ -29,37 +30,46 @@ export function LuxieAI({ isOpen, onClose }: LuxieAIProps) {
         "Hey there! I'm Luxie, your VeraLux AI assistant. I can help you navigate the platform, analyze your reputation, suggest connections, or answer questions about Web3. What would you like to explore?",
       timestamp: new Date(),
     },
-  ])
-  const [inputValue, setInputValue] = useState("")
-  const [isTyping, setIsTyping] = useState(false)
-  const scrollAreaRef = useRef<HTMLDivElement>(null)
+  ]);
+  const [inputValue, setInputValue] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  const quickActions = [
-    { icon: TrendingUp, label: "Analyze my reputation", color: "text-veralux-green" },
-    { icon: Users, label: "Find connections", color: "text-electric-blue" },
-    { icon: Zap, label: "Optimize my profile", color: "text-veralux-yellow" },
-    { icon: Sparkles, label: "Trending topics", color: "text-purple-400" },
-  ]
+  const quickActions = useMemo(
+    () =>
+      QUICK_ACTIONS.map((action) => ({
+        ...action,
+        icon:
+          action.icon === "TrendingUp"
+            ? TrendingUp
+            : action.icon === "Users"
+            ? Users
+            : action.icon === "Zap"
+            ? Zap
+            : Sparkles,
+      })),
+    []
+  );
 
   useEffect(() => {
     if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [messages])
+  }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim()) return
+    if (!inputValue.trim()) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       type: "user",
       content: inputValue,
       timestamp: new Date(),
-    }
+    };
 
-    setMessages((prev) => [...prev, userMessage])
-    setInputValue("")
-    setIsTyping(true)
+    setMessages((prev) => [...prev, userMessage]);
+    setInputValue("");
+    setIsTyping(true);
 
     // Simulate AI response
     setTimeout(() => {
@@ -68,43 +78,45 @@ export function LuxieAI({ isOpen, onClose }: LuxieAIProps) {
         type: "ai",
         content: generateAIResponse(inputValue),
         timestamp: new Date(),
-      }
-      setMessages((prev) => [...prev, aiResponse])
-      setIsTyping(false)
-    }, 1500)
-  }
+      };
+      setMessages((prev) => [...prev, aiResponse]);
+      setIsTyping(false);
+    }, 1500);
+  };
 
-  const generateAIResponse = (input: string): string => {
-    const responses = [
-      "Based on your activity, I'd recommend engaging more with the DeFi Builders community. Your reputation score could increase by 15% with consistent participation!",
-      "I found 3 users with similar interests in Web3 development. Would you like me to suggest some connection opportunities?",
-      "Your profile is looking great! Consider adding more skills to your NFT identity - it could boost your visibility in the Gaming Hub by 25%.",
-      "Here are the trending topics in your communities: DeFi protocols, NFT gaming, and DAO governance. Perfect time to share your insights!",
-      "I can help you optimize your staking strategy. Your current setup could earn 12% more rewards with some adjustments.",
-    ]
-    return responses[Math.floor(Math.random() * responses.length)]
-  }
+  const generateAIResponse = useCallback((input: string): string => {
+    return AI_RESPONSES[Math.floor(Math.random() * AI_RESPONSES.length)];
+  }, []);
 
-  const handleQuickAction = (action: string) => {
-    setInputValue(action)
-    handleSendMessage()
-  }
+  const handleQuickAction = useCallback(
+    (action: string) => {
+      setInputValue(action);
+      handleSendMessage();
+    },
+    [handleSendMessage]
+  );
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-2xl h-[600px] bg-card border-border flex flex-col">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <Card className="w-full max-w-2xl h-[80vh] sm:h-[600px] bg-card border-border flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b border-border">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-electric-blue to-purple-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-lg">🤖</span>
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-electric-blue to-purple-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-base sm:text-lg">🤖</span>
             </div>
             <div>
-              <CardTitle className="text-lg text-card-foreground">Luxie AI</CardTitle>
-              <p className="text-sm text-muted-foreground">Your VeraLux Assistant</p>
+              <CardTitle className="text-base sm:text-lg text-card-foreground">
+                Luxie AI
+              </CardTitle>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Your VeraLux Assistant
+              </p>
             </div>
-            <Badge className="bg-veralux-green/20 text-veralux-green border-veralux-green/30">Online</Badge>
+            <Badge className="bg-veralux-green/20 text-veralux-green border-veralux-green/30 text-xs">
+              Online
+            </Badge>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="h-4 w-4" />
@@ -113,20 +125,34 @@ export function LuxieAI({ isOpen, onClose }: LuxieAIProps) {
 
         <CardContent className="flex-1 flex flex-col p-0">
           {/* Messages */}
-          <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-            <div className="space-y-4">
+          <ScrollArea className="flex-1 p-3 sm:p-4" ref={scrollAreaRef}>
+            <div className="space-y-3 sm:space-y-4">
               {messages.map((message) => (
-                <div key={message.id} className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}>
+                <div
+                  key={message.id}
+                  className={`flex ${
+                    message.type === "user" ? "justify-end" : "justify-start"
+                  }`}
+                >
                   <div
-                    className={`max-w-[80%] rounded-lg p-3 ${
-                      message.type === "user" ? "bg-electric-blue text-white" : "bg-muted text-card-foreground"
+                    className={`max-w-[85%] sm:max-w-[80%] rounded-lg p-3 ${
+                      message.type === "user"
+                        ? "bg-electric-blue text-white"
+                        : "bg-muted text-card-foreground"
                     }`}
                   >
                     <p className="text-sm">{message.content}</p>
                     <p
-                      className={`text-xs mt-1 ${message.type === "user" ? "text-blue-100" : "text-muted-foreground"}`}
+                      className={`text-xs mt-1 ${
+                        message.type === "user"
+                          ? "text-blue-100"
+                          : "text-muted-foreground"
+                      }`}
                     >
-                      {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      {message.timestamp.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </p>
                   </div>
                 </div>
@@ -153,8 +179,8 @@ export function LuxieAI({ isOpen, onClose }: LuxieAIProps) {
           </ScrollArea>
 
           {/* Quick Actions */}
-          <div className="p-4 border-t border-border">
-            <div className="grid grid-cols-2 gap-2 mb-4">
+          <div className="p-3 sm:p-4 border-t border-border">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3 sm:mb-4">
               {quickActions.map((action, index) => (
                 <Button
                   key={index}
@@ -175,10 +201,14 @@ export function LuxieAI({ isOpen, onClose }: LuxieAIProps) {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Ask Luxie anything about VeraLux..."
-                className="flex-1"
+                className="flex-1 text-sm"
                 onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
               />
-              <Button onClick={handleSendMessage} size="sm" className="bg-electric-blue hover:bg-electric-blue/90">
+              <Button
+                onClick={handleSendMessage}
+                size="sm"
+                className="bg-electric-blue hover:bg-electric-blue/90"
+              >
                 <Send className="h-4 w-4" />
               </Button>
             </div>
@@ -186,5 +216,5 @@ export function LuxieAI({ isOpen, onClose }: LuxieAIProps) {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

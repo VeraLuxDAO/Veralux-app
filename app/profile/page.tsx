@@ -17,7 +17,7 @@ export default function ProfilePage() {
       <DashboardNav />
       <div className="flex">
         <DashboardSidebar />
-        <main className="flex-1 p-6 overflow-y-auto h-[calc(100vh-4rem)]">
+        <main className="flex-1 p-6 overflow-y-scroll h-[calc(100vh-4rem)]">
           <div className="max-w-6xl mx-auto">
             {/* Profile Header */}
             <div className="mb-8">
