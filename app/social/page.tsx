@@ -8,7 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardNav } from "@/components/dashboard-nav";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
 import { SocialFeed } from "@/components/social-feed";
-import { CreateFlowModal } from "@/components/create-flow-modal";
 import { TrendingTopics } from "@/components/trending-topics";
 import { SuggestedConnections } from "@/components/suggested-connections";
 import { useState } from "react";
@@ -45,7 +44,6 @@ export default function SocialHubPage() {
                     Connect, share, and engage with the Web3 community
                   </p>
                 </div>
-                <CreateFlowModal />
               </div>
             </div>
 

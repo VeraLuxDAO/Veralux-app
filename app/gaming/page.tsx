@@ -36,23 +36,23 @@ export default function GamingHubPage() {
         <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] dashboard-main">
           <div className="max-w-7xl mx-auto">
             {/* Gaming Hub Header */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between">
+            <div className="mb-6 sm:mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
                 <div>
-                  <h1 className="text-3xl font-bold text-foreground mb-2">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">
                     Gaming Hub
                   </h1>
-                  <p className="text-muted-foreground">
+                  <p className="text-sm sm:text-base text-muted-foreground">
                     Discover games, join guilds, and compete for glory
                   </p>
                 </div>
-                <div className="flex items-center space-x-4">
-                  <Button className="bg-veralux-yellow hover:bg-veralux-yellow/90 text-black">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                  <Button className="bg-veralux-yellow hover:bg-veralux-yellow/90 text-black w-full sm:w-auto">
                     Join Tournament
                   </Button>
                   <Button
                     variant="outline"
-                    className="border-electric-blue text-electric-blue hover:bg-electric-blue hover:text-white bg-transparent"
+                    className="border-electric-blue text-electric-blue hover:bg-electric-blue hover:text-white bg-transparent w-full sm:w-auto"
                   >
                     Create Guild
                   </Button>
@@ -61,15 +61,15 @@ export default function GamingHubPage() {
             </div>
 
             {/* Gaming Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
               <Card className="bg-card border-border">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                     Guild Rank
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-veralux-yellow">
+                  <div className="text-xl sm:text-2xl font-bold text-veralux-yellow">
                     #47
                   </div>
                   <p className="text-xs text-veralux-green">+3 this week</p>
@@ -78,12 +78,12 @@ export default function GamingHubPage() {
 
               <Card className="bg-card border-border">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                     Games Played
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-card-foreground">
+                  <div className="text-xl sm:text-2xl font-bold text-card-foreground">
                     23
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -94,12 +94,12 @@ export default function GamingHubPage() {
 
               <Card className="bg-card border-border">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                     Achievements
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-veralux-yellow">
+                  <div className="text-xl sm:text-2xl font-bold text-veralux-yellow">
                     156
                   </div>
                   <p className="text-xs text-veralux-green">+12 this month</p>
@@ -108,12 +108,12 @@ export default function GamingHubPage() {
 
               <Card className="bg-card border-border">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                  <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                     Earnings
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-veralux-green">
+                  <div className="text-xl sm:text-2xl font-bold text-veralux-green">
                     2.34 ETH
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -124,29 +124,29 @@ export default function GamingHubPage() {
             </div>
 
             {/* Gaming Hub Tabs */}
-            <Tabs defaultValue="discover" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4 bg-card border border-border max-w-lg">
+            <Tabs defaultValue="discover" className="space-y-4 sm:space-y-6">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-card border border-border max-w-full sm:max-w-lg">
                 <TabsTrigger
                   value="discover"
-                  className="data-[state=active]:bg-veralux-yellow data-[state=active]:text-black"
+                  className="data-[state=active]:bg-veralux-yellow data-[state=active]:text-black text-xs sm:text-sm"
                 >
                   Discover
                 </TabsTrigger>
                 <TabsTrigger
                   value="guilds"
-                  className="data-[state=active]:bg-veralux-yellow data-[state=active]:text-black"
+                  className="data-[state=active]:bg-veralux-yellow data-[state=active]:text-black text-xs sm:text-sm"
                 >
                   My Guilds
                 </TabsTrigger>
                 <TabsTrigger
                   value="tournaments"
-                  className="data-[state=active]:bg-veralux-yellow data-[state=active]:text-black"
+                  className="data-[state=active]:bg-veralux-yellow data-[state=active]:text-black text-xs sm:text-sm"
                 >
                   Tournaments
                 </TabsTrigger>
                 <TabsTrigger
                   value="achievements"
-                  className="data-[state=active]:bg-veralux-yellow data-[state=active]:text-black"
+                  className="data-[state=active]:bg-veralux-yellow data-[state=active]:text-black text-xs sm:text-sm"
                 >
                   Achievements
                 </TabsTrigger>
@@ -154,24 +154,24 @@ export default function GamingHubPage() {
 
               {/* Discover Tab */}
               <TabsContent value="discover">
-                <div className="grid lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                   {/* Filters Sidebar */}
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6 order-2 md:order-1">
                     <GameFilters />
                     <LeaderboardCard />
                   </div>
 
                   {/* Main Game Grid */}
-                  <div className="lg:col-span-3">
-                    <div className="mb-6">
-                      <div className="flex items-center space-x-4">
+                  <div className="md:col-span-2 lg:col-span-3 order-1 md:order-2">
+                    <div className="mb-4 sm:mb-6">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
                         <Input
                           placeholder="Search games..."
-                          className="max-w-md bg-input border-border text-foreground"
+                          className="flex-1 bg-input border-border text-foreground"
                         />
                         <Button
                           variant="outline"
-                          className="border-veralux-yellow text-veralux-yellow hover:bg-veralux-yellow hover:text-black bg-transparent"
+                          className="border-veralux-yellow text-veralux-yellow hover:bg-veralux-yellow hover:text-black bg-transparent w-full sm:w-auto"
                         >
                           Filter
                         </Button>

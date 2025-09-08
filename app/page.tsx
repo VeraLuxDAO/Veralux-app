@@ -183,7 +183,7 @@ export default function LandingPage() {
                 <span className="text-xl sm:text-2xl">🤖</span>
               </div>
               <h3 className="text-lg sm:text-xl font-semibold mb-2 text-card-foreground">
-                Luxie AI
+                KYNO AI
               </h3>
               <p className="text-sm sm:text-base text-muted-foreground">
                 Your personal Web3 assistant, available everywhere to help

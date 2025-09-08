@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { WalletConnectButton } from "@/components/wallet-connect-button";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { useState, useCallback, memo } from "react";
+import { useState } from "react";
 import { LuxieAI } from "./luxie-ai";
 import { Menu, Search, Bell, PanelLeft } from "lucide-react";
 
@@ -12,42 +12,30 @@ interface DashboardNavProps {
   onMobileSidebarToggle?: () => void;
 }
 
-export const DashboardNav = memo(function DashboardNav({
-  onMobileSidebarToggle,
-}: DashboardNavProps) {
+export function DashboardNav({ onMobileSidebarToggle }: DashboardNavProps) {
   const [isLuxieOpen, setIsLuxieOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const handleLuxieToggle = useCallback(() => {
-    setIsLuxieOpen((prev) => !prev);
-  }, []);
-
-  const handleMobileMenuToggle = useCallback(() => {
-    setIsMobileMenuOpen((prev) => !prev);
-  }, []);
-
   return (
     <>
-      <header className="border-b border-border bg-card/95 backdrop-blur-sm glass-effect sticky top-0 z-50">
+      <header className="border-b border-border bg-card/95 backdrop-blur-sm">
         <div className="flex h-12 sm:h-14 md:h-16 items-center px-3 sm:px-4 md:px-6">
-          {/* Mobile Sidebar Toggle Button */}
+          {/* Mobile Sidebar Toggle Button - Only visible on screens < 600px */}
           <Button
             variant="ghost"
             size="sm"
-            className="mr-2 hover:bg-accent sm:hidden focus-ring"
+            className="mr-2 hover:bg-accent sm:hidden"
             onClick={onMobileSidebarToggle}
-            aria-label="Toggle sidebar"
           >
             <PanelLeft className="h-5 w-5 text-foreground" />
           </Button>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - Only visible on screens < 600px */}
           <Button
             variant="ghost"
             size="sm"
-            className="md:hidden hover:bg-accent focus-ring"
-            onClick={handleMobileMenuToggle}
-            aria-label="Toggle mobile menu"
+            className="md:hidden hover:bg-accent"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             <Menu className="h-5 w-5 text-foreground" />
           </Button>
@@ -101,16 +89,15 @@ export const DashboardNav = memo(function DashboardNav({
               </Badge>
             </Button>
 
-            {/* Luxie AI - Hidden on mobile */}
+            {/* KYNO AI - Hidden on mobile */}
             <Button
               variant="ghost"
               size="sm"
-              className="text-primary hover:text-primary/80 hover:bg-accent hidden sm:flex focus-ring"
-              onClick={handleLuxieToggle}
-              aria-label="Open Luxie AI"
+              className="text-primary hover:text-primary/80 hover:bg-accent hidden sm:flex"
+              onClick={() => setIsLuxieOpen(true)}
             >
               <span className="text-lg mr-1">🤖</span>
-              Luxie
+              KYNO AI
             </Button>
 
             {/* Theme Toggle */}
@@ -144,11 +131,11 @@ export const DashboardNav = memo(function DashboardNav({
             <div className="mt-3 sm:mt-4 space-y-2">
               <Button
                 variant="ghost"
-                className="w-full justify-start text-primary hover:bg-accent focus-ring"
-                onClick={handleLuxieToggle}
+                className="w-full justify-start text-primary hover:bg-accent"
+                onClick={() => setIsLuxieOpen(true)}
               >
                 <span className="text-lg mr-2">🤖</span>
-                Luxie AI
+                KYNO AI
               </Button>
               <WalletConnectButton
                 variant="outline"
@@ -160,8 +147,8 @@ export const DashboardNav = memo(function DashboardNav({
         )}
       </header>
 
-      {/* Luxie AI modal */}
+      {/* KYNO AI modal */}
       <LuxieAI isOpen={isLuxieOpen} onClose={() => setIsLuxieOpen(false)} />
     </>
   );
-});
+}

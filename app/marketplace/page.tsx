@@ -35,24 +35,24 @@ export default function MarketplaceHubPage() {
         <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] dashboard-main">
           <div className="max-w-7xl mx-auto">
             {/* Marketplace Header */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between">
+            <div className="mb-6 sm:mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
                 <div>
-                  <h1 className="text-3xl font-bold text-foreground mb-2">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">
                     Marketplace Hub
                   </h1>
-                  <p className="text-muted-foreground">
+                  <p className="text-sm sm:text-base text-muted-foreground">
                     Trade with confidence using vetted listings and secure
                     escrow
                   </p>
                 </div>
-                <div className="flex items-center space-x-4">
-                  <Button className="bg-veralux-green hover:bg-veralux-green/90 text-white">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                  <Button className="bg-veralux-green hover:bg-veralux-green/90 text-white w-full sm:w-auto">
                     List Item
                   </Button>
                   <Button
                     variant="outline"
-                    className="border-electric-blue text-electric-blue hover:bg-electric-blue hover:text-white bg-transparent"
+                    className="border-electric-blue text-electric-blue hover:bg-electric-blue hover:text-white bg-transparent w-full sm:w-auto"
                   >
                     My Listings
                   </Button>
@@ -64,29 +64,29 @@ export default function MarketplaceHubPage() {
             <MarketplaceStats />
 
             {/* Marketplace Tabs */}
-            <Tabs defaultValue="browse" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4 bg-card border border-border max-w-lg">
+            <Tabs defaultValue="browse" className="space-y-4 sm:space-y-6">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-card border border-border max-w-full sm:max-w-lg">
                 <TabsTrigger
                   value="browse"
-                  className="data-[state=active]:bg-veralux-green data-[state=active]:text-white"
+                  className="data-[state=active]:bg-veralux-green data-[state=active]:text-white text-xs sm:text-sm"
                 >
                   Browse
                 </TabsTrigger>
                 <TabsTrigger
                   value="featured"
-                  className="data-[state=active]:bg-veralux-green data-[state=active]:text-white"
+                  className="data-[state=active]:bg-veralux-green data-[state=active]:text-white text-xs sm:text-sm"
                 >
                   Featured
                 </TabsTrigger>
                 <TabsTrigger
                   value="auctions"
-                  className="data-[state=active]:bg-veralux-green data-[state=active]:text-white"
+                  className="data-[state=active]:bg-veralux-green data-[state=active]:text-white text-xs sm:text-sm"
                 >
                   Auctions
                 </TabsTrigger>
                 <TabsTrigger
                   value="history"
-                  className="data-[state=active]:bg-veralux-green data-[state=active]:text-white"
+                  className="data-[state=active]:bg-veralux-green data-[state=active]:text-white text-xs sm:text-sm"
                 >
                   History
                 </TabsTrigger>
@@ -94,24 +94,24 @@ export default function MarketplaceHubPage() {
 
               {/* Browse Tab */}
               <TabsContent value="browse">
-                <div className="grid lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                   {/* Filters Sidebar */}
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6 order-2 md:order-1">
                     <MarketplaceFilters />
                     <TrustedSellers />
                   </div>
 
                   {/* Main Marketplace Grid */}
-                  <div className="lg:col-span-3">
-                    <div className="mb-6">
-                      <div className="flex items-center space-x-4">
+                  <div className="md:col-span-2 lg:col-span-3 order-1 md:order-2">
+                    <div className="mb-4 sm:mb-6">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
                         <Input
                           placeholder="Search items, collections, or sellers..."
-                          className="max-w-md bg-input border-border text-foreground"
+                          className="flex-1 bg-input border-border text-foreground"
                         />
                         <Button
                           variant="outline"
-                          className="border-veralux-green text-veralux-green hover:bg-veralux-green hover:text-white bg-transparent"
+                          className="border-veralux-green text-veralux-green hover:bg-veralux-green hover:text-white bg-transparent w-full sm:w-auto"
                         >
                           Search
                         </Button>
@@ -124,7 +124,7 @@ export default function MarketplaceHubPage() {
 
               {/* Featured Tab */}
               <TabsContent value="featured">
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <Card className="bg-gradient-to-br from-veralux-green/10 to-electric-blue/10 border-veralux-green/50">
                     <CardHeader>
                       <CardTitle className="text-card-foreground">
@@ -132,7 +132,7 @@ export default function MarketplaceHubPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         <Card className="bg-card border-border hover:border-veralux-green/50 transition-colors cursor-pointer">
                           <CardContent className="p-4">
                             <div className="aspect-square bg-gradient-to-br from-veralux-green/20 to-electric-blue/20 rounded-lg mb-4 flex items-center justify-center">
@@ -227,7 +227,7 @@ export default function MarketplaceHubPage() {
 
               {/* Auctions Tab */}
               <TabsContent value="auctions">
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <Card className="bg-card border-border">
                     <CardHeader>
                       <CardTitle className="text-card-foreground">
@@ -235,7 +235,7 @@ export default function MarketplaceHubPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                         {[
                           {
                             title: "Rare CryptoQuest Sword",
@@ -314,7 +314,7 @@ export default function MarketplaceHubPage() {
 
               {/* History Tab */}
               <TabsContent value="history">
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <Card className="bg-card border-border">
                     <CardHeader>
                       <CardTitle className="text-card-foreground">
@@ -322,7 +322,7 @@ export default function MarketplaceHubPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-4">
+                      <div className="space-y-3 sm:space-y-4">
                         {[
                           {
                             type: "Purchase",

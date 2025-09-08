@@ -4,48 +4,45 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* VeraLux Modern Light Mode - Enhanced Web3 Theme */
-  --background: oklch(0.99 0.01 240); /* Clean white with subtle blue tint */
-  --foreground: oklch(0.09 0.02 240); /* Deep navy for excellent readability */
+  /* VeraLux Light Mode Colors - Based on Sample */
+  --background: oklch(0.98 0.02 220); /* Soft light blue gradient base */
+  --foreground: oklch(0.15 0.02 240); /* Dark blue-gray text */
   --card: oklch(1 0 0); /* Pure white cards */
-  --card-foreground: oklch(0.09 0.02 240); /* Deep navy text */
+  --card-foreground: oklch(0.15 0.02 240); /* Dark blue-gray text */
   --popover: oklch(1 0 0); /* Pure white */
-  --popover-foreground: oklch(0.09 0.02 240); /* Deep navy */
-  --primary: oklch(0.6 0.18 240); /* Vibrant electric blue */
+  --popover-foreground: oklch(0.15 0.02 240); /* Dark blue-gray */
+  --primary: oklch(0.55 0.15 240); /* Electric blue */
   --primary-foreground: oklch(1 0 0); /* White */
-  --secondary: oklch(0.96 0.02 240); /* Light blue-gray */
-  --secondary-foreground: oklch(0.09 0.02 240); /* Deep navy */
-  --muted: oklch(0.96 0.02 240); /* Light blue-gray */
-  --muted-foreground: oklch(0.45 0.05 240); /* Medium blue-gray */
-  --accent: oklch(0.92 0.05 200); /* Light cyan accent */
-  --accent-foreground: oklch(0.09 0.02 240); /* Deep navy */
-  --destructive: oklch(0.65 0.22 15); /* Vibrant red-orange */
+  --secondary: oklch(0.95 0.02 220); /* Light blue-gray */
+  --secondary-foreground: oklch(0.15 0.02 240); /* Dark blue-gray */
+  --muted: oklch(0.95 0.02 220); /* Light blue-gray */
+  --muted-foreground: oklch(0.5 0.05 240); /* Medium blue-gray */
+  --accent: oklch(0.9 0.05 220); /* Light blue accent */
+  --accent-foreground: oklch(0.15 0.02 240); /* Dark blue-gray */
+  --destructive: oklch(0.6 0.2 15); /* Red-orange */
   --destructive-foreground: oklch(1 0 0); /* White */
-  --border: oklch(0.92 0.02 240); /* Light blue border */
-  --input: oklch(0.96 0.02 240); /* Light blue input */
-  --ring: oklch(0.6 0.18 240); /* Vibrant electric blue ring */
-  --chart-1: oklch(0.6 0.18 240); /* Electric blue */
-  --chart-2: oklch(0.7 0.15 200); /* Cyan blue */
-  --chart-3: oklch(0.55 0.15 280); /* Purple */
-  --chart-4: oklch(0.75 0.12 160); /* Green */
-  --chart-5: oklch(0.65 0.15 320); /* Magenta */
+  --border: oklch(0.9 0.02 220); /* Light blue border */
+  --input: oklch(0.95 0.02 220); /* Light blue input */
+  --ring: oklch(0.55 0.15 240); /* Electric blue ring */
+  --chart-1: oklch(0.55 0.15 240); /* Electric blue */
+  --chart-2: oklch(0.6 0.12 200); /* Light blue */
+  --chart-3: oklch(0.5 0.1 280); /* Purple-blue */
+  --chart-4: oklch(0.7 0.1 180); /* Cyan-blue */
+  --chart-5: oklch(0.65 0.12 220); /* Blue-purple */
   --radius: 0.75rem;
-  --sidebar: oklch(0.98 0.01 240); /* Very light blue */
-  --sidebar-foreground: oklch(0.09 0.02 240); /* Deep navy */
-  --sidebar-primary: oklch(0.6 0.18 240); /* Vibrant electric blue */
+  --sidebar: oklch(0.98 0.01 220); /* Very light blue */
+  --sidebar-foreground: oklch(0.15 0.02 240); /* Dark blue-gray */
+  --sidebar-primary: oklch(0.55 0.15 240); /* Electric blue */
   --sidebar-primary-foreground: oklch(1 0 0); /* White */
-  --sidebar-accent: oklch(0.96 0.02 240); /* Light blue-gray */
-  --sidebar-accent-foreground: oklch(0.09 0.02 240); /* Deep navy */
-  --sidebar-border: oklch(0.92 0.02 240); /* Light blue border */
-  --sidebar-ring: oklch(0.6 0.18 240); /* Vibrant electric blue ring */
+  --sidebar-accent: oklch(0.95 0.02 220); /* Light blue-gray */
+  --sidebar-accent-foreground: oklch(0.15 0.02 240); /* Dark blue-gray */
+  --sidebar-border: oklch(0.9 0.02 220); /* Light blue border */
+  --sidebar-ring: oklch(0.55 0.15 240); /* Electric blue ring */
 
-  /* Enhanced Web3 Brand Colors */
-  --electric-blue: oklch(0.6 0.18 240); /* Vibrant electric blue */
-  --veralux-green: oklch(0.65 0.16 160); /* Modern green for success */
-  --veralux-yellow: oklch(0.8 0.16 80); /* Bright yellow for highlights */
-  --veralux-purple: oklch(0.55 0.16 280); /* Rich purple for accents */
-  --veralux-pink: oklch(0.7 0.15 320); /* Vibrant pink for special elements */
-  --veralux-cyan: oklch(0.75 0.14 200); /* Bright cyan for highlights */
+  /* Custom brand colors - Updated based on samples */
+  --electric-blue: oklch(0.55 0.15 240); /* Electric blue from samples */
+  --veralux-green: oklch(0.6 0.15 160); /* Green for success states */
+  --veralux-yellow: oklch(0.8 0.15 80); /* Yellow/orange for highlights */
 
   /* Font variables */
   --font-sans: "__GeistSans_fb8f2c", "__GeistSans_Fallback_fb8f2c", system-ui,
@@ -55,14 +52,14 @@
 }
 
 .dark {
-  /* VeraLux Modern Dark Mode - Enhanced Cyberpunk Theme */
+  /* VeraLux Dark Mode Colors - Futuristic Dark Blue/Purple Theme */
   --background: oklch(0.08 0.02 240); /* Deep dark blue */
   --foreground: oklch(0.95 0.01 240); /* Very light blue-white */
   --card: oklch(0.12 0.03 240); /* Dark blue card */
   --card-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
   --popover: oklch(0.12 0.03 240); /* Dark blue popover */
   --popover-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
-  --primary: oklch(0.6 0.18 240); /* Vibrant electric blue */
+  --primary: oklch(0.55 0.15 240); /* Electric blue */
   --primary-foreground: oklch(0.08 0.02 240); /* Deep dark blue */
   --secondary: oklch(0.18 0.05 240); /* Medium dark blue */
   --secondary-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
@@ -70,32 +67,29 @@
   --muted-foreground: oklch(0.6 0.08 240); /* Medium blue-gray */
   --accent: oklch(0.25 0.08 240); /* Dark blue accent */
   --accent-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
-  --destructive: oklch(0.65 0.22 15); /* Vibrant red-orange */
+  --destructive: oklch(0.5 0.2 15); /* Dark red-orange */
   --destructive-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
   --border: oklch(0.25 0.05 240); /* Dark blue border */
   --input: oklch(0.18 0.05 240); /* Medium dark blue input */
-  --ring: oklch(0.6 0.18 240); /* Vibrant electric blue ring */
-  --chart-1: oklch(0.6 0.18 240); /* Electric blue */
-  --chart-2: oklch(0.7 0.15 200); /* Cyan blue */
-  --chart-3: oklch(0.55 0.15 280); /* Purple */
-  --chart-4: oklch(0.75 0.12 160); /* Green */
-  --chart-5: oklch(0.65 0.15 320); /* Magenta */
+  --ring: oklch(0.55 0.15 240); /* Electric blue ring */
+  --chart-1: oklch(0.55 0.15 240); /* Electric blue */
+  --chart-2: oklch(0.6 0.15 200); /* Light blue */
+  --chart-3: oklch(0.5 0.12 280); /* Purple-blue */
+  --chart-4: oklch(0.65 0.15 180); /* Cyan-blue */
+  --chart-5: oklch(0.55 0.15 220); /* Blue-purple */
   --sidebar: oklch(0.1 0.03 240); /* Very dark blue */
   --sidebar-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
-  --sidebar-primary: oklch(0.6 0.18 240); /* Vibrant electric blue */
+  --sidebar-primary: oklch(0.55 0.15 240); /* Electric blue */
   --sidebar-primary-foreground: oklch(0.08 0.02 240); /* Deep dark blue */
   --sidebar-accent: oklch(0.18 0.05 240); /* Medium dark blue */
   --sidebar-accent-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
   --sidebar-border: oklch(0.25 0.05 240); /* Dark blue border */
-  --sidebar-ring: oklch(0.6 0.18 240); /* Vibrant electric blue ring */
+  --sidebar-ring: oklch(0.55 0.15 240); /* Electric blue ring */
 
-  /* Enhanced Web3 Brand Colors for Dark Mode */
-  --electric-blue: oklch(0.6 0.18 240); /* Vibrant electric blue */
-  --veralux-green: oklch(0.65 0.16 160); /* Modern green for success */
-  --veralux-yellow: oklch(0.8 0.16 80); /* Bright yellow for highlights */
-  --veralux-purple: oklch(0.55 0.16 280); /* Rich purple for accents */
-  --veralux-pink: oklch(0.7 0.15 320); /* Vibrant pink for special elements */
-  --veralux-cyan: oklch(0.75 0.14 200); /* Bright cyan for highlights */
+  /* Custom brand colors for dark mode */
+  --electric-blue: oklch(0.55 0.15 240);
+  --veralux-green: oklch(0.6 0.15 160);
+  --veralux-yellow: oklch(0.8 0.15 80);
 }
 
 /* Font family application */
@@ -872,7 +866,7 @@ body::-webkit-scrollbar {
 
 /* VeraLux Custom Utilities */
 .text-electric-blue {
-  color: oklch(0.205 0 0);
+  color: oklch(0.59 0.08 250.12);
 }
 
 .text-veralux-yellow {
@@ -1365,198 +1359,6 @@ button {
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Modern UI/UX Enhancements */
-.glass-effect {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.dark .glass-effect {
-  background: rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.shadow-glow {
-  box-shadow: 0 0 20px rgba(96, 165, 250, 0.3);
-}
-
-.dark .shadow-glow {
-  box-shadow: 0 0 20px rgba(96, 165, 250, 0.5);
-}
-
-.hover-lift {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.dark .hover-lift:hover {
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-}
-
-.gradient-border {
-  position: relative;
-  background: linear-gradient(
-    135deg,
-    var(--electric-blue),
-    var(--veralux-purple)
-  );
-  padding: 2px;
-  border-radius: var(--radius);
-}
-
-.gradient-border > * {
-  background: var(--card);
-  border-radius: calc(var(--radius) - 2px);
-}
-
-.dark .gradient-border > * {
-  background: var(--card);
-}
-
-.text-gradient {
-  background: linear-gradient(
-    135deg,
-    var(--electric-blue),
-    var(--veralux-purple)
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.animate-pulse-slow {
-  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.animate-bounce-slow {
-  animation: bounce 2s infinite;
-}
-
-/* Enhanced Focus States */
-.focus-ring {
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-}
-
-.focus-ring:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
-}
-
-/* Improved Button Styles */
-.btn-primary {
-  background: linear-gradient(
-    135deg,
-    var(--electric-blue),
-    var(--veralux-purple)
-  );
-  color: white;
-  border: none;
-  transition: all 0.2s ease;
-}
-
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.4);
-}
-
-.btn-secondary {
-  background: var(--secondary);
-  color: var(--secondary-foreground);
-  border: 1px solid var(--border);
-  transition: all 0.2s ease;
-}
-
-.btn-secondary:hover {
-  background: var(--accent);
-  color: var(--accent-foreground);
-}
-
-/* Enhanced Card Styles */
-.card-modern {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-}
-
-.card-modern:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transform: translateY(-1px);
-}
-
-.dark .card-modern {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-.dark .card-modern:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-/* Loading States */
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--muted) 25%,
-    var(--accent) 50%,
-    var(--muted) 75%
-  );
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-}
-
-@keyframes loading {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-/* Accessibility Improvements */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-/* High Contrast Mode Support */
-@media (prefers-contrast: high) {
-  :root {
-    --border: oklch(0.2 0.05 240);
-    --ring: oklch(0.4 0.2 240);
-  }
-
-  .dark {
-    --border: oklch(0.4 0.05 240);
-    --ring: oklch(0.7 0.2 240);
-  }
-}
-
-/* Reduced Motion Support */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
 /* Mobile sidebar improvements */
 @media (max-width: 640px) {
   /* Hide sidebar by default on mobile */
@@ -1564,9 +1366,23 @@ button {
     transform: translateX(-100%) !important;
   }
 
-  /* Show sidebar when mobile open */
+  /* Show sidebar when mobile open with glass effect */
   .dashboard-sidebar.mobile-open {
     transform: translateX(0) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25),
+      0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* Dark mode glass effect */
+  .dark .dashboard-sidebar.mobile-open {
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.05) !important;
   }
 
   /* Full width main content on mobile */
@@ -1595,5 +1411,114 @@ button {
 
   .dashboard-sidebar.mobile-open {
     transform: translateX(0) !important;
+  }
+}
+
+/* Glass Effect Utilities */
+.glass-effect {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.dark .glass-dark {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Z-Index Hierarchy */
+/* Sidebar: z-40 */
+/* Modals: z-[60] */
+/* Tooltips: z-[70] */
+/* Toast notifications: z-[80] */
+
+/* Ensure modals are above sidebar */
+.modal-overlay {
+  z-index: 60 !important;
+}
+
+.modal-content {
+  z-index: 61 !important;
+}
+
+/* Ensure sidebar is below modals */
+.dashboard-sidebar {
+  z-index: 40 !important;
+}
+
+.dashboard-sidebar.mobile-open {
+  z-index: 40 !important;
+}
+
+/* Mobile Responsive Improvements */
+@media (max-width: 640px) {
+  /* Better touch targets */
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Improved spacing for mobile */
+  .space-y-4 > * + * {
+    margin-top: 1rem;
+  }
+
+  .space-y-6 > * + * {
+    margin-top: 1.5rem;
+  }
+
+  /* Better card padding on mobile */
+  .card {
+    padding: 0.75rem;
+  }
+
+  /* Improved text sizing */
+  h1 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+    line-height: 1.5rem;
+  }
+
+  /* Better button sizing */
+  .btn-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .btn-lg {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
   }
 }

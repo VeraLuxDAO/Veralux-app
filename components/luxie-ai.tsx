@@ -85,7 +85,11 @@ export function LuxieAI({ isOpen, onClose }: LuxieAIProps) {
   };
 
   const generateAIResponse = useCallback((input: string): string => {
-    return AI_RESPONSES[Math.floor(Math.random() * AI_RESPONSES.length)];
+    const responses = AI_RESPONSES;
+    return (
+      responses[Math.floor(Math.random() * responses.length)] ||
+      "I'm here to help! What would you like to know about VeraLux?"
+    );
   }, []);
 
   const handleQuickAction = useCallback(
@@ -99,7 +103,7 @@ export function LuxieAI({ isOpen, onClose }: LuxieAIProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-2 sm:p-4">
       <Card className="w-full max-w-2xl h-[80vh] sm:h-[600px] bg-card border-border flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b border-border">
           <div className="flex items-center space-x-3">
@@ -108,7 +112,7 @@ export function LuxieAI({ isOpen, onClose }: LuxieAIProps) {
             </div>
             <div>
               <CardTitle className="text-base sm:text-lg text-card-foreground">
-                Luxie AI
+                KYNO AI
               </CardTitle>
               <p className="text-xs sm:text-sm text-muted-foreground">
                 Your VeraLux Assistant
@@ -123,10 +127,13 @@ export function LuxieAI({ isOpen, onClose }: LuxieAIProps) {
           </Button>
         </CardHeader>
 
-        <CardContent className="flex-1 flex flex-col p-0">
+        <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
           {/* Messages */}
-          <ScrollArea className="flex-1 p-3 sm:p-4" ref={scrollAreaRef}>
-            <div className="space-y-3 sm:space-y-4">
+          <ScrollArea
+            className="flex-1 p-3 sm:p-4 overflow-hidden"
+            ref={scrollAreaRef}
+          >
+            <div className="space-y-3 sm:space-y-4 h-full ">
               {messages.map((message) => (
                 <div
                   key={message.id}
