@@ -13,6 +13,14 @@ import Link from "next/link";
 export default function LandingPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  const scrollToEmailInput = () => {
+    const emailInput = document.getElementById("email-input");
+    if (emailInput) {
+      emailInput.scrollIntoView({ behavior: "smooth", block: "center" });
+      emailInput.focus();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header - Redesigned with Better UI/UX */}
@@ -142,24 +150,6 @@ export default function LandingPage() {
             one seamless Web3 experience.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12">
-            <Button
-              size="lg"
-              className="bg-gradient-to-r from-electric-blue to-purple-600 hover:from-electric-blue/90 hover:to-purple-600/90 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg w-full sm:w-auto shadow-lg"
-            >
-              Join Waitlist
-            </Button>
-            <Link href="/profile" className="w-full sm:w-auto">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-electric-blue text-electric-blue hover:bg-electric-blue hover:text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg bg-transparent w-full shadow-lg"
-              >
-                Mint Your NFT Identity
-              </Button>
-            </Link>
-          </div>
-
           {/* Waitlist Form - Enhanced */}
           <Card className="max-w-md mx-auto bg-card border-border shadow-lg">
             <CardContent className="p-4 sm:p-6">
@@ -168,10 +158,14 @@ export default function LandingPage() {
               </h3>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Input
+                  id="email-input"
                   placeholder="Enter your email"
                   className="flex-1 bg-input border-border text-foreground"
                 />
-                <Button className="bg-gradient-to-r from-electric-blue to-purple-600 hover:from-electric-blue/90 hover:to-purple-600/90 text-white w-full sm:w-auto">
+                <Button
+                  onClick={scrollToEmailInput}
+                  className="bg-gradient-to-r from-electric-blue to-purple-600 hover:from-electric-blue/90 hover:to-purple-600/90 text-white w-full sm:w-auto"
+                >
                   Join
                 </Button>
               </div>
@@ -309,6 +303,7 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
               <Button
                 size="lg"
+                onClick={scrollToEmailInput}
                 className="bg-white text-electric-blue hover:bg-white/90 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg w-full sm:w-auto shadow-lg"
               >
                 Join Waitlist Now
