@@ -1,0 +1,1256 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* VeraLux Light Mode Colors - Clean Blue & White Theme */
+  --background: oklch(0.99 0.005 240); /* Very light blue-white */
+  --foreground: oklch(0.15 0.02 240); /* Dark blue-gray */
+  --card: oklch(1 0 0); /* Pure white */
+  --card-foreground: oklch(0.15 0.02 240); /* Dark blue-gray */
+  --popover: oklch(1 0 0); /* Pure white */
+  --popover-foreground: oklch(0.15 0.02 240); /* Dark blue-gray */
+  --primary: oklch(0.55 0.15 240); /* Electric blue */
+  --primary-foreground: oklch(1 0 0); /* White */
+  --secondary: oklch(0.95 0.02 240); /* Light blue-gray */
+  --secondary-foreground: oklch(0.15 0.02 240); /* Dark blue-gray */
+  --muted: oklch(0.95 0.02 240); /* Light blue-gray */
+  --muted-foreground: oklch(0.5 0.05 240); /* Medium blue-gray */
+  --accent: oklch(0.9 0.05 240); /* Light blue accent */
+  --accent-foreground: oklch(0.15 0.02 240); /* Dark blue-gray */
+  --destructive: oklch(0.6 0.2 15); /* Red-orange */
+  --destructive-foreground: oklch(1 0 0); /* White */
+  --border: oklch(0.9 0.02 240); /* Light blue border */
+  --input: oklch(0.95 0.02 240); /* Light blue input */
+  --ring: oklch(0.55 0.15 240); /* Electric blue ring */
+  --chart-1: oklch(0.55 0.15 240); /* Electric blue */
+  --chart-2: oklch(0.6 0.12 200); /* Light blue */
+  --chart-3: oklch(0.5 0.1 280); /* Purple-blue */
+  --chart-4: oklch(0.7 0.1 180); /* Cyan-blue */
+  --chart-5: oklch(0.65 0.12 220); /* Blue-purple */
+  --radius: 0.75rem;
+  --sidebar: oklch(0.98 0.01 240); /* Very light blue */
+  --sidebar-foreground: oklch(0.15 0.02 240); /* Dark blue-gray */
+  --sidebar-primary: oklch(0.55 0.15 240); /* Electric blue */
+  --sidebar-primary-foreground: oklch(1 0 0); /* White */
+  --sidebar-accent: oklch(0.95 0.02 240); /* Light blue-gray */
+  --sidebar-accent-foreground: oklch(0.15 0.02 240); /* Dark blue-gray */
+  --sidebar-border: oklch(0.9 0.02 240); /* Light blue border */
+  --sidebar-ring: oklch(0.55 0.15 240); /* Electric blue ring */
+
+  /* Custom brand colors */
+  --electric-blue: oklch(0.55 0.15 240);
+  --veralux-green: oklch(0.6 0.15 160);
+  --veralux-yellow: oklch(0.8 0.15 80);
+
+  /* Font variables */
+  --font-sans: "__GeistSans_fb8f2c", "__GeistSans_Fallback_fb8f2c", system-ui,
+    -apple-system, sans-serif;
+  --font-mono: "__GeistMono_f910ec", "__GeistMono_Fallback_f910ec",
+    "Courier New", monospace;
+}
+
+.dark {
+  /* VeraLux Dark Mode Colors - Futuristic Dark Blue/Purple Theme */
+  --background: oklch(0.08 0.02 240); /* Deep dark blue */
+  --foreground: oklch(0.95 0.01 240); /* Very light blue-white */
+  --card: oklch(0.12 0.03 240); /* Dark blue card */
+  --card-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
+  --popover: oklch(0.12 0.03 240); /* Dark blue popover */
+  --popover-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
+  --primary: oklch(0.7 0.2 240); /* Bright electric blue */
+  --primary-foreground: oklch(0.08 0.02 240); /* Deep dark blue */
+  --secondary: oklch(0.18 0.05 240); /* Medium dark blue */
+  --secondary-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
+  --muted: oklch(0.18 0.05 240); /* Medium dark blue */
+  --muted-foreground: oklch(0.6 0.08 240); /* Medium blue-gray */
+  --accent: oklch(0.25 0.08 240); /* Dark blue accent */
+  --accent-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
+  --destructive: oklch(0.5 0.2 15); /* Dark red-orange */
+  --destructive-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
+  --border: oklch(0.25 0.05 240); /* Dark blue border */
+  --input: oklch(0.18 0.05 240); /* Medium dark blue input */
+  --ring: oklch(0.7 0.2 240); /* Bright electric blue ring */
+  --chart-1: oklch(0.7 0.2 240); /* Bright electric blue */
+  --chart-2: oklch(0.6 0.15 200); /* Light blue */
+  --chart-3: oklch(0.5 0.12 280); /* Purple-blue */
+  --chart-4: oklch(0.65 0.15 180); /* Cyan-blue */
+  --chart-5: oklch(0.55 0.15 220); /* Blue-purple */
+  --sidebar: oklch(0.1 0.03 240); /* Very dark blue */
+  --sidebar-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
+  --sidebar-primary: oklch(0.7 0.2 240); /* Bright electric blue */
+  --sidebar-primary-foreground: oklch(0.08 0.02 240); /* Deep dark blue */
+  --sidebar-accent: oklch(0.18 0.05 240); /* Medium dark blue */
+  --sidebar-accent-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
+  --sidebar-border: oklch(0.25 0.05 240); /* Dark blue border */
+  --sidebar-ring: oklch(0.7 0.2 240); /* Bright electric blue ring */
+
+  /* Custom brand colors for dark mode */
+  --electric-blue: oklch(0.7 0.2 240);
+  --veralux-green: oklch(0.6 0.15 160);
+  --veralux-yellow: oklch(0.8 0.15 80);
+}
+
+/* Font family application */
+html {
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+/* Custom theme enhancements */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Light mode background effects */
+:root {
+  --bg-gradient-light: linear-gradient(
+    135deg,
+    oklch(0.99 0.005 240) 0%,
+    oklch(0.95 0.01 240) 100%
+  );
+  --bg-circles-light: radial-gradient(
+      circle at 20% 20%,
+      oklch(0.9 0.05 240) 0%,
+      transparent 50%
+    ),
+    radial-gradient(circle at 80% 80%, oklch(0.9 0.05 240) 0%, transparent 50%);
+}
+
+/* Dark mode background effects */
+.dark {
+  --bg-gradient-dark: linear-gradient(
+    135deg,
+    oklch(0.08 0.02 240) 0%,
+    oklch(0.12 0.03 240) 100%
+  );
+  --bg-circles-dark: radial-gradient(
+      circle at 20% 20%,
+      oklch(0.7 0.2 240) 0%,
+      transparent 50%
+    ),
+    radial-gradient(circle at 80% 80%, oklch(0.5 0.15 280) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, oklch(0.6 0.15 200) 0%, transparent 30%);
+}
+
+/* Background with gradient and glowing circles */
+body {
+  background: var(--bg-gradient-light);
+  background-image: var(--bg-circles-light);
+}
+
+.dark body {
+  background: var(--bg-gradient-dark);
+  background-image: var(--bg-circles-dark);
+}
+
+/* Glowing effects for dark mode */
+.dark .card {
+  box-shadow: 0 0 20px oklch(0.7 0.2 240 / 0.1),
+    0 0 40px oklch(0.7 0.2 240 / 0.05);
+  border: 1px solid oklch(0.7 0.2 240 / 0.2);
+}
+
+.dark .primary {
+  box-shadow: 0 0 20px oklch(0.7 0.2 240 / 0.3);
+}
+
+/* Enhanced dark mode effects */
+.dark .wallet-connect-button {
+  box-shadow: 0 0 30px oklch(0.7 0.2 240 / 0.4),
+    0 0 60px oklch(0.7 0.2 240 / 0.2);
+}
+
+.dark .wallet-account-modal {
+  box-shadow: 0 0 40px oklch(0.7 0.2 240 / 0.3),
+    0 0 80px oklch(0.7 0.2 240 / 0.1);
+  border: 1px solid oklch(0.7 0.2 240 / 0.3);
+}
+
+.dark .theme-toggle-button:hover {
+  box-shadow: 0 0 20px oklch(0.7 0.2 240 / 0.3);
+}
+
+/* Light mode subtle effects */
+:root .card {
+  box-shadow: 0 2px 8px oklch(0.15 0.02 240 / 0.1);
+}
+
+:root .wallet-connect-button {
+  box-shadow: 0 4px 16px oklch(0.55 0.15 240 / 0.2);
+}
+
+/* AI Chat Animation Keyframes */
+@keyframes aiChatSlideIn {
+  from {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes aiChatSlideOut {
+  from {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(20px) scale(0.95);
+    opacity: 0;
+  }
+}
+
+@keyframes aiIconRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(180deg);
+  }
+}
+
+@keyframes aiIconRotateReverse {
+  from {
+    transform: rotate(180deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes aiMessageSlideIn {
+  from {
+    transform: translateX(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes aiMessageSlideInRight {
+  from {
+    transform: translateX(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes aiIconBounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+/* AI Chat Bar Animation Classes */
+.ai-chat-bar-enter {
+  animation: aiChatSlideIn 0.5s ease-out;
+}
+
+.ai-chat-bar-exit {
+  animation: aiChatSlideOut 0.3s ease-in;
+}
+
+.ai-chat-icon-rotate {
+  animation: aiIconRotate 0.5s ease-out;
+}
+
+.ai-chat-icon-rotate-reverse {
+  animation: aiIconRotateReverse 0.5s ease-out;
+}
+
+.ai-message-slide-in {
+  animation: aiMessageSlideIn 0.3s ease-out;
+}
+
+.ai-message-slide-in-right {
+  animation: aiMessageSlideInRight 0.3s ease-out;
+}
+
+.ai-icon-bounce {
+  animation: aiIconBounce 0.6s ease-out;
+}
+
+/* AI Chat Components Styling */
+.ai-chat-icon {
+  background: linear-gradient(
+    135deg,
+    oklch(0.55 0.15 240) 0%,
+    oklch(0.5 0.15 280) 100%
+  );
+  border: none;
+  color: white;
+  box-shadow: 0 12px 40px oklch(0.55 0.15 240 / 0.4),
+    0 0 20px oklch(0.55 0.15 240 / 0.2);
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 50;
+}
+
+.ai-chat-icon:hover {
+  background: linear-gradient(
+    135deg,
+    oklch(0.6 0.18 240) 0%,
+    oklch(0.55 0.18 280) 100%
+  );
+  box-shadow: 0 16px 50px oklch(0.55 0.15 240 / 0.5),
+    0 0 30px oklch(0.55 0.15 240 / 0.3);
+}
+
+.dark .ai-chat-icon {
+  background: linear-gradient(
+    135deg,
+    oklch(0.7 0.2 240) 0%,
+    oklch(0.6 0.2 280) 100%
+  );
+  box-shadow: 0 12px 40px oklch(0.7 0.2 240 / 0.5),
+    0 0 25px oklch(0.7 0.2 240 / 0.3);
+}
+
+.dark .ai-chat-icon:hover {
+  background: linear-gradient(
+    135deg,
+    oklch(0.75 0.22 240) 0%,
+    oklch(0.65 0.22 280) 100%
+  );
+  box-shadow: 0 16px 50px oklch(0.7 0.2 240 / 0.6),
+    0 0 35px oklch(0.7 0.2 240 / 0.4);
+}
+
+.ai-chat-bar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 25px 80px oklch(0.15 0.02 240 / 0.1),
+    0 0 40px oklch(0.15 0.02 240 / 0.05);
+  position: fixed;
+  bottom: 8rem;
+  right: 1.5rem;
+  z-index: 40;
+}
+
+.ai-chat-bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.dark .ai-chat-bar {
+  background: oklch(0.12 0.03 240);
+  border: 1px solid oklch(0.7 0.2 240 / 0.3);
+  box-shadow: 0 25px 80px oklch(0.08 0.02 240 / 0.8),
+    0 0 50px oklch(0.7 0.2 240 / 0.15);
+}
+
+.dark .ai-chat-bar::before {
+  background: linear-gradient(90deg, oklch(0.7 0.2 240), oklch(0.6 0.2 280));
+}
+
+.ai-chat-header {
+  background: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.dark .ai-chat-header {
+  background: oklch(0.18 0.05 240);
+  border-bottom: 1px solid oklch(0.7 0.2 240 / 0.2);
+}
+
+.ai-chat-input {
+  background: var(--muted);
+  border-top: 1px solid var(--border);
+}
+
+.dark .ai-chat-input {
+  background: oklch(0.18 0.05 240);
+  border-top: 1px solid oklch(0.7 0.2 240 / 0.2);
+}
+
+/* AI Chat Message Bubbles */
+.ai-chat-bar .bg-primary {
+  background: linear-gradient(
+    135deg,
+    oklch(0.55 0.15 240) 0%,
+    oklch(0.5 0.15 280) 100%
+  );
+}
+
+.dark .ai-chat-bar .bg-primary {
+  background: linear-gradient(
+    135deg,
+    oklch(0.7 0.2 240) 0%,
+    oklch(0.6 0.2 280) 100%
+  );
+}
+
+.ai-chat-bar .bg-muted {
+  background: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.dark .ai-chat-bar .bg-muted {
+  background: oklch(0.18 0.05 240);
+  border: 1px solid oklch(0.7 0.2 240 / 0.2);
+}
+
+/* AI Chat Animations */
+@keyframes aiChatPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 8px 32px oklch(0.55 0.15 240 / 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 12px 40px oklch(0.55 0.15 240 / 0.4);
+  }
+}
+
+@keyframes aiChatPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 8px 32px oklch(0.55 0.15 240 / 0.4),
+      0 0 20px oklch(0.55 0.15 240 / 0.2);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 12px 40px oklch(0.55 0.15 240 / 0.5),
+      0 0 30px oklch(0.55 0.15 240 / 0.3);
+  }
+}
+
+.dark .ai-chat-icon:not(:hover) {
+  animation: aiChatPulse 3s ease-in-out infinite;
+}
+
+/* AI Chat Responsive Design */
+@media (max-width: 640px) {
+  .ai-chat-bar {
+    width: calc(100vw - 2rem);
+    right: 1rem;
+    left: 1rem;
+    height: 80vh;
+    bottom: 7rem;
+  }
+
+  .ai-chat-icon {
+    bottom: 1rem;
+    right: 1rem;
+  }
+}
+
+/* AI Chat Quick Action Buttons */
+.ai-chat-bar .ai-quick-action {
+  background: var(--accent);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.ai-chat-bar .ai-quick-action:hover {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px oklch(0.55 0.15 240 / 0.2);
+}
+
+.dark .ai-chat-bar .ai-quick-action {
+  background: oklch(0.25 0.08 240);
+  border: 1px solid oklch(0.7 0.2 240 / 0.3);
+}
+
+.dark .ai-chat-bar .ai-quick-action:hover {
+  background: oklch(0.7 0.2 240);
+  color: oklch(0.08 0.02 240);
+  box-shadow: 0 4px 12px oklch(0.7 0.2 240 / 0.3);
+}
+
+/* Profile Page Theme Support */
+.profile-header-card {
+  background: linear-gradient(
+    135deg,
+    oklch(0.55 0.15 240) 0%,
+    oklch(0.5 0.15 280) 100%
+  );
+  color: white;
+  box-shadow: 0 8px 32px oklch(0.55 0.15 240 / 0.2);
+}
+
+.dark .profile-header-card {
+  background: linear-gradient(
+    135deg,
+    oklch(0.7 0.2 240) 0%,
+    oklch(0.6 0.2 280) 100%
+  );
+  box-shadow: 0 8px 32px oklch(0.7 0.2 240 / 0.3),
+    0 0 20px oklch(0.7 0.2 240 / 0.2);
+}
+
+.profile-avatar-border {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.profile-avatar-fallback {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-weight: bold;
+}
+
+.profile-verification-badge {
+  border: 2px solid white;
+}
+
+.profile-name {
+  color: white;
+}
+
+.profile-description {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.profile-stat-label {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.profile-stat-value {
+  color: white;
+}
+
+.profile-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.profile-badge-pro {
+  background: oklch(0.8 0.15 80 / 0.2);
+  color: oklch(0.8 0.15 80);
+  border-color: oklch(0.8 0.15 80 / 0.3);
+}
+
+.profile-edit-button {
+  background: white;
+  color: oklch(0.55 0.15 240);
+}
+
+.profile-edit-button:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.profile-share-button {
+  border-color: white;
+  color: white;
+  background: transparent;
+}
+
+.profile-share-button:hover {
+  background: white;
+  color: oklch(0.55 0.15 240);
+}
+
+/* NFT Customizer Theme Support */
+.nft-preview-card {
+  background: linear-gradient(
+    135deg,
+    oklch(0.55 0.15 240) 0%,
+    oklch(0.5 0.15 280) 100%
+  );
+  box-shadow: 0 4px 16px oklch(0.55 0.15 240 / 0.2);
+}
+
+.dark .nft-preview-card {
+  background: linear-gradient(
+    135deg,
+    oklch(0.7 0.2 240) 0%,
+    oklch(0.6 0.2 280) 100%
+  );
+  box-shadow: 0 4px 16px oklch(0.7 0.2 240 / 0.3),
+    0 0 12px oklch(0.7 0.2 240 / 0.2);
+}
+
+.nft-preview-content {
+  color: white;
+}
+
+.nft-avatar-preview {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.nft-name {
+  color: white;
+}
+
+.nft-title {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.nft-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.nft-badge-pro {
+  background: oklch(0.8 0.15 80 / 0.2);
+  color: oklch(0.8 0.15 80);
+  border-color: oklch(0.8 0.15 80 / 0.3);
+}
+
+/* NFT Background Options */
+.nft-bg-option-primary {
+  background: linear-gradient(
+    135deg,
+    oklch(0.55 0.15 240) 0%,
+    oklch(0.5 0.15 280) 100%
+  );
+}
+
+.dark .nft-bg-option-primary {
+  background: linear-gradient(
+    135deg,
+    oklch(0.7 0.2 240) 0%,
+    oklch(0.6 0.2 280) 100%
+  );
+}
+
+.nft-bg-option-secondary {
+  background: linear-gradient(
+    135deg,
+    oklch(0.8 0.15 80) 0%,
+    oklch(0.6 0.15 160) 100%
+  );
+}
+
+.nft-bg-option-tertiary {
+  background: linear-gradient(
+    135deg,
+    oklch(0.55 0.15 240) 0%,
+    oklch(0.5 0.15 280) 100%
+  );
+}
+
+.dark .nft-bg-option-tertiary {
+  background: linear-gradient(
+    135deg,
+    oklch(0.7 0.2 240) 0%,
+    oklch(0.6 0.2 280) 100%
+  );
+}
+
+/* Profile Tabs Styling */
+.profile-tabs-list {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px oklch(0.15 0.02 240 / 0.1);
+}
+
+.dark .profile-tabs-list {
+  background: oklch(0.12 0.03 240);
+  border: 1px solid oklch(0.7 0.2 240 / 0.2);
+  box-shadow: 0 2px 8px oklch(0.7 0.2 240 / 0.1);
+}
+
+.profile-tab-trigger {
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.profile-tab-trigger:hover {
+  background: var(--muted);
+}
+
+.dark .profile-tab-trigger:hover {
+  background: oklch(0.18 0.05 240);
+}
+
+.profile-tab-active {
+  background: linear-gradient(
+    135deg,
+    oklch(0.55 0.15 240) 0%,
+    oklch(0.5 0.15 280) 100%
+  );
+  color: white;
+  box-shadow: 0 2px 8px oklch(0.55 0.15 240 / 0.2);
+}
+
+.dark .profile-tab-active {
+  background: linear-gradient(
+    135deg,
+    oklch(0.7 0.2 240) 0%,
+    oklch(0.6 0.2 280) 100%
+  );
+  box-shadow: 0 2px 8px oklch(0.7 0.2 240 / 0.3);
+}
+
+/* Theme toggle button styling */
+.theme-toggle-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-toggle-button:hover {
+  transform: scale(1.05);
+}
+
+.theme-toggle-nav {
+  border-radius: 8px;
+  padding: 8px;
+  min-width: 40px;
+  height: 40px;
+}
+
+.theme-toggle-button svg {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle-button:hover svg {
+  transform: scale(1.1);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Custom brand colors */
+  --color-electric-blue: var(--electric-blue);
+  --color-veralux-green: var(--veralux-green);
+  --color-veralux-yellow: var(--veralux-yellow);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* VeraLux Custom Utilities */
+.text-electric-blue {
+  color: oklch(0.205 0 0);
+}
+
+.text-veralux-yellow {
+  color: oklch(0.6 0.118 184.704);
+}
+
+.text-veralux-green {
+  color: oklch(0.646 0.222 41.116);
+}
+
+.bg-electric-blue {
+  background-color: oklch(0.205 0 0);
+}
+
+.bg-veralux-yellow {
+  background-color: oklch(0.6 0.118 184.704);
+}
+
+.bg-veralux-green {
+  background-color: oklch(0.646 0.222 41.116);
+}
+
+.border-electric-blue {
+  border-color: oklch(0.205 0 0);
+}
+
+.gradient-veralux {
+  background: linear-gradient(
+    135deg,
+    oklch(0.205 0 0) 0%,
+    oklch(0.646 0.222 41.116) 100%
+  );
+}
+
+/* Custom wallet modal styles inspired by Suiet Kit */
+@layer components {
+  .wallet-modal-backdrop {
+    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .wallet-card {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  .wallet-button {
+    transition: all 0.2s ease-in-out;
+  }
+
+  .wallet-button:hover {
+    background: hsl(var(--muted) / 0.5);
+    transform: translateY(-1px);
+  }
+
+  .wallet-gradient {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  }
+
+  .wallet-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Override Suiet Wallet Kit styles with higher specificity */
+  .wallet-connect-button,
+  [data-wallet-kit="connect-button"],
+  .wallet-connect-button button {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 12px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.4) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    backdrop-filter: blur(8px) !important;
+    height: auto !important;
+    min-height: 48px !important;
+  }
+
+  .wallet-connect-button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: left 0.6s ease;
+  }
+
+  .wallet-connect-button:hover,
+  [data-wallet-kit="connect-button"]:hover,
+  .wallet-connect-button button:hover {
+    transform: translateY(-3px) scale(1.02) !important;
+    box-shadow: 0 12px 35px 0 rgba(59, 130, 246, 0.5) !important;
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important;
+  }
+
+  .wallet-connect-button:hover::before,
+  [data-wallet-kit="connect-button"]:hover::before,
+  .wallet-connect-button button:hover::before {
+    left: 100% !important;
+  }
+
+  .wallet-connect-button:active,
+  [data-wallet-kit="connect-button"]:active,
+  .wallet-connect-button button:active {
+    transform: translateY(-1px) scale(0.98) !important;
+    box-shadow: 0 4px 15px 0 rgba(59, 130, 246, 0.4) !important;
+  }
+
+  .wallet-connect-button:focus,
+  [data-wallet-kit="connect-button"]:focus,
+  .wallet-connect-button button:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3) !important;
+  }
+
+  /* Enhanced wallet icon styling */
+  .wallet-connect-button svg,
+  [data-wallet-kit="connect-button"] svg,
+  .wallet-connect-button button svg {
+    transition: transform 0.3s ease !important;
+  }
+
+  .wallet-connect-button:hover svg,
+  [data-wallet-kit="connect-button"]:hover svg,
+  .wallet-connect-button button:hover svg {
+    transform: scale(1.1) rotate(5deg) !important;
+  }
+
+  /* Header enhancements */
+  .header-logo {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    box-shadow: 0 4px 15px 0 rgba(59, 130, 246, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .header-logo:hover {
+    transform: scale(1.05) rotate(5deg);
+    box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.4);
+  }
+
+  /* Navigation link enhancements */
+  .nav-link {
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    transition: width 0.3s ease;
+  }
+
+  .nav-link:hover::after {
+    width: 100%;
+  }
+
+  /* Pulse animation for connect button */
+  @keyframes walletPulse {
+    0%,
+    100% {
+      box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.4);
+    }
+    50% {
+      box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.6),
+        0 0 0 10px rgba(59, 130, 246, 0.1);
+    }
+  }
+
+  .wallet-connect-button.wallet-pulse {
+    animation: walletPulse 2s ease-in-out infinite;
+  }
+
+  /* Additional overrides for Suiet Wallet Kit */
+  [data-wallet-kit="connect-button"] * {
+    color: white !important;
+  }
+
+  [data-wallet-kit="connect-button"] button {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 12px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.4) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    backdrop-filter: blur(8px) !important;
+    height: auto !important;
+    min-height: 48px !important;
+    width: auto !important;
+    min-width: 160px !important;
+  }
+
+  [data-wallet-kit="connect-button"] button:hover {
+    transform: translateY(-3px) scale(1.02) !important;
+    box-shadow: 0 12px 35px 0 rgba(59, 130, 246, 0.5) !important;
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important;
+  }
+
+  [data-wallet-kit="connect-button"] button:active {
+    transform: translateY(-1px) scale(0.98) !important;
+    box-shadow: 0 4px 15px 0 rgba(59, 130, 246, 0.4) !important;
+  }
+
+  /* Connected Wallet Button Styles */
+  .wallet-connected-button {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .wallet-connected-button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.05),
+      transparent
+    );
+    transition: left 0.5s ease;
+  }
+
+  .wallet-connected-button:hover {
+    background: hsl(var(--muted) / 0.3);
+    border-color: hsl(var(--border) / 0.8);
+    transform: translateY(-2px);
+  }
+
+  .wallet-connected-button:hover::before {
+    left: 100%;
+  }
+
+  .wallet-connected-button .wallet-avatar-sm {
+    box-shadow: 0 4px 12px 0 rgba(59, 130, 246, 0.3);
+    border: 2px solid hsl(var(--card));
+  }
+
+  /* Account Modal Styles */
+  .wallet-account-modal {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 32px 64px -12px rgba(0, 0, 0, 0.4);
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .wallet-account-modal::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--border)),
+      transparent
+    );
+  }
+
+  .wallet-account-modal .wallet-avatar {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    box-shadow: 0 8px 32px 0 rgba(59, 130, 246, 0.4);
+    border: 3px solid hsl(var(--card));
+    position: relative;
+  }
+
+  .wallet-account-modal .wallet-avatar::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.3;
+    filter: blur(8px);
+  }
+
+  .wallet-account-modal .wallet-address {
+    font-family: "SF Mono", "Monaco", "Menlo", "Ubuntu Mono", monospace;
+    background: hsl(var(--muted) / 0.5);
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid hsl(var(--border) / 0.5);
+    backdrop-filter: blur(4px);
+    word-break: break-all;
+    line-height: 1.4;
+  }
+
+  .wallet-account-modal .wallet-action-button {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--card));
+    position: relative;
+    overflow: hidden;
+  }
+
+  .wallet-account-modal .wallet-action-button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+    transition: left 0.5s ease;
+  }
+
+  .wallet-account-modal .wallet-action-button:hover {
+    background: hsl(var(--muted) / 0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: hsl(var(--border) / 0.8);
+  }
+
+  .wallet-account-modal .wallet-action-button:hover::before {
+    left: 100%;
+  }
+
+  .wallet-account-modal .wallet-disconnect-button {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 32px 0 rgba(239, 68, 68, 0.4);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .wallet-account-modal .wallet-disconnect-button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: left 0.5s ease;
+  }
+
+  .wallet-account-modal .wallet-disconnect-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px 0 rgba(239, 68, 68, 0.5);
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  }
+
+  .wallet-account-modal .wallet-disconnect-button:hover::before {
+    left: 100%;
+  }
+
+  .wallet-account-modal .wallet-disconnect-button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px 0 rgba(239, 68, 68, 0.3);
+  }
+
+  .wallet-account-modal .wallet-disconnect-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Hydration-safe styles */
+  .wallet-hydration-safe {
+    opacity: 0;
+    animation: fadeIn 0.3s ease-in-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Smooth transitions for wallet components */
+  .wallet-transition {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Loading state styles */
+  .wallet-loading {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .wallet-loading::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    animation: loading 1.5s infinite;
+  }
+
+  @keyframes loading {
+    0% {
+      left: -100%;
+    }
+    100% {
+      left: 100%;
+    }
+  }
+
+  /* Hydration fallback styles */
+  .wallet-connect-button[data-hydration-fallback] {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.4);
+    min-height: 48px;
+    opacity: 0.9;
+  }
+}
