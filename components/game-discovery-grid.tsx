@@ -28,7 +28,7 @@ const games: Game[] = [
     rating: 4.8,
     earnings: "2.3 SUI avg",
     status: "Live",
-    image: "/fantasy-rpg-game-interface.png",
+    image: "./fantasy-rpg-game-with-dragons-and-medieval-charact.jpg",
     featured: true,
   },
   {
@@ -41,7 +41,7 @@ const games: Game[] = [
     rating: 4.6,
     earnings: "1.8 SUI avg",
     status: "Live",
-    image: "/strategy-battle-game-ui.png",
+    image: "./strategy-battle-game-with-futuristic-warriors.jpg",
     featured: true,
   },
   {
@@ -54,7 +54,7 @@ const games: Game[] = [
     rating: 4.5,
     earnings: "1.2 SUI avg",
     status: "Live",
-    image: "/nft-racing-game-screenshot.png",
+    image: "./high-speed-racing-cars-on-futuristic-track.jpg",
     featured: false,
   },
   {
@@ -67,7 +67,7 @@ const games: Game[] = [
     rating: 4.7,
     earnings: "3.1 SUI avg",
     status: "Beta",
-    image: "/metaverse-building-interface.png",
+    image: "./virtual-world-building-interface-with-3d-structure.jpg",
     featured: false,
   },
   {
@@ -80,7 +80,7 @@ const games: Game[] = [
     rating: 4.4,
     earnings: "0.8 SUI avg",
     status: "Live",
-    image: "/blockchain-poker-table.png",
+    image: "./poker-table.png",
     featured: false,
   },
   {
@@ -92,7 +92,7 @@ const games: Game[] = [
     rating: 4.9,
     earnings: "Coming Soon",
     status: "Coming Soon",
-    image: "/space-mining-game-concept.png",
+    image: "./space-mining-operation-with-asteroids-and-spaceshi.jpg",
     featured: false,
   },
 ];
@@ -114,14 +114,11 @@ export function GameDiscoveryGrid() {
                 className="bg-card border-border hover:border-veralux-yellow/50 transition-colors"
               >
                 <CardContent className="p-0">
-                  <div className="aspect-video bg-gradient-to-br from-veralux-yellow/20 to-veralux-green/20 rounded-t-lg flex items-center justify-center overflow-hidden">
+                  <div className="aspect-video bg-gradient-to-br from-veralux-yellow/20 to-veralux-green/20 rounded-t-lg flex items-center justify-center">
                     <img
                       src={game.image || "/placeholder.svg"}
                       alt={game.title}
                       className="w-full h-full object-cover rounded-t-lg"
-                      onError={(e) => {
-                        e.currentTarget.src = "/placeholder.svg";
-                      }}
                     />
                   </div>
                   <div className="p-6">
@@ -192,14 +189,11 @@ export function GameDiscoveryGrid() {
               className="bg-card border-border hover:border-electric-blue/50 transition-colors"
             >
               <CardContent className="p-0">
-                <div className="aspect-video bg-gradient-to-br from-electric-blue/20 to-veralux-green/20 rounded-t-lg flex items-center justify-center overflow-hidden">
+                <div className="aspect-video bg-gradient-to-br from-electric-blue/20 to-veralux-green/20 rounded-t-lg flex items-center justify-center">
                   <img
                     src={game.image || "/placeholder.svg"}
                     alt={game.title}
                     className="w-full h-full object-cover rounded-t-lg"
-                    onError={(e) => {
-                      e.currentTarget.src = "/placeholder.svg";
-                    }}
                   />
                 </div>
                 <div className="p-4">

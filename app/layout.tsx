@@ -5,6 +5,8 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import { WalletProviderWrapper } from "@/components/wallet-provider-wrapper";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/contexts/auth-context";
+import { WalletConnectionManager } from "@/components/wallet-connection-manager";
 import { AIChat } from "@/components/ai-chat";
 
 export const metadata: Metadata = {
@@ -32,8 +34,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
-          <WalletProviderWrapper>{children}</WalletProviderWrapper>
-          <AIChat />
+          <AuthProvider>
+            <WalletProviderWrapper>
+              <WalletConnectionManager />
+              {children}
+            </WalletProviderWrapper>
+            <AIChat />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
