@@ -32,8 +32,11 @@ export function NavigationLayout({
   return (
     <div className={cn("min-h-screen bg-background", className)}>
       {/* Mobile Navigation */}
-      <MobileTopBar onMenuToggle={handleMobileMenuToggle} />
-      <MobileBottomBar />
+      <MobileTopBar
+        onMenuToggle={handleMobileMenuToggle}
+        isMenuOpen={isMobileMenuOpen}
+      />
+      <MobileBottomBar isMenuOpen={isMobileMenuOpen} />
       <MobileHamburgerMenu
         isOpen={isMobileMenuOpen}
         onClose={handleMobileMenuClose}

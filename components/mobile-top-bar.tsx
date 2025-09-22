@@ -13,18 +13,28 @@ import { useRouter } from "next/navigation";
 
 interface MobileTopBarProps {
   onMenuToggle: () => void;
+  isMenuOpen?: boolean;
   className?: string;
 }
 
-export function MobileTopBar({ onMenuToggle, className }: MobileTopBarProps) {
+export function MobileTopBar({
+  onMenuToggle,
+  isMenuOpen = false,
+  className,
+}: MobileTopBarProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const auth = useAuth();
   const router = useRouter();
 
-  // Hide/show on scroll
+  // Hide/show on scroll (disabled when menu is open)
   useEffect(() => {
+    if (isMenuOpen) {
+      setIsVisible(true);
+      return;
+    }
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
@@ -39,7 +49,7 @@ export function MobileTopBar({ onMenuToggle, className }: MobileTopBarProps) {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  }, [lastScrollY, isMenuOpen]);
 
   const handleLogoClick = () => {
     router.push("/");
@@ -71,17 +81,17 @@ export function MobileTopBar({ onMenuToggle, className }: MobileTopBarProps) {
           />
 
           {/* Search Bar */}
-          <div className="flex-1 mx-2 sm:mx-4 relative">
+          <div className="flex-1 mx-1 sm:mx-4 relative">
             <div className="relative">
               <Input
-                placeholder="Search flows, users..."
-                className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 bg-muted/50 border-border rounded-full text-xs sm:text-sm"
+                placeholder="Search..."
+                className="w-full pl-8 sm:pl-10 md:pl-12 pr-3 sm:pr-4 py-1.5 sm:py-2 bg-muted/50 border-border rounded-full text-xs sm:text-sm placeholder:text-xs sm:placeholder:text-sm placeholder:opacity-70"
                 onFocus={() => setShowSearchDropdown(true)}
                 onBlur={() =>
                   setTimeout(() => setShowSearchDropdown(false), 200)
                 }
               />
-              <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+              <Search className="absolute left-2.5 sm:left-3 md:left-4 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-muted-foreground flex-shrink-0 pointer-events-none" />
             </div>
 
             {/* Trending Dropdown */}

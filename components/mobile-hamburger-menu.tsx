@@ -79,15 +79,20 @@ export function MobileHamburgerMenu({
         />
       )}
 
-      {/* Menu Panel */}
+      {/* Menu Panel - Fills exact space between top and bottom bars */}
       <div
         className={cn(
-          "mobile-hamburger-menu fixed top-0 left-0 h-full w-80 max-w-[90vw] z-50 md:hidden",
+          "mobile-hamburger-menu fixed w-80 max-w-[90vw] z-40 md:hidden",
           "bg-card border-r border-border shadow-2xl",
           "transform transition-transform duration-300 ease-in-out",
           isOpen ? "translate-x-0" : "-translate-x-full",
           className
         )}
+        style={{
+          top: "64px", // Exact height of top bar
+          bottom: "80px", // Exact height of bottom bar
+          left: "0px",
+        }}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
@@ -213,23 +218,36 @@ export function MobileHamburgerMenu({
             <Separator />
 
             {/* Theme Toggle */}
-            <div className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
+            <div className="p-4 space-y-1">
+              <Button
+                variant="ghost"
+                onClick={handleThemeToggle}
+                className="w-full justify-start group"
+              >
+                <div className="mr-3 h-5 w-5 flex items-center justify-center">
                   {theme === "dark" ? (
-                    <Moon className="h-5 w-5" />
+                    <Moon className="h-5 w-5 transition-transform group-hover:scale-110" />
                   ) : (
-                    <Sun className="h-5 w-5" />
+                    <Sun className="h-5 w-5 transition-transform group-hover:scale-110" />
                   )}
-                  <span className="text-sm font-medium">
-                    {theme === "dark" ? "Dark Mode" : "Light Mode"}
-                  </span>
                 </div>
-                <Switch
-                  checked={theme === "dark"}
-                  onCheckedChange={handleThemeToggle}
-                />
-              </div>
+                <span className="flex-1 text-left">
+                  {theme === "dark" ? "Dark Mode" : "Light Mode"}
+                </span>
+                <div
+                  className={cn(
+                    "ml-auto flex h-6 w-11 items-center rounded-full px-1 transition-colors",
+                    theme === "dark" ? "bg-primary" : "bg-muted"
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "h-4 w-4 rounded-full bg-white shadow-md transition-transform",
+                      theme === "dark" ? "translate-x-5" : "translate-x-0"
+                    )}
+                  />
+                </div>
+              </Button>
             </div>
 
             <Separator />

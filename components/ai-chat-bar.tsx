@@ -83,7 +83,7 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
       className={`ai-chat-bar fixed bottom-20 right-2 sm:bottom-32 sm:right-6 z-40 w-[calc(100vw-1rem)] sm:w-96 max-w-sm sm:max-w-none max-h-[70vh] sm:max-h-[700px] h-auto rounded-xl shadow-2xl border transition-all duration-300 flex flex-col ${className}`}
     >
       {/* Header */}
-      <div className="ai-chat-header flex items-center p-3 sm:p-4 border-b rounded-t-xl">
+      <div className="ai-chat-header flex items-center justify-between p-3 sm:p-4 border-b rounded-t-xl">
         <div className="flex items-center space-x-3">
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
@@ -97,6 +97,14 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
             <p className="text-xs text-muted-foreground">Online</p>
           </div>
         </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClose}
+          className="h-8 w-8 p-0 hover:bg-muted rounded-full"
+        >
+          <X className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Messages */}
