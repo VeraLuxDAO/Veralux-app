@@ -1,12 +1,19 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { NavigationLayout } from "@/components/navigation-layout";
 import {
   Code2,
   Play,
@@ -23,10 +30,10 @@ import {
   Search,
   Copy,
   ExternalLink,
-} from "lucide-react"
+} from "lucide-react";
 
 export default function DevHubPage() {
-  const [activeProject, setActiveProject] = useState("nft-marketplace")
+  const [activeProject, setActiveProject] = useState("nft-marketplace");
   const [code, setCode] = useState(`// VeraLux SDK Example - NFT Marketplace
 import { VeraLux, NFTContract } from '@veralux/sdk'
 
@@ -46,7 +53,7 @@ async function createNFTListing() {
   })
   
   return listing
-}`)
+}`);
 
   const projects = [
     {
@@ -73,7 +80,7 @@ async function createNFTListing() {
       difficulty: "Beginner",
       estimatedTime: "1-2 hours",
     },
-  ]
+  ];
 
   const sdkModules = [
     {
@@ -100,53 +107,68 @@ async function createNFTListing() {
       methods: ["createEscrow()", "releasePayment()", "dispute()"],
       status: "stable",
     },
-  ]
+  ];
 
   return (
-    <div className="min-h-screen bg-[#0A1128] text-white">
-      {/* Header */}
-      <div className="border-b border-gray-800 bg-[#131F40]">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Code2 className="h-6 w-6 text-[#4361EE]" />
-                <h1 className="text-2xl font-bold">Dev Hub</h1>
+    <NavigationLayout>
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="border-b border-gray-800 bg-[#131F40] rounded-lg mb-8">
+          <div className="px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Code2 className="h-6 w-6 text-[#4361EE]" />
+                  <h1 className="text-2xl font-bold">Dev Hub</h1>
+                </div>
+                <Badge variant="secondary" className="bg-[#FFD166] text-black">
+                  SDK v2.1.0
+                </Badge>
               </div>
-              <Badge variant="secondary" className="bg-[#FFD166] text-black">
-                SDK v2.1.0
-              </Badge>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" className="border-gray-600 bg-transparent">
-                <BookOpen className="h-4 w-4 mr-2" />
-                Docs
-              </Button>
-              <Button size="sm" className="bg-[#4361EE] hover:bg-[#3651DD]">
-                <Rocket className="h-4 w-4 mr-2" />
-                Deploy
-              </Button>
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-gray-600 bg-transparent"
+                >
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Docs
+                </Button>
+                <Button size="sm" className="bg-[#4361EE] hover:bg-[#3651DD]">
+                  <Rocket className="h-4 w-4 mr-2" />
+                  Deploy
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-6 py-8">
         <Tabs defaultValue="editor" className="space-y-6">
           <TabsList className="bg-[#131F40] border border-gray-700">
-            <TabsTrigger value="editor" className="data-[state=active]:bg-[#4361EE]">
+            <TabsTrigger
+              value="editor"
+              className="data-[state=active]:bg-[#4361EE]"
+            >
               <Terminal className="h-4 w-4 mr-2" />
               Code Editor
             </TabsTrigger>
-            <TabsTrigger value="templates" className="data-[state=active]:bg-[#4361EE]">
+            <TabsTrigger
+              value="templates"
+              className="data-[state=active]:bg-[#4361EE]"
+            >
               <Layers className="h-4 w-4 mr-2" />
               Templates
             </TabsTrigger>
-            <TabsTrigger value="sdk" className="data-[state=active]:bg-[#4361EE]">
+            <TabsTrigger
+              value="sdk"
+              className="data-[state=active]:bg-[#4361EE]"
+            >
               <Zap className="h-4 w-4 mr-2" />
               SDK Library
             </TabsTrigger>
-            <TabsTrigger value="deploy" className="data-[state=active]:bg-[#4361EE]">
+            <TabsTrigger
+              value="deploy"
+              className="data-[state=active]:bg-[#4361EE]"
+            >
               <Globe className="h-4 w-4 mr-2" />
               Launchpad
             </TabsTrigger>
@@ -164,13 +186,24 @@ async function createNFTListing() {
                       <CardDescription>VeraLux SDK Integration</CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" className="border-gray-600 bg-transparent">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-gray-600 bg-transparent"
+                      >
                         <Save className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm" className="border-gray-600 bg-transparent">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-gray-600 bg-transparent"
+                      >
                         <Download className="h-4 w-4" />
                       </Button>
-                      <Button size="sm" className="bg-[#06D6A0] hover:bg-[#05C195] text-black">
+                      <Button
+                        size="sm"
+                        className="bg-[#06D6A0] hover:bg-[#05C195] text-black"
+                      >
                         <Play className="h-4 w-4 mr-2" />
                         Run
                       </Button>
@@ -193,7 +226,9 @@ async function createNFTListing() {
               <div className="space-y-4">
                 <Card className="bg-[#131F40] border-gray-700">
                   <CardHeader>
-                    <CardTitle className="text-sm text-white">Console</CardTitle>
+                    <CardTitle className="text-sm text-white">
+                      Console
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="bg-[#0A1128] rounded p-3 font-mono text-xs text-green-400 min-h-[120px]">
@@ -207,18 +242,32 @@ async function createNFTListing() {
 
                 <Card className="bg-[#131F40] border-gray-700">
                   <CardHeader>
-                    <CardTitle className="text-sm text-white">Quick Actions</CardTitle>
+                    <CardTitle className="text-sm text-white">
+                      Quick Actions
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    <Button variant="outline" size="sm" className="w-full justify-start border-gray-600 bg-transparent">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start border-gray-600 bg-transparent"
+                    >
                       <Upload className="h-4 w-4 mr-2" />
                       Import Project
                     </Button>
-                    <Button variant="outline" size="sm" className="w-full justify-start border-gray-600 bg-transparent">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start border-gray-600 bg-transparent"
+                    >
                       <Settings className="h-4 w-4 mr-2" />
                       Configure
                     </Button>
-                    <Button variant="outline" size="sm" className="w-full justify-start border-gray-600 bg-transparent">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start border-gray-600 bg-transparent"
+                    >
                       <ExternalLink className="h-4 w-4 mr-2" />
                       View Live
                     </Button>
@@ -231,11 +280,16 @@ async function createNFTListing() {
           {/* Templates Tab */}
           <TabsContent value="templates" className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-white">Project Templates</h2>
+              <h2 className="text-xl font-semibold text-white">
+                Project Templates
+              </h2>
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input placeholder="Search templates..." className="pl-10 bg-[#131F40] border-gray-600 text-white" />
+                  <Input
+                    placeholder="Search templates..."
+                    className="pl-10 bg-[#131F40] border-gray-600 text-white"
+                  />
                 </div>
               </div>
             </div>
@@ -248,15 +302,17 @@ async function createNFTListing() {
                 >
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-white">{project.name}</CardTitle>
+                      <CardTitle className="text-white">
+                        {project.name}
+                      </CardTitle>
                       <Badge
                         variant="secondary"
                         className={
                           project.difficulty === "Beginner"
                             ? "bg-[#06D6A0] text-black"
                             : project.difficulty === "Intermediate"
-                              ? "bg-[#FFD166] text-black"
-                              : "bg-[#FF6B6B] text-white"
+                            ? "bg-[#FFD166] text-black"
+                            : "bg-[#FF6B6B] text-white"
                         }
                       >
                         {project.difficulty}
@@ -284,7 +340,9 @@ async function createNFTListing() {
           {/* SDK Library Tab */}
           <TabsContent value="sdk" className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-white">SDK Documentation</h2>
+              <h2 className="text-xl font-semibold text-white">
+                SDK Documentation
+              </h2>
               <Badge variant="secondary" className="bg-[#06D6A0] text-black">
                 Latest: v2.1.0
               </Badge>
@@ -295,15 +353,17 @@ async function createNFTListing() {
                 <Card key={index} className="bg-[#131F40] border-gray-700">
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-white">{module.name}</CardTitle>
+                      <CardTitle className="text-white">
+                        {module.name}
+                      </CardTitle>
                       <Badge
                         variant="secondary"
                         className={
                           module.status === "stable"
                             ? "bg-[#06D6A0] text-black"
                             : module.status === "beta"
-                              ? "bg-[#FFD166] text-black"
-                              : "bg-gray-600 text-white"
+                            ? "bg-[#FFD166] text-black"
+                            : "bg-gray-600 text-white"
                         }
                       >
                         {module.status}
@@ -313,12 +373,23 @@ async function createNFTListing() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      <h4 className="text-sm font-medium text-gray-300">Available Methods:</h4>
+                      <h4 className="text-sm font-medium text-gray-300">
+                        Available Methods:
+                      </h4>
                       <div className="space-y-2">
                         {module.methods.map((method, methodIndex) => (
-                          <div key={methodIndex} className="flex items-center justify-between bg-[#0A1128] rounded p-2">
-                            <code className="text-[#4361EE] text-sm">{method}</code>
-                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                          <div
+                            key={methodIndex}
+                            className="flex items-center justify-between bg-[#0A1128] rounded p-2"
+                          >
+                            <code className="text-[#4361EE] text-sm">
+                              {method}
+                            </code>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                            >
                               <Copy className="h-3 w-3" />
                             </Button>
                           </div>
@@ -334,10 +405,13 @@ async function createNFTListing() {
           {/* Launchpad Tab */}
           <TabsContent value="deploy" className="space-y-6">
             <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-white">Project Launchpad</h2>
+              <h2 className="text-2xl font-bold text-white">
+                Project Launchpad
+              </h2>
               <p className="text-gray-400 max-w-2xl mx-auto">
-                Deploy your VeraLux dApp to the mainnet with one click. Our launchpad handles infrastructure, scaling,
-                and monitoring so you can focus on building.
+                Deploy your VeraLux dApp to the mainnet with one click. Our
+                launchpad handles infrastructure, scaling, and monitoring so you
+                can focus on building.
               </p>
             </div>
 
@@ -348,10 +422,15 @@ async function createNFTListing() {
                     <Code2 className="h-6 w-6 text-white" />
                   </div>
                   <CardTitle className="text-white">Build</CardTitle>
-                  <CardDescription>Compile and optimize your code</CardDescription>
+                  <CardDescription>
+                    Compile and optimize your code
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <Button variant="outline" className="border-gray-600 bg-transparent">
+                  <Button
+                    variant="outline"
+                    className="border-gray-600 bg-transparent"
+                  >
                     Start Build
                   </Button>
                 </CardContent>
@@ -363,10 +442,15 @@ async function createNFTListing() {
                     <Zap className="h-6 w-6 text-black" />
                   </div>
                   <CardTitle className="text-white">Test</CardTitle>
-                  <CardDescription>Run automated tests and security checks</CardDescription>
+                  <CardDescription>
+                    Run automated tests and security checks
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <Button variant="outline" className="border-gray-600 bg-transparent">
+                  <Button
+                    variant="outline"
+                    className="border-gray-600 bg-transparent"
+                  >
                     Run Tests
                   </Button>
                 </CardContent>
@@ -378,27 +462,42 @@ async function createNFTListing() {
                     <Rocket className="h-6 w-6 text-black" />
                   </div>
                   <CardTitle className="text-white">Deploy</CardTitle>
-                  <CardDescription>Launch to mainnet with monitoring</CardDescription>
+                  <CardDescription>
+                    Launch to mainnet with monitoring
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <Button className="bg-[#06D6A0] hover:bg-[#05C195] text-black">Deploy Now</Button>
+                  <Button className="bg-[#06D6A0] hover:bg-[#05C195] text-black">
+                    Deploy Now
+                  </Button>
                 </CardContent>
               </Card>
             </div>
 
             <Card className="bg-[#131F40] border-gray-700">
               <CardHeader>
-                <CardTitle className="text-white">Deployment Configuration</CardTitle>
-                <CardDescription>Configure your deployment settings</CardDescription>
+                <CardTitle className="text-white">
+                  Deployment Configuration
+                </CardTitle>
+                <CardDescription>
+                  Configure your deployment settings
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Project Name</label>
-                    <Input placeholder="my-veralux-dapp" className="bg-[#0A1128] border-gray-600 text-white" />
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Project Name
+                    </label>
+                    <Input
+                      placeholder="my-veralux-dapp"
+                      className="bg-[#0A1128] border-gray-600 text-white"
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Network</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Network
+                    </label>
                     <select className="w-full p-2 bg-[#0A1128] border border-gray-600 rounded text-white">
                       <option>Sui Mainnet</option>
                       <option>Sui Testnet</option>
@@ -407,7 +506,9 @@ async function createNFTListing() {
                   </div>
                 </div>
                 <div className="flex items-center justify-between pt-4">
-                  <div className="text-sm text-gray-400">Estimated deployment time: 2-3 minutes</div>
+                  <div className="text-sm text-gray-400">
+                    Estimated deployment time: 2-3 minutes
+                  </div>
                   <Button className="bg-[#4361EE] hover:bg-[#3651DD]">
                     <Rocket className="h-4 w-4 mr-2" />
                     Launch Project
@@ -418,6 +519,6 @@ async function createNFTListing() {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
-  )
+    </NavigationLayout>
+  );
 }

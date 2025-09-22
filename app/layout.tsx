@@ -7,7 +7,6 @@ import { WalletProviderWrapper } from "@/components/wallet-provider-wrapper";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/auth-context";
 import { WalletConnectionManager } from "@/components/wallet-connection-manager";
-import { AIChat } from "@/components/ai-chat";
 
 export const metadata: Metadata = {
   title: "VeraLux - Web3 Identity & Reputation Platform",
@@ -39,7 +38,6 @@ export default function RootLayout({
               <WalletConnectionManager />
               {children}
             </WalletProviderWrapper>
-            <AIChat />
           </AuthProvider>
         </ThemeProvider>
       </body>

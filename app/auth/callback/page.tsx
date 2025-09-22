@@ -46,7 +46,7 @@ function AuthCallbackContent() {
                   "veralux_redirected_after_login",
                   "true"
                 );
-                router.push("/dashboard");
+                router.push("/");
               } else {
                 // User already redirected, go to home page instead
                 router.push("/");
