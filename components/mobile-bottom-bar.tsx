@@ -8,17 +8,26 @@ import { cn } from "@/lib/utils";
 import { useRouter, usePathname } from "next/navigation";
 
 interface MobileBottomBarProps {
+  isMenuOpen?: boolean;
   className?: string;
 }
 
-export function MobileBottomBar({ className }: MobileBottomBarProps) {
+export function MobileBottomBar({
+  isMenuOpen = false,
+  className,
+}: MobileBottomBarProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const router = useRouter();
   const pathname = usePathname();
 
-  // Hide/show on scroll
+  // Hide/show on scroll (disabled when menu is open)
   useEffect(() => {
+    if (isMenuOpen) {
+      setIsVisible(true);
+      return;
+    }
+
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
@@ -33,7 +42,7 @@ export function MobileBottomBar({ className }: MobileBottomBarProps) {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  }, [lastScrollY, isMenuOpen]);
 
   const navItems = [
     {
