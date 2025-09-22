@@ -1655,6 +1655,75 @@ button {
   z-index: 10;
 }
 
+/* Enhanced Cursor and Animation Styles */
+* {
+  cursor: default;
+}
+
+button,
+a,
+[role="button"],
+.cursor-pointer,
+input[type="submit"],
+input[type="button"] {
+  cursor: pointer !important;
+}
+
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed !important;
+}
+
+/* Smooth transitions for all interactive elements */
+button,
+a,
+[role="button"],
+.interactive {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Enhanced button hover states */
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Smooth loading animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
 /* Medium devices and larger - ensure proper spacing */
 @media (min-width: 768px) {
   .mobile-top-bar input {

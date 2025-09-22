@@ -77,7 +77,7 @@ export function MobileTopBar({
           <LighthouseLogo
             size="md"
             onClick={handleLogoClick}
-            className="flex-shrink-0"
+            className="flex-shrink-0 cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95"
           />
 
           {/* Search Bar */}
@@ -85,18 +85,18 @@ export function MobileTopBar({
             <div className="relative">
               <Input
                 placeholder="Search..."
-                className="w-full pl-8 sm:pl-10 md:pl-12 pr-3 sm:pr-4 py-1.5 sm:py-2 bg-muted/50 border-border rounded-full text-xs sm:text-sm placeholder:text-xs sm:placeholder:text-sm placeholder:opacity-70"
+                className="w-full pl-8 sm:pl-10 md:pl-12 pr-3 sm:pr-4 py-1.5 sm:py-2 bg-muted/50 border-border rounded-full text-xs sm:text-sm placeholder:text-xs sm:placeholder:text-sm placeholder:opacity-70 transition-all duration-300 focus:bg-muted/70 focus:shadow-lg focus:scale-[1.02] hover:bg-muted/60"
                 onFocus={() => setShowSearchDropdown(true)}
                 onBlur={() =>
                   setTimeout(() => setShowSearchDropdown(false), 200)
                 }
               />
-              <Search className="absolute left-2.5 sm:left-3 md:left-4 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-muted-foreground flex-shrink-0 pointer-events-none" />
+              <Search className="absolute left-2.5 sm:left-3 md:left-4 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-muted-foreground flex-shrink-0 pointer-events-none transition-all duration-300" />
             </div>
 
             {/* Trending Dropdown */}
             {showSearchDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg p-3 z-50">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg p-3 z-50 animate-in slide-in-from-top-2 duration-200">
                 <h4 className="text-sm font-medium text-card-foreground mb-2">
                   Trending
                 </h4>
@@ -104,7 +104,7 @@ export function MobileTopBar({
                   {trendingItems.map((item, index) => (
                     <button
                       key={index}
-                      className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                      className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-[1.02] cursor-pointer active:scale-[0.98]"
                     >
                       <div className="flex items-center space-x-2">
                         <item.icon className="h-4 w-4 text-primary" />
@@ -129,9 +129,9 @@ export function MobileTopBar({
               variant="ghost"
               size="sm"
               onClick={onMenuToggle}
-              className="p-2"
+              className="p-2 transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer hover:bg-muted/70"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-5 w-5 transition-transform duration-200" />
             </Button>
           </div>
         </div>
