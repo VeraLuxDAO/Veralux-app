@@ -102,16 +102,17 @@ export function MobileBottomBar({
               onClick={() => handleNavigation(item.path)}
               className={cn(
                 "flex flex-col items-center space-y-1 p-2 h-auto min-w-0 flex-1",
-                "transition-colors duration-200",
+                "transition-all duration-300 cursor-pointer",
+                "hover:scale-110 active:scale-95",
                 isActive
-                  ? "text-primary bg-primary/10"
+                  ? "text-primary bg-primary/10 scale-105"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               )}
             >
               <div className="relative">
-                <item.icon className="h-5 w-5" />
+                <item.icon className="h-5 w-5 transition-transform duration-200" />
                 {item.badge && (
-                  <Badge className="absolute -top-2 -right-2 w-4 h-4 p-0 bg-primary text-primary-foreground text-xs flex items-center justify-center">
+                  <Badge className="absolute -top-2 -right-2 w-4 h-4 p-0 bg-primary text-primary-foreground text-xs flex items-center justify-center animate-pulse">
                     {item.badge}
                   </Badge>
                 )}

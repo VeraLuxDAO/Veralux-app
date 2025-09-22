@@ -101,9 +101,9 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
           variant="ghost"
           size="sm"
           onClick={onClose}
-          className="h-8 w-8 p-0 hover:bg-muted rounded-full"
+          className="h-8 w-8 p-0 hover:bg-muted rounded-full transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer"
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4 transition-transform duration-200" />
         </Button>
       </div>
 
@@ -185,7 +185,7 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => setInputValue("What is DeFi?")}
-                className="ai-quick-action text-xs h-7 sm:h-8 px-2 sm:px-3 rounded-full"
+                className="ai-quick-action text-xs h-7 sm:h-8 px-2 sm:px-3 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer hover:shadow-md"
               >
                 💰 DeFi Basics
               </Button>
@@ -193,7 +193,7 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => setInputValue("How do NFTs work?")}
-                className="ai-quick-action text-xs h-7 sm:h-8 px-2 sm:px-3 rounded-full"
+                className="ai-quick-action text-xs h-7 sm:h-8 px-2 sm:px-3 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer hover:shadow-md"
               >
                 🎨 NFT Guide
               </Button>
@@ -201,7 +201,7 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => setInputValue("Explain blockchain technology")}
-                className="ai-quick-action text-xs h-7 sm:h-8 px-2 sm:px-3 rounded-full"
+                className="ai-quick-action text-xs h-7 sm:h-8 px-2 sm:px-3 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer hover:shadow-md"
               >
                 ⛓️ Blockchain
               </Button>
@@ -209,7 +209,7 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => setInputValue("Web3 security tips")}
-                className="ai-quick-action text-xs h-7 sm:h-8 px-2 sm:px-3 rounded-full"
+                className="ai-quick-action text-xs h-7 sm:h-8 px-2 sm:px-3 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer hover:shadow-md"
               >
                 🛡️ Security
               </Button>
@@ -233,12 +233,12 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
             onClick={handleSendMessage}
             disabled={!inputValue.trim() || isLoading}
             size="sm"
-            className="h-8 w-8 sm:h-10 sm:w-10 rounded-full p-0"
+            className="h-8 w-8 sm:h-10 sm:w-10 rounded-full p-0 transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
             ) : (
-              <Send className="h-3 w-3 sm:h-4 sm:w-4" />
+              <Send className="h-3 w-3 sm:h-4 sm:w-4 transition-transform duration-200" />
             )}
           </Button>
         </div>

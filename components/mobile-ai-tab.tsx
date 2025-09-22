@@ -35,14 +35,17 @@ export function MobileAITab({ className }: MobileAITabProps) {
           <Button
             onClick={handleToggle}
             className={cn(
-              "ai-tab-button h-12 w-8 rounded-l-xl rounded-r-none",
+              "ai-tab-button h-12 w-8 rounded-l-xl rounded-r-none cursor-pointer",
               "bg-gradient-to-l from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70",
               "text-primary-foreground shadow-lg transition-all duration-300",
-              "flex flex-col items-center justify-center space-y-1"
+              "flex flex-col items-center justify-center space-y-1",
+              "hover:scale-110 hover:shadow-xl active:scale-95"
             )}
           >
-            <Bot className="h-4 w-4" />
-            <span className="text-xs font-medium">AI</span>
+            <Bot className="h-4 w-4 transition-transform duration-200" />
+            <span className="text-xs font-medium transition-all duration-200">
+              AI
+            </span>
           </Button>
         </div>
       )}

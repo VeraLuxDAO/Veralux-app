@@ -146,7 +146,7 @@ export function MobileHamburgerMenu({
               <Button
                 variant="ghost"
                 onClick={() => handleNavigation("/profile")}
-                className="w-full justify-start"
+                className="w-full justify-start transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer hover:bg-muted/70"
               >
                 <User className="mr-3 h-5 w-5" />
                 Profile
@@ -166,9 +166,9 @@ export function MobileHamburgerMenu({
                     key={module.path}
                     variant="ghost"
                     onClick={() => handleNavigation(module.path)}
-                    className="w-full justify-start"
+                    className="w-full justify-start transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer hover:bg-muted/70"
                   >
-                    <module.icon className="mr-3 h-5 w-5" />
+                    <module.icon className="mr-3 h-5 w-5 transition-transform duration-200" />
                     {module.label}
                     {module.badge && (
                       <Badge className="ml-auto bg-primary/20 text-primary border-primary/30 text-xs">
@@ -187,20 +187,20 @@ export function MobileHamburgerMenu({
               <Button
                 variant="ghost"
                 onClick={() => handleNavigation("/wallet")}
-                className="w-full justify-start"
+                className="w-full justify-start transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer hover:bg-muted/70"
               >
-                <Wallet className="mr-3 h-5 w-5" />
+                <Wallet className="mr-3 h-5 w-5 transition-transform duration-200" />
                 Wallet & Staking
               </Button>
 
               <Button
                 variant="ghost"
                 onClick={() => handleNavigation("/upgrade")}
-                className="w-full justify-start"
+                className="w-full justify-start transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer hover:bg-muted/70"
               >
-                <Crown className="mr-3 h-5 w-5 text-veralux-yellow" />
+                <Crown className="mr-3 h-5 w-5 text-veralux-yellow transition-transform duration-200" />
                 Upgrade
-                <Badge className="ml-auto bg-veralux-yellow/20 text-veralux-yellow border-veralux-yellow/30 text-xs">
+                <Badge className="ml-auto bg-veralux-yellow/20 text-veralux-yellow border-veralux-yellow/30 text-xs animate-pulse">
                   Pro
                 </Badge>
               </Button>
@@ -208,9 +208,9 @@ export function MobileHamburgerMenu({
               <Button
                 variant="ghost"
                 onClick={() => handleNavigation("/settings")}
-                className="w-full justify-start"
+                className="w-full justify-start transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer hover:bg-muted/70"
               >
-                <Settings className="mr-3 h-5 w-5" />
+                <Settings className="mr-3 h-5 w-5 transition-transform duration-200" />
                 Settings
               </Button>
             </div>
@@ -261,9 +261,9 @@ export function MobileHamburgerMenu({
                     auth.signOut();
                     onClose();
                   }}
-                  className="w-full justify-start text-destructive hover:text-destructive"
+                  className="w-full justify-start text-destructive hover:text-destructive transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer hover:bg-destructive/10"
                 >
-                  <LogOut className="mr-3 h-5 w-5" />
+                  <LogOut className="mr-3 h-5 w-5 transition-transform duration-200" />
                   Log Out
                 </Button>
               ) : (
@@ -273,9 +273,9 @@ export function MobileHamburgerMenu({
                     auth.signInWithGoogle();
                     onClose();
                   }}
-                  className="w-full justify-start"
+                  className="w-full justify-start transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer hover:bg-muted/70"
                 >
-                  <LogIn className="mr-3 h-5 w-5" />
+                  <LogIn className="mr-3 h-5 w-5 transition-transform duration-200" />
                   Log In
                 </Button>
               )}
