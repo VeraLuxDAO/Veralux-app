@@ -43,12 +43,12 @@ function WalletConnectButtonContent({
         // Mark that we've redirected to prevent future automatic redirects
         sessionStorage.setItem("veralux_redirected_after_login", "true");
         console.log(
-          "First-time redirect to dashboard after login and wallet connection"
+          "First-time redirect to social hub after login and wallet connection"
         );
-        router.push("/dashboard");
+        router.push("/");
       } else {
         console.log(
-          "User already redirected to dashboard, allowing free navigation"
+          "User already redirected to social hub, allowing free navigation"
         );
       }
     }

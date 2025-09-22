@@ -31,8 +31,8 @@ interface PostCardProps {
 
 export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
   return (
-    <Card className="bg-card border-border">
-      <CardContent className="p-4 sm:p-6">
+    <Card className="bg-card border-border mx-2 sm:mx-0">
+      <CardContent className="p-3 sm:p-6">
         {/* Post Header */}
         <div className="flex items-start space-x-3 mb-3 sm:mb-4">
           <Avatar className="w-10 h-10 sm:w-12 sm:h-12">
@@ -96,19 +96,19 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
         )}
 
         {/* Post Actions */}
-        <div className="flex items-center justify-between sm:justify-start sm:space-x-6 pt-3 border-t border-border">
-          <div className="flex items-center space-x-3 sm:space-x-6">
+        <div className="flex items-center justify-between pt-3 border-t border-border">
+          <div className="flex items-center space-x-2 sm:space-x-6">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onGlow(post.id)}
-              className={`flex items-center space-x-1 sm:space-x-2 ${
+              className={`flex items-center space-x-1 min-h-8 px-2 ${
                 post.hasGlowed
                   ? "text-veralux-green hover:text-veralux-green/80"
                   : "text-muted-foreground hover:text-veralux-green"
               }`}
             >
-              <span className="text-base sm:text-lg">⚡</span>
+              <span className="text-sm sm:text-lg">⚡</span>
               <span className="text-xs sm:text-sm font-medium">
                 {post.glows}
               </span>
@@ -118,13 +118,13 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
               variant="ghost"
               size="sm"
               onClick={() => onTip(post.id)}
-              className={`flex items-center space-x-1 sm:space-x-2 ${
+              className={`flex items-center space-x-1 min-h-8 px-2 ${
                 post.hasTipped
                   ? "text-veralux-yellow hover:text-veralux-yellow/80"
                   : "text-muted-foreground hover:text-veralux-yellow"
               }`}
             >
-              <span className="text-base sm:text-lg">💰</span>
+              <span className="text-sm sm:text-lg">💰</span>
               <span className="text-xs sm:text-sm font-medium">
                 {post.tips}
               </span>
@@ -133,9 +133,9 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
             <Button
               variant="ghost"
               size="sm"
-              className="flex items-center space-x-1 sm:space-x-2 text-muted-foreground hover:text-electric-blue"
+              className="flex items-center space-x-1 min-h-8 px-2 text-muted-foreground hover:text-electric-blue"
             >
-              <span className="text-base sm:text-lg">💬</span>
+              <span className="text-sm sm:text-lg">💬</span>
               <span className="text-xs sm:text-sm font-medium">
                 {post.replies}
               </span>
@@ -145,9 +145,9 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
           <Button
             variant="ghost"
             size="sm"
-            className="flex items-center space-x-1 sm:space-x-2 text-muted-foreground hover:text-electric-blue"
+            className="flex items-center space-x-1 min-h-8 px-2 text-muted-foreground hover:text-electric-blue"
           >
-            <span className="text-base sm:text-lg">🔗</span>
+            <span className="text-sm sm:text-lg">🔗</span>
             <span className="text-xs sm:text-sm font-medium hidden sm:inline">
               Share
             </span>

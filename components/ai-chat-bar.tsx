@@ -80,10 +80,10 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
 
   return (
     <div
-      className={`ai-chat-bar fixed bottom-32 right-6 z-40 w-96 max-h-[700px] h-auto rounded-xl shadow-2xl border transition-all duration-300 flex flex-col ${className}`}
+      className={`ai-chat-bar fixed bottom-20 right-2 sm:bottom-32 sm:right-6 z-40 w-[calc(100vw-1rem)] sm:w-96 max-w-sm sm:max-w-none max-h-[70vh] sm:max-h-[700px] h-auto rounded-xl shadow-2xl border transition-all duration-300 flex flex-col ${className}`}
     >
       {/* Header */}
-      <div className="ai-chat-header flex items-center justify-between p-4 border-b rounded-t-xl">
+      <div className="ai-chat-header flex items-center p-3 sm:p-4 border-b rounded-t-xl">
         <div className="flex items-center space-x-3">
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
@@ -97,19 +97,11 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
             <p className="text-xs text-muted-foreground">Online</p>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClose}
-          className="h-8 w-8 p-0 hover:bg-muted rounded-full"
-        >
-          <X className="h-4 w-4" />
-        </Button>
       </div>
 
       {/* Messages */}
       <ScrollArea
-        className="flex-1 p-4 max-h-[500px] overflow-y-scroll"
+        className="flex-1 p-2 sm:p-4 max-h-[400px] sm:max-h-[500px] overflow-y-scroll"
         ref={scrollAreaRef}
       >
         <div className="space-y-4">
@@ -185,7 +177,7 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => setInputValue("What is DeFi?")}
-                className="ai-quick-action text-xs h-8 px-3 rounded-full"
+                className="ai-quick-action text-xs h-7 sm:h-8 px-2 sm:px-3 rounded-full"
               >
                 💰 DeFi Basics
               </Button>
@@ -193,7 +185,7 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => setInputValue("How do NFTs work?")}
-                className="ai-quick-action text-xs h-8 px-3 rounded-full"
+                className="ai-quick-action text-xs h-7 sm:h-8 px-2 sm:px-3 rounded-full"
               >
                 🎨 NFT Guide
               </Button>
@@ -201,7 +193,7 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => setInputValue("Explain blockchain technology")}
-                className="ai-quick-action text-xs h-8 px-3 rounded-full"
+                className="ai-quick-action text-xs h-7 sm:h-8 px-2 sm:px-3 rounded-full"
               >
                 ⛓️ Blockchain
               </Button>
@@ -209,7 +201,7 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => setInputValue("Web3 security tips")}
-                className="ai-quick-action text-xs h-8 px-3 rounded-full"
+                className="ai-quick-action text-xs h-7 sm:h-8 px-2 sm:px-3 rounded-full"
               >
                 🛡️ Security
               </Button>
@@ -219,34 +211,34 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
       </ScrollArea>
 
       {/* Input */}
-      <div className="ai-chat-input p-4 border-t rounded-b-xl">
+      <div className="ai-chat-input p-3 sm:p-4 border-t rounded-b-xl">
         <div className="flex items-center space-x-2">
           <Input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Ask me anything about Web3..."
-            className="flex-1 h-10 rounded-full border-border bg-background"
+            className="flex-1 h-8 sm:h-10 rounded-full border-border bg-background text-sm"
             disabled={isLoading}
           />
           <Button
             onClick={handleSendMessage}
             disabled={!inputValue.trim() || isLoading}
             size="sm"
-            className="h-10 w-10 rounded-full p-0"
+            className="h-8 w-8 sm:h-10 sm:w-10 rounded-full p-0"
           >
             {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
             ) : (
-              <Send className="h-4 w-4" />
+              <Send className="h-3 w-3 sm:h-4 sm:w-4" />
             )}
           </Button>
         </div>
-        <div className="flex items-center justify-between mt-3">
+        <div className="flex items-center justify-between mt-2 sm:mt-3">
           <p className="text-xs text-muted-foreground">Powered by VeraLux AI</p>
           <div className="flex items-center space-x-1 text-xs text-muted-foreground">
             <Sparkles className="h-3 w-3" />
-            <span>Smart Assistant</span>
+            <span className="hidden sm:inline">Smart Assistant</span>
           </div>
         </div>
       </div>

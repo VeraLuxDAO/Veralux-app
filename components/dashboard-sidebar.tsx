@@ -72,17 +72,20 @@ export function DashboardSidebar({
 
           {/* Navigation */}
           <nav className="space-y-2">
-            <Link href="/dashboard">
+            <Link href="/">
               <Button
                 variant="ghost"
                 className={`w-full justify-start text-sm ${
-                  pathname === "/dashboard"
+                  pathname === "/"
                     ? "bg-primary/10 text-primary hover:bg-primary/20"
                     : "text-foreground hover:text-primary hover:bg-accent"
                 }`}
               >
-                <span className="mr-2 text-base">🏠</span>
-                Dashboard
+                <span className="mr-2 text-base">💬</span>
+                Social Hub
+                <Badge className="ml-auto bg-primary/20 text-primary border-primary/30 text-xs">
+                  5
+                </Badge>
               </Button>
             </Link>
 
@@ -107,23 +110,6 @@ export function DashboardSidebar({
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
                 Modules
               </h3>
-
-              <Link href="/social">
-                <Button
-                  variant="ghost"
-                  className={`w-full justify-start text-sm ${
-                    pathname === "/social"
-                      ? "bg-primary/10 text-primary hover:bg-primary/20"
-                      : "text-foreground hover:text-primary hover:bg-accent"
-                  }`}
-                >
-                  <span className="mr-2 text-base">💬</span>
-                  Social Hub
-                  <Badge className="ml-auto bg-primary/20 text-primary border-primary/30 text-xs">
-                    5
-                  </Badge>
-                </Button>
-              </Link>
 
               <Link href="/gaming">
                 <Button
