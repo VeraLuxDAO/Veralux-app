@@ -44,28 +44,28 @@ export function MobileAITab({ className }: MobileAITabProps) {
     if (!isOpen) {
       // Opening animation
       setIsOpen(true);
-      // Progressive backdrop blur
+      // Progressive backdrop blur - faster
       let progress = 0;
       const intervalId = setInterval(() => {
-        progress += 0.1;
+        progress += 0.15;
         setBackdropProgress(progress);
         if (progress >= 1) {
           clearInterval(intervalId);
           setIsAnimating(false);
         }
-      }, 50);
+      }, 20);
     } else {
-      // Closing animation
+      // Closing animation - faster
       let progress = 1;
       const intervalId = setInterval(() => {
-        progress -= 0.1;
+        progress -= 0.15;
         setBackdropProgress(progress);
         if (progress <= 0) {
           clearInterval(intervalId);
           setIsOpen(false);
           setIsAnimating(false);
         }
-      }, 30);
+      }, 15);
     }
   };
 
@@ -145,7 +145,7 @@ export function MobileAITab({ className }: MobileAITabProps) {
       <div
         className={cn(
           "ai-tab-container fixed right-0 top-1/2 transform -translate-y-1/2 z-50 md:hidden",
-          "transition-all duration-700 ease-out",
+          "transition-all duration-300 ease-out",
           isOpen && "opacity-0 pointer-events-none",
           className
         )}
@@ -161,7 +161,7 @@ export function MobileAITab({ className }: MobileAITabProps) {
           onClick={handleToggle}
           disabled={isAnimating}
           className={cn(
-            "ai-tab-button group relative cursor-pointer transition-all duration-700 ease-out transform-gpu",
+            "ai-tab-button group relative cursor-pointer transition-all duration-300 ease-out transform-gpu",
             "bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-600",
             "hover:from-blue-400 hover:via-purple-500 hover:to-indigo-500",
             "text-white shadow-lg border-2 border-white/20",
@@ -188,7 +188,7 @@ export function MobileAITab({ className }: MobileAITabProps) {
           "w-[75vw] max-w-[320px] min-w-[280px]",
           "bg-card/98 backdrop-blur-md border-l border-border/30",
           "shadow-[0_0_40px_rgba(0,0,0,0.3)]",
-          "transition-all duration-700 ease-out transform-gpu",
+          "transition-all duration-300 ease-out transform-gpu",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
         style={{
@@ -356,7 +356,7 @@ export function MobileAITab({ className }: MobileAITabProps) {
       {/* Overlay */}
       <div
         className={cn(
-          "ai-overlay fixed inset-0 z-30 md:hidden transition-all duration-700 ease-out",
+          "ai-overlay fixed inset-0 z-30 md:hidden transition-all duration-300 ease-out",
           isOpen ? "pointer-events-auto" : "pointer-events-none"
         )}
         style={{

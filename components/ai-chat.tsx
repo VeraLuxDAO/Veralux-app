@@ -43,30 +43,30 @@ export function AIChat({ className = "" }: AIChatProps) {
     setIsAnimating(true);
 
     if (!isOpen) {
-      // Opening animation
+      // Opening animation - faster
       setIsOpen(true);
       // Progressive backdrop blur
       let progress = 0;
       const intervalId = setInterval(() => {
-        progress += 0.1;
+        progress += 0.2;
         setBackdropProgress(progress);
         if (progress >= 1) {
           clearInterval(intervalId);
           setIsAnimating(false);
         }
-      }, 50);
+      }, 20);
     } else {
-      // Closing animation
+      // Closing animation - faster
       let progress = 1;
       const intervalId = setInterval(() => {
-        progress -= 0.1;
+        progress -= 0.2;
         setBackdropProgress(progress);
         if (progress <= 0) {
           clearInterval(intervalId);
           setIsOpen(false);
           setIsAnimating(false);
         }
-      }, 30);
+      }, 15);
     }
   };
 
@@ -133,7 +133,7 @@ export function AIChat({ className = "" }: AIChatProps) {
       <div
         className={cn(
           "desktop-ai-tab-container fixed bottom-6 right-6 z-50",
-          "transition-all duration-700 ease-out transform-gpu",
+          "transition-all duration-300 ease-out transform-gpu",
           isOpen && "opacity-0 pointer-events-none",
           className
         )}
@@ -180,7 +180,7 @@ export function AIChat({ className = "" }: AIChatProps) {
           "w-96 h-[600px] rounded-xl",
           "bg-card/98 backdrop-blur-md border border-border/30",
           "shadow-[0_0_40px_rgba(0,0,0,0.3)]",
-          "transition-all duration-700 ease-out transform-gpu"
+          "transition-all duration-300 ease-out transform-gpu"
         )}
         style={{
           transform: isOpen ? "translateX(0)" : "translateX(100%)",
@@ -345,7 +345,7 @@ export function AIChat({ className = "" }: AIChatProps) {
       {/* Progressive Blur Overlay - Desktop */}
       <div
         className={cn(
-          "desktop-ai-overlay fixed inset-0 z-30 transition-all duration-700 ease-out",
+          "desktop-ai-overlay fixed inset-0 z-30 transition-all duration-300 ease-out",
           isOpen ? "pointer-events-auto" : "pointer-events-none"
         )}
         style={{
