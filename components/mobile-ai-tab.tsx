@@ -1,10 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { AIChatBar } from "@/components/ai-chat-bar";
-import { Bot, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Bot, Send, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+interface Message {
+  id: string;
+  content: string;
+  sender: "user" | "ai";
+  timestamp: Date;
+}
 
 interface MobileAITabProps {
   className?: string;
@@ -12,79 +21,347 @@ interface MobileAITabProps {
 
 export function MobileAITab({ className }: MobileAITabProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [backdropProgress, setBackdropProgress] = useState(0);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: "1",
+      content:
+        "Hello! I'm VeraLux AI Assistant. I can help you with Web3 questions, DeFi strategies, NFT guidance, blockchain development, and more. What would you like to know?",
+      sender: "ai",
+      timestamp: new Date(),
+    },
+  ]);
+  const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const handleToggle = () => {
-    setIsOpen(!isOpen);
+    if (isAnimating) return;
+
+    setIsAnimating(true);
+
+    if (!isOpen) {
+      // Opening animation
+      setIsOpen(true);
+      // Progressive backdrop blur
+      let progress = 0;
+      const intervalId = setInterval(() => {
+        progress += 0.1;
+        setBackdropProgress(progress);
+        if (progress >= 1) {
+          clearInterval(intervalId);
+          setIsAnimating(false);
+        }
+      }, 50);
+    } else {
+      // Closing animation
+      let progress = 1;
+      const intervalId = setInterval(() => {
+        progress -= 0.1;
+        setBackdropProgress(progress);
+        if (progress <= 0) {
+          clearInterval(intervalId);
+          setIsOpen(false);
+          setIsAnimating(false);
+        }
+      }, 30);
+    }
   };
 
   const handleClose = () => {
-    setIsOpen(false);
+    if (isAnimating) return;
+    handleToggle();
   };
+
+  // Prevent body scroll when panel is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const handleSendMessage = async () => {
+    if (!inputValue.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content: inputValue.trim(),
+      sender: "user",
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInputValue("");
+    setIsLoading(true);
+
+    // Simulate AI response
+    setTimeout(() => {
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content:
+          "I understand your question about Web3. Let me help you with that! This is a simulated AI response. In a real implementation, this would connect to your AI service.",
+        sender: "ai",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, aiMessage]);
+      setIsLoading(false);
+    }, 1500);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const quickActions = [
+    { label: "💰 DeFi Basics", action: () => setInputValue("What is DeFi?") },
+    { label: "🎨 NFT Guide", action: () => setInputValue("How do NFTs work?") },
+    {
+      label: "⛓️ Blockchain",
+      action: () => setInputValue("Explain blockchain technology"),
+    },
+    { label: "🛡️ Security", action: () => setInputValue("Web3 security tips") },
+  ];
 
   return (
     <>
-      {/* AI Tab Button - Hide when modal is open */}
-      {!isOpen && (
-        <div
-          className={cn(
-            "mobile-ai-tab fixed right-0 top-1/2 transform -translate-y-1/2 z-40 md:hidden",
-            "transition-all duration-300 ease-in-out",
-            className
-          )}
-        >
-          <Button
-            onClick={handleToggle}
-            className={cn(
-              "ai-tab-button h-12 w-8 rounded-l-xl rounded-r-none cursor-pointer",
-              "bg-gradient-to-l from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70",
-              "text-primary-foreground shadow-lg transition-all duration-300",
-              "flex flex-col items-center justify-center space-y-1",
-              "hover:scale-110 hover:shadow-xl active:scale-95"
-            )}
-          >
-            <Bot className="h-4 w-4 transition-transform duration-200" />
-            <span className="text-xs font-medium transition-all duration-200">
-              AI
-            </span>
-          </Button>
-        </div>
-      )}
-
-      {/* AI Chat Centered Modal with Animation - All Mobile Resolutions */}
+      {/* AI Tab Button with Transform Animation */}
       <div
         className={cn(
-          "mobile-ai-modal fixed top-0 left-0 right-0 bottom-0 z-30 md:hidden",
-          "flex items-center justify-center",
-          "px-2 py-4 sm:px-4 sm:py-6",
-          "transition-all duration-500 ease-in-out",
-          isOpen
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-4 pointer-events-none"
+          "ai-tab-container fixed right-0 top-1/2 transform -translate-y-1/2 z-50 md:hidden",
+          "transition-all duration-700 ease-out",
+          className
         )}
+        data-open={isOpen}
+        style={{
+          transform: `translateY(-50%) ${
+            isOpen ? "translateX(-75vw)" : "translateX(0px)"
+          }`,
+        }}
       >
-        <div
+        <Button
+          onClick={handleToggle}
+          disabled={isAnimating}
           className={cn(
-            "w-full h-full",
-            "max-w-[calc(100vw-1rem)] max-h-[calc(100vh-2rem)]",
-            "sm:max-w-md sm:max-h-[80vh]",
-            "min-h-[400px] min-w-[280px]"
+            "ai-tab-button cursor-pointer transition-all duration-700 ease-out transform-gpu",
+            "bg-gradient-to-bl from-electric-blue via-primary to-electric-blue/80",
+            "hover:from-electric-blue/90 hover:via-primary/90 hover:to-electric-blue/70",
+            "text-primary-foreground shadow-lg border border-primary/20",
+            "flex items-center justify-center backdrop-blur-sm",
+            "hover:scale-105 active:scale-95 disabled:cursor-not-allowed hover:shadow-xl",
+            "h-14 w-7 rounded-l-2xl rounded-r-none"
           )}
         >
-          <AIChatBar
-            isOpen={isOpen}
-            onClose={handleClose}
-            className="h-full w-full rounded-xl border shadow-2xl bg-card"
-          />
+          <div className="flex flex-col items-center justify-center space-y-0.5">
+            <Bot className="h-3.5 w-3.5 transition-transform duration-200" />
+            <span className="text-[10px] font-medium transition-all duration-200 leading-none">
+              AI
+            </span>
+          </div>
+        </Button>
+      </div>
+
+      {/* AI Chat Slide-out Panel - Proper Navigation Bar Spacing */}
+      <div
+        className={cn(
+          "ai-chat-panel fixed right-0 z-40 md:hidden flex flex-col",
+          "w-[75vw] max-w-[320px] min-w-[280px]",
+          "bg-card/98 backdrop-blur-md border-l border-border/30",
+          "shadow-[0_0_40px_rgba(0,0,0,0.3)]",
+          "transition-all duration-700 ease-out transform-gpu",
+          isOpen ? "translate-x-0" : "translate-x-full"
+        )}
+        style={{
+          top: "64px", // Exact height of mobile top bar
+          bottom: "80px", // Exact height of mobile bottom bar
+          height: "calc(100vh - 144px)", // Total: 100vh - 64px - 80px
+          willChange: "transform",
+          opacity: isOpen ? 1 : 0,
+        }}
+      >
+        {/* Header - Subtle Design */}
+        <div className="flex-shrink-0 p-3 border-b border-border/20 bg-card/50 backdrop-blur-sm">
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <Avatar className="h-8 w-8 ring-1 ring-border/30">
+                <AvatarFallback className="bg-gradient-to-br from-primary/80 via-primary to-primary/90 text-primary-foreground text-sm">
+                  <Bot className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-veralux-green rounded-full border border-card" />
+            </div>
+            <div className="flex flex-col">
+              <h3 className="font-semibold text-sm text-foreground">
+                VeraLux AI
+              </h3>
+              <div className="flex items-center space-x-1.5">
+                <div className="h-1.5 w-1.5 bg-veralux-green rounded-full" />
+                <p className="text-xs text-muted-foreground">Online</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Messages */}
+        <ScrollArea ref={scrollAreaRef} className="flex-1 p-3 overflow-y-auto">
+          <div className="space-y-2.5">
+            {messages.map((message, index) => (
+              <div
+                key={message.id}
+                className={cn(
+                  "flex w-full",
+                  message.sender === "user" ? "justify-end" : "justify-start"
+                )}
+                style={{
+                  animationDelay: `${index * 0.1}s`,
+                }}
+              >
+                <div
+                  className={cn(
+                    "group max-w-[82%] rounded-xl px-3 py-2.5 text-sm transition-all duration-200",
+                    message.sender === "user"
+                      ? "bg-primary/95 text-primary-foreground ml-2 shadow-sm"
+                      : "bg-muted/60 text-foreground mr-2 border border-border/20"
+                  )}
+                >
+                  <p className="whitespace-pre-wrap break-words leading-relaxed">
+                    {message.content}
+                  </p>
+                  <div className="flex items-center justify-between mt-1.5">
+                    <p
+                      className={cn(
+                        "text-xs opacity-60 transition-opacity duration-200",
+                        message.sender === "user"
+                          ? "text-primary-foreground/60"
+                          : "text-muted-foreground"
+                      )}
+                    >
+                      {message.timestamp.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                    {message.sender === "ai" && (
+                      <div className="flex items-center space-x-1 opacity-50">
+                        <Bot className="h-2.5 w-2.5" />
+                        <span className="text-[10px]">AI</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {isLoading && (
+              <div className="flex justify-start w-full animate-fade-in-up">
+                <div className="bg-muted/60 text-foreground max-w-[82%] rounded-xl px-3 py-2.5 mr-2 border border-border/20">
+                  <div className="flex items-center space-x-2">
+                    <div className="h-5 w-5 rounded-full bg-primary/80 flex items-center justify-center">
+                      <Bot className="h-2.5 w-2.5 text-primary-foreground" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm">AI is typing...</span>
+                      <div className="flex items-center space-x-1 mt-0.5">
+                        <div className="h-1.5 w-1.5 bg-primary rounded-full animate-bounce" />
+                        <div className="h-1.5 w-1.5 bg-primary rounded-full animate-bounce animation-delay-100" />
+                        <div className="h-1.5 w-1.5 bg-primary rounded-full animate-bounce animation-delay-200" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Quick Action Buttons */}
+            {messages.length === 1 && (
+              <div className="mt-3">
+                <p className="text-xs text-muted-foreground mb-2 text-center">
+                  Quick Actions
+                </p>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {quickActions.map((action, index) => (
+                    <Button
+                      key={index}
+                      variant="outline"
+                      size="sm"
+                      onClick={action.action}
+                      className="h-8 text-xs rounded-lg border-border/30 bg-muted/30 hover:bg-muted/50 hover:border-primary/30 transition-all duration-200 text-muted-foreground hover:text-foreground"
+                    >
+                      {action.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+
+        {/* Input */}
+        <div className="flex-shrink-0 p-3 border-t border-border/20 bg-card/50 backdrop-blur-sm">
+          <div className="flex items-center space-x-2 p-2 bg-background/60 rounded-xl border border-border/20">
+            <Input
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Ask me anything about Web3..."
+              className="flex-1 h-8 border-0 bg-transparent text-sm placeholder:text-muted-foreground/60 focus:ring-0 focus:outline-none"
+              disabled={isLoading}
+            />
+            <Button
+              onClick={handleSendMessage}
+              disabled={!inputValue.trim() || isLoading}
+              size="sm"
+              className={cn(
+                "h-8 w-8 rounded-lg p-0 transition-all duration-200",
+                !inputValue.trim() || isLoading
+                  ? "bg-muted/50 text-muted-foreground cursor-not-allowed"
+                  : "bg-primary/90 text-primary-foreground hover:bg-primary cursor-pointer"
+              )}
+            >
+              {isLoading ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <Send className="h-3 w-3" />
+              )}
+            </Button>
+          </div>
+          <div className="flex items-center justify-center mt-2 px-1">
+            <p className="text-xs text-muted-foreground">
+              Powered by VeraLux AI
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Overlay for mobile */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-20 md:hidden transition-opacity duration-300"
-          onClick={handleClose}
-        />
-      )}
+      {/* Overlay */}
+      <div
+        className={cn(
+          "ai-overlay fixed inset-0 z-30 md:hidden transition-all duration-700 ease-out",
+          isOpen ? "pointer-events-auto" : "pointer-events-none"
+        )}
+        style={{
+          background: `rgba(0, 0, 0, ${0.4 * backdropProgress})`,
+          backdropFilter: `blur(${8 * backdropProgress}px)`,
+          opacity: backdropProgress,
+        }}
+        onClick={handleClose}
+      />
     </>
   );
 }

@@ -46,8 +46,12 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
       className={cn(
         "desktop-top-bar fixed top-0 left-0 right-0 z-50 hidden md:block",
         "bg-card/95 backdrop-blur-md border-b border-border",
+        "transition-all duration-500 ease-out transform-gpu will-change-transform",
         className
       )}
+      style={{
+        willChange: "transform, opacity",
+      }}
     >
       <div className="flex items-center justify-between px-6 py-4">
         {/* Left Side - Logo */}
@@ -82,7 +86,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
 
           {/* Trending Dropdown */}
           {showSearchDropdown && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg p-4 z-50">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg p-4 z-50 transform-gpu transition-all duration-300 ease-out animate-in slide-in-from-top-2 fade-in-0 scale-in-95">
               <h4 className="text-sm font-medium text-card-foreground mb-3">
                 Trending
               </h4>

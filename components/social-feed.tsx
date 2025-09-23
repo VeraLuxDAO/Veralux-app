@@ -4,8 +4,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { PostCard } from "@/components/post-card";
+import { Loader2 } from "lucide-react";
 
 interface FlowPost {
   id: string;
@@ -88,6 +89,10 @@ const mockPosts: FlowPost[] = [
 
 export function SocialFeed() {
   const [posts, setPosts] = useState<FlowPost[]>(mockPosts);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const handleGlow = useCallback((postId: string) => {
     setPosts((prevPosts) =>
@@ -117,6 +122,87 @@ export function SocialFeed() {
     );
   }, []);
 
+  // Generate more mock posts for infinite scroll
+  const generateMorePosts = useCallback((pageNum: number): FlowPost[] => {
+    const newPosts: FlowPost[] = [];
+    const baseId = pageNum * 10;
+
+    for (let i = 0; i < 5; i++) {
+      const id = (baseId + i).toString();
+      newPosts.push({
+        id,
+        author: {
+          name: `User ${baseId + i}`,
+          username: `@user${baseId + i}`,
+          avatar: "/diverse-user-avatars.png",
+          verified: Math.random() > 0.7,
+          badges: Math.random() > 0.5 ? ["Trader"] : [],
+        },
+        content: `This is post ${id} with some interesting content about Web3 and blockchain technology. ${
+          Math.random() > 0.5 ? "🚀" : "💎"
+        }`,
+        timestamp: `${Math.floor(Math.random() * 24)}h ago`,
+        glows: Math.floor(Math.random() * 100),
+        tips: Math.floor(Math.random() * 50),
+        replies: Math.floor(Math.random() * 20),
+        hasGlowed: false,
+        hasTipped: false,
+        tags: ["DeFi", "Web3", "Crypto"][Math.floor(Math.random() * 3)]
+          ? ["DeFi"]
+          : [],
+      });
+    }
+    return newPosts;
+  }, []);
+
+  const loadMorePosts = useCallback(async () => {
+    if (isLoading || !hasMore) return;
+
+    setIsLoading(true);
+
+    // Simulate API delay
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    const newPosts = generateMorePosts(page);
+
+    setPosts((prevPosts) => [...prevPosts, ...newPosts]);
+    setPage((prev) => prev + 1);
+
+    // Stop loading after 5 pages (25 additional posts)
+    if (page >= 5) {
+      setHasMore(false);
+    }
+
+    setIsLoading(false);
+  }, [isLoading, hasMore, page, generateMorePosts]);
+
+  // Intersection Observer for auto-loading
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const target = entries[0];
+        if (target.isIntersecting && hasMore && !isLoading) {
+          loadMorePosts();
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: "100px",
+      }
+    );
+
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [loadMorePosts, hasMore, isLoading]);
+
   return (
     <div className="space-y-6">
       {posts.map((post) => (
@@ -128,15 +214,35 @@ export function SocialFeed() {
         />
       ))}
 
-      {/* Load More */}
-      <div className="text-center">
-        <Button
-          variant="outline"
-          className="border-electric-blue text-electric-blue hover:bg-electric-blue hover:text-white bg-transparent"
-        >
-          Load More Flows
-        </Button>
-      </div>
+      {/* Auto-loading trigger and loading indicator */}
+      {hasMore && (
+        <div ref={loadMoreRef} className="text-center py-8">
+          {isLoading ? (
+            <div className="flex items-center justify-center space-x-2 text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span className="text-sm">Loading more flows...</span>
+            </div>
+          ) : (
+            <div className="h-20 flex items-center justify-center">
+              <span className="text-sm text-muted-foreground">
+                Scroll down for more
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* End of feed message */}
+      {!hasMore && !isLoading && (
+        <div className="text-center py-8">
+          <div className="text-sm text-muted-foreground">
+            🎉 You've reached the end of the feed
+          </div>
+          <div className="text-xs text-muted-foreground mt-2">
+            Check back later for new flows
+          </div>
+        </div>
+      )}
     </div>
   );
 }
