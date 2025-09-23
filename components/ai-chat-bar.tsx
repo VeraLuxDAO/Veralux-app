@@ -97,14 +97,16 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
             <p className="text-xs text-muted-foreground">Online</p>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClose}
-          className="h-8 w-8 p-0 hover:bg-muted rounded-full transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer"
-        >
-          <X className="h-4 w-4 transition-transform duration-200" />
-        </Button>
+        {onClose && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="h-8 w-8 p-0 hover:bg-muted rounded-full transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer"
+          >
+            <X className="h-4 w-4 transition-transform duration-200" />
+          </Button>
+        )}
       </div>
 
       {/* Messages */}

@@ -1724,6 +1724,467 @@ button:active:not(:disabled) {
   animation: slideInRight 0.3s ease-out;
 }
 
+/* AI Chat Panel Enhancements */
+.ai-tab-container,
+.desktop-ai-tab-container {
+  will-change: transform;
+}
+
+.ai-chat-panel,
+.desktop-ai-chat-panel {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Mobile AI Panel Responsive Design */
+.ai-chat-panel {
+  /* Optimized positioning between navigation bars */
+  position: fixed;
+  top: 64px;
+  bottom: 80px;
+  height: calc(100vh - 144px);
+  min-height: 0;
+  /* Enhanced animation performance */
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+@media (max-width: 480px) {
+  .ai-chat-panel {
+    width: 75vw !important;
+    max-width: 300px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .ai-chat-panel {
+    width: 80vw !important;
+    max-width: 280px !important;
+  }
+
+  .ai-tab-container[data-open="true"] {
+    transform: translateY(-50%) translateX(-80vw) !important;
+  }
+}
+
+/* Enhanced slide animations */
+@keyframes slideInFromRightSmooth {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  60% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutToRightSmooth {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  40% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Ensure mobile browser address bar doesn't interfere */
+@media screen and (max-height: 600px) {
+  .ai-chat-panel .scroll-area {
+    max-height: calc(100vh - 150px) !important;
+  }
+}
+
+/* Ultra-small mobile screens */
+@media (max-width: 320px) {
+  .ai-chat-panel {
+    width: 95vw !important;
+  }
+
+  .ai-tab-container[data-open="true"] {
+    transform: translateY(-50%) translateX(-95vw) !important;
+  }
+}
+
+/* Desktop AI Panel Responsive Design */
+.desktop-ai-chat-panel {
+  /* Enhanced animation performance */
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  /* Faster transition timing */
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-out;
+}
+
+.desktop-ai-tab-container {
+  /* Synchronized button animation */
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (max-width: 1200px) {
+  .desktop-ai-chat-panel {
+    width: 350px !important;
+  }
+
+  .desktop-ai-tab-container[data-open="true"] {
+    transform: translateX(-360px) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .desktop-ai-tab-container,
+  .desktop-ai-chat-panel,
+  .desktop-ai-overlay {
+    display: none !important;
+  }
+}
+
+/* Desktop slide animations */
+@keyframes slideInFromRightDesktop {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  60% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Smooth scrolling for AI chat */
+.ai-chat-panel .scroll-area,
+.desktop-ai-chat-panel .scroll-area {
+  scroll-behavior: smooth;
+}
+
+/* Enhanced backdrop blur for better visibility */
+.ai-overlay {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.desktop-ai-overlay {
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* Enhanced AI Chat Animations */
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutToRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes glow {
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+  }
+}
+
+.ai-chat-panel {
+  animation: slideInFromRight 0.7s ease-out;
+}
+
+.ai-chat-panel.closing {
+  animation: slideOutToRight 0.5s ease-in forwards;
+}
+
+/* Animation delays for staggered effects */
+.animation-delay-100 {
+  animation-delay: 0.1s;
+}
+
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-300 {
+  animation-delay: 0.3s;
+}
+
+/* Enhanced Global Animation System */
+/* High-performance transforms for all interactive elements */
+button,
+a,
+input,
+[role="button"],
+.interactive {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0); /* Force GPU acceleration */
+  backface-visibility: hidden;
+}
+
+/* Smoother hover effects */
+button:hover,
+a:hover,
+[role="button"]:hover,
+.interactive:hover {
+  transform: translateY(-1px) translateZ(0);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+button:active,
+a:active,
+[role="button"]:active,
+.interactive:active {
+  transform: translateY(0) translateZ(0);
+  transition-duration: 0.1s;
+}
+
+/* Performance optimization classes */
+.transform-gpu {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.will-change-transform {
+  will-change: transform;
+}
+
+.backface-visibility-hidden {
+  backface-visibility: hidden;
+}
+
+/* Enhanced slide animations for navigation */
+@keyframes slideInFromLeft {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  60% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutToLeft {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  40% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+/* Scale and fade animations for dropdowns */
+@keyframes scaleIn {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleOut {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+/* Enhanced Navigation Bar Scroll Animations */
+.mobile-top-bar,
+.mobile-bottom-bar {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity 0.3s ease-out;
+}
+
+/* Enhanced scroll-based show/hide animations */
+.mobile-top-bar {
+  transform-origin: center top;
+}
+
+.mobile-top-bar:not(.translate-y-0) {
+  /* When hiding, slide up completely */
+  transform: translateY(-100%) translateZ(0);
+}
+
+.mobile-bottom-bar {
+  transform-origin: center bottom;
+}
+
+.mobile-bottom-bar:not(.translate-y-0) {
+  /* When hiding, slide down completely */
+  transform: translateY(100%) translateZ(0);
+}
+
+/* Scroll animation states */
+@keyframes slideDownFromTop {
+  from {
+    transform: translateY(-100%) translateZ(0);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateY(0) translateZ(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUpToTop {
+  from {
+    transform: translateY(0) translateZ(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%) translateZ(0);
+    opacity: 0.8;
+  }
+}
+
+@keyframes slideUpFromBottom {
+  from {
+    transform: translateY(100%) translateZ(0);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateY(0) translateZ(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDownToBottom {
+  from {
+    transform: translateY(0) translateZ(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%) translateZ(0);
+    opacity: 0.8;
+  }
+}
+
+.desktop-left-sidebar,
+.desktop-top-bar {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Menu animation improvements */
+.mobile-hamburger-menu {
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease-out;
+}
+
+/* AI Chat enhanced animations */
+.ai-chat-panel,
+.desktop-ai-chat-panel {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Button hover enhancements */
+.ai-tab-button,
+.desktop-ai-tab-button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+/* Enhanced message animations */
+.animate-bounce-in {
+  animation: bounceIn 0.6s ease-out;
+}
+
+/* Enhanced button hover effects with glow */
+.glow-on-hover:hover {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+/* GPU acceleration for better performance */
+.transform-gpu {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Smooth gradient text animation */
+@keyframes gradientShift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.gradient-text-animated {
+  background: linear-gradient(-45deg, #3b82f6, #8b5cf6, #06b6d4, #10b981);
+  background-size: 400% 400%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 3s ease infinite;
+}
+
 /* Medium devices and larger - ensure proper spacing */
 @media (min-width: 768px) {
   .mobile-top-bar input {

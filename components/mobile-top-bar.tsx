@@ -28,27 +28,53 @@ export function MobileTopBar({
   const auth = useAuth();
   const router = useRouter();
 
-  // Hide/show on scroll (disabled when menu is open)
+  // Hide/show on scroll with smooth animations (disabled when menu is open)
   useEffect(() => {
     if (isMenuOpen) {
       setIsVisible(true);
       return;
     }
 
+    let ticking = false;
+
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          const scrollDifference = Math.abs(currentScrollY - lastScrollY);
 
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setIsVisible(false);
-      } else {
-        setIsVisible(true);
+          // Only trigger animation if scroll is significant enough
+          if (scrollDifference > 3) {
+            if (currentScrollY > lastScrollY && currentScrollY > 60) {
+              // Scrolling down - hide with animation
+              console.log("Hiding top bar - scrolling down", {
+                currentScrollY,
+                lastScrollY,
+              });
+              setIsVisible(false);
+            } else if (currentScrollY < lastScrollY || currentScrollY <= 60) {
+              // Scrolling up or near top - show with animation
+              console.log("Showing top bar - scrolling up", {
+                currentScrollY,
+                lastScrollY,
+              });
+              setIsVisible(true);
+            }
+
+            setLastScrollY(currentScrollY);
+          }
+
+          ticking = false;
+        });
+
+        ticking = true;
       }
-
-      setLastScrollY(currentScrollY);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, [lastScrollY, isMenuOpen]);
 
   const handleLogoClick = () => {
@@ -66,11 +92,21 @@ export function MobileTopBar({
     <>
       <header
         className={cn(
-          "mobile-top-bar fixed top-0 left-0 right-0 z-50 transition-transform duration-300 md:hidden",
+          "mobile-top-bar fixed top-0 left-0 right-0 z-50 md:hidden",
           "bg-card/95 backdrop-blur-md border-b border-border",
-          isVisible ? "translate-y-0" : "-translate-y-full",
+          "transition-all duration-400 ease-out transform-gpu",
+          "will-change-transform backface-visibility-hidden",
+          isVisible
+            ? "translate-y-0 opacity-100 visible"
+            : "-translate-y-full opacity-0 invisible",
           className
         )}
+        style={{
+          willChange: "transform, opacity",
+          transform: isVisible
+            ? "translateY(0) translateZ(0)"
+            : "translateY(-100%) translateZ(0)",
+        }}
       >
         <div className="flex items-center justify-between px-2 sm:px-4 py-2 sm:py-3">
           {/* Logo */}
@@ -96,7 +132,7 @@ export function MobileTopBar({
 
             {/* Trending Dropdown */}
             {showSearchDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg p-3 z-50 animate-in slide-in-from-top-2 duration-200">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg p-3 z-50 transform-gpu transition-all duration-300 ease-out animate-in slide-in-from-top-2 fade-in-0 scale-in-95">
                 <h4 className="text-sm font-medium text-card-foreground mb-2">
                   Trending
                 </h4>

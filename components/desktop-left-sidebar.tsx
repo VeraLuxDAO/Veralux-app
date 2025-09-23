@@ -86,8 +86,12 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
       className={cn(
         "desktop-left-sidebar fixed left-0 top-20 h-[calc(100vh-5rem)] w-64 z-40 hidden md:block",
         "bg-card/95 backdrop-blur-md border-r border-border overflow-y-auto",
+        "transition-all duration-500 ease-out transform-gpu will-change-transform",
         className
       )}
+      style={{
+        willChange: "transform, opacity",
+      }}
     >
       <div className="p-6 space-y-6">
         {/* Main Navigation */}

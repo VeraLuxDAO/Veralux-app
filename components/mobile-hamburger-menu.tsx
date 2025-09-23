@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -35,9 +36,23 @@ export function MobileHamburgerMenu({
   onClose,
   className,
 }: MobileHamburgerMenuProps) {
+  const [isAnimating, setIsAnimating] = useState(false);
   const auth = useAuth();
   const { theme, setTheme } = useTheme();
   const router = useRouter();
+
+  // Handle animation state
+  useEffect(() => {
+    if (isOpen) {
+      setIsAnimating(true);
+      const timer = setTimeout(() => setIsAnimating(false), 700);
+      return () => clearTimeout(timer);
+    } else {
+      setIsAnimating(true);
+      const timer = setTimeout(() => setIsAnimating(false), 700);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
 
   const handleNavigation = (path: string) => {
     router.push(path);
@@ -71,27 +86,36 @@ export function MobileHamburgerMenu({
 
   return (
     <>
-      {/* Overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
-          onClick={onClose}
-        />
-      )}
+      {/* Progressive Overlay */}
+      <div
+        className={cn(
+          "fixed inset-0 z-30 md:hidden transform-gpu transition-all duration-700 ease-out",
+          isOpen ? "pointer-events-auto" : "pointer-events-none"
+        )}
+        style={{
+          background: `rgba(0, 0, 0, ${isOpen ? 0.25 : 0})`,
+          backdropFilter: `blur(${isOpen ? 4 : 0}px)`,
+          opacity: isOpen ? 1 : 0,
+          willChange: "opacity, backdrop-filter",
+        }}
+        onClick={onClose}
+      />
 
       {/* Menu Panel - Fills exact space between top and bottom bars */}
       <div
         className={cn(
           "mobile-hamburger-menu fixed w-80 max-w-[90vw] z-40 md:hidden",
           "bg-card border-r border-border shadow-2xl",
-          "transform transition-transform duration-300 ease-in-out",
-          isOpen ? "translate-x-0" : "-translate-x-full",
+          "transition-all duration-500 ease-out transform-gpu",
+          "will-change-transform backface-visibility-hidden",
           className
         )}
         style={{
           top: "64px", // Exact height of top bar
           bottom: "80px", // Exact height of bottom bar
           left: "0px",
+          transform: isOpen ? "translateX(0)" : "translateX(-100%)",
+          willChange: "transform",
         }}
       >
         <div className="flex flex-col h-full">
