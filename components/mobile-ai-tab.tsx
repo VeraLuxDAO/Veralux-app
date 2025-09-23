@@ -146,33 +146,37 @@ export function MobileAITab({ className }: MobileAITabProps) {
         className={cn(
           "ai-tab-container fixed right-0 top-1/2 transform -translate-y-1/2 z-50 md:hidden",
           "transition-all duration-700 ease-out",
+          isOpen && "opacity-0 pointer-events-none",
           className
         )}
         data-open={isOpen}
         style={{
           transform: `translateY(-50%) ${
-            isOpen ? "translateX(-75vw)" : "translateX(0px)"
+            isOpen ? "translateX(-75vw) scale(0.8)" : "translateX(0px) scale(1)"
           }`,
+          opacity: isOpen ? 0 : 1,
         }}
       >
         <Button
           onClick={handleToggle}
           disabled={isAnimating}
           className={cn(
-            "ai-tab-button cursor-pointer transition-all duration-700 ease-out transform-gpu",
-            "bg-gradient-to-bl from-electric-blue via-primary to-electric-blue/80",
-            "hover:from-electric-blue/90 hover:via-primary/90 hover:to-electric-blue/70",
-            "text-primary-foreground shadow-lg border border-primary/20",
+            "ai-tab-button group relative cursor-pointer transition-all duration-700 ease-out transform-gpu",
+            "bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-600",
+            "hover:from-blue-400 hover:via-purple-500 hover:to-indigo-500",
+            "text-white shadow-lg border-2 border-white/20",
             "flex items-center justify-center backdrop-blur-sm",
-            "hover:scale-105 active:scale-95 disabled:cursor-not-allowed hover:shadow-xl",
-            "h-14 w-7 rounded-l-2xl rounded-r-none"
+            "hover:scale-110 active:scale-95 disabled:cursor-not-allowed hover:shadow-xl hover:shadow-purple-500/30",
+            "h-16 w-8 rounded-l-3xl rounded-r-none",
+            "before:absolute before:inset-0 before:rounded-l-3xl before:bg-gradient-to-br before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300"
           )}
         >
-          <div className="flex flex-col items-center justify-center space-y-0.5">
-            <Bot className="h-3.5 w-3.5 transition-transform duration-200" />
-            <span className="text-[10px] font-medium transition-all duration-200 leading-none">
+          <div className="relative z-10 flex flex-col items-center justify-center space-y-0.5">
+            <Bot className="h-4 w-4 transition-transform duration-200 group-hover:scale-110 text-white drop-shadow-sm" />
+            <span className="text-[9px] font-bold transition-all duration-200 leading-none text-white drop-shadow-sm">
               AI
             </span>
+            <div className="absolute -top-0.5 -right-0.5 h-2 w-2 bg-green-400 rounded-full animate-pulse shadow-sm" />
           </div>
         </Button>
       </div>

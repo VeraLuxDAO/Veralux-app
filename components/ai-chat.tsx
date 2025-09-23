@@ -134,36 +134,41 @@ export function AIChat({ className = "" }: AIChatProps) {
         className={cn(
           "desktop-ai-tab-container fixed bottom-6 right-6 z-50",
           "transition-all duration-700 ease-out transform-gpu",
+          isOpen && "opacity-0 pointer-events-none",
           className
         )}
         data-open={isOpen}
         style={{
-          transform: isOpen ? "translateX(-400px)" : "translateX(0px)",
-          willChange: "transform",
+          transform: isOpen
+            ? "translateX(-400px) scale(0.8)"
+            : "translateX(0px) scale(1)",
+          willChange: "transform, opacity",
+          opacity: isOpen ? 0 : 1,
         }}
       >
         <Button
           onClick={handleToggle}
           disabled={isAnimating}
           className={cn(
-            "desktop-ai-tab-button cursor-pointer transform-gpu",
-            "bg-gradient-to-bl from-electric-blue via-primary to-electric-blue/80",
-            "hover:from-electric-blue/90 hover:via-primary/90 hover:to-electric-blue/70",
-            "text-primary-foreground shadow-lg border border-primary/20",
+            "desktop-ai-tab-button group relative cursor-pointer transform-gpu",
+            "bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-600",
+            "hover:from-blue-400 hover:via-purple-500 hover:to-indigo-500",
+            "text-white shadow-xl border-2 border-white/20",
             "flex items-center justify-center backdrop-blur-sm",
-            "disabled:cursor-not-allowed hover:shadow-xl",
-            "h-16 w-16 rounded-full",
+            "disabled:cursor-not-allowed",
+            "h-14 w-14 rounded-2xl",
+            "before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300",
             // Conditional hover effects - disable during animation
             !isAnimating &&
-              "transition-all duration-300 hover:scale-105 active:scale-95"
+              "transition-all duration-300 hover:scale-110 active:scale-95 hover:shadow-2xl hover:shadow-purple-500/30"
           )}
           style={{
             willChange: isAnimating ? "none" : "transform",
           }}
         >
-          <div className="relative">
-            <Bot className="h-6 w-6 transition-transform duration-200" />
-            <div className="absolute -bottom-1 -right-1 h-4 w-4 bg-veralux-green rounded-full border-2 border-card" />
+          <div className="relative z-10">
+            <Bot className="h-6 w-6 transition-transform duration-200 group-hover:scale-110 text-white drop-shadow-sm" />
+            <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-green-400 rounded-full border-2 border-white shadow-sm animate-pulse" />
           </div>
         </Button>
       </div>
