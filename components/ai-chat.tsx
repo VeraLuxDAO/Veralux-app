@@ -177,7 +177,7 @@ export function AIChat({ className = "" }: AIChatProps) {
       <div
         className={cn(
           "desktop-ai-chat-panel fixed bottom-6 right-6 z-40 flex flex-col",
-          "w-96 h-[600px] rounded-xl",
+          "w-80 h-[480px] rounded-xl",
           "bg-card/98 backdrop-blur-md border border-border/30",
           "shadow-[0_0_40px_rgba(0,0,0,0.3)]",
           "transition-all duration-300 ease-out transform-gpu"
