@@ -28,7 +28,7 @@ const games: Game[] = [
     rating: 4.8,
     earnings: "2.3 SUI avg",
     status: "Live",
-    image: "./fantasy-rpg-game-with-dragons-and-medieval-charact.jpg",
+    image: "./fantasy-rpg-game-interface.png",
     featured: true,
   },
   {
@@ -41,7 +41,7 @@ const games: Game[] = [
     rating: 4.6,
     earnings: "1.8 SUI avg",
     status: "Live",
-    image: "./strategy-battle-game-with-futuristic-warriors.jpg",
+    image: "./strategy-battle-game-ui.png",
     featured: true,
   },
   {
@@ -54,7 +54,7 @@ const games: Game[] = [
     rating: 4.5,
     earnings: "1.2 SUI avg",
     status: "Live",
-    image: "./high-speed-racing-cars-on-futuristic-track.jpg",
+    image: "./nft-racing-game-screenshot.png",
     featured: false,
   },
   {
@@ -67,7 +67,7 @@ const games: Game[] = [
     rating: 4.7,
     earnings: "3.1 SUI avg",
     status: "Beta",
-    image: "./virtual-world-building-interface-with-3d-structure.jpg",
+    image: "./metaverse-building-interface.png",
     featured: false,
   },
   {
@@ -80,7 +80,7 @@ const games: Game[] = [
     rating: 4.4,
     earnings: "0.8 SUI avg",
     status: "Live",
-    image: "./poker-table.png",
+    image: "./blockchain-poker-table.png",
     featured: false,
   },
   {
@@ -92,7 +92,7 @@ const games: Game[] = [
     rating: 4.9,
     earnings: "Coming Soon",
     status: "Coming Soon",
-    image: "./space-mining-operation-with-asteroids-and-spaceshi.jpg",
+    image: "./space-mining-game-concept.png",
     featured: false,
   },
 ];
