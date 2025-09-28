@@ -97,7 +97,10 @@ export function ProfileHeaderCustomizer({
                 <span className="hidden sm:inline">Customize</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-7xl max-h-[95vh] w-[98vw] sm:w-[95vw] lg:w-full flex flex-col p-0">
+            <DialogContent
+              showCloseButton={false}
+              className="max-w-7xl max-h-[95vh] w-[98vw] sm:w-[95vw] lg:w-full flex flex-col p-0"
+            >
               <DialogHeader className="shrink-0 p-6 pb-4 border-b">
                 <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
                   <Palette className="h-5 w-5" />

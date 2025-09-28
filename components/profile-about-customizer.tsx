@@ -31,6 +31,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DetailedAboutSection } from "@/components/detailed-about-section";
 
 interface AboutData {
   bio: string;
@@ -55,6 +56,70 @@ interface AboutData {
 interface ProfileAboutCustomizerProps {
   className?: string;
 }
+
+// Helper functions to convert between display format and HTML month input format
+const convertToMonthFormat = (dateString: string): string => {
+  if (!dateString) return "";
+
+  // Handle formats like "March 2024", "February 2024", etc.
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const parts = dateString.trim().split(" ");
+  if (parts.length === 2 && parts[0] && parts[1]) {
+    const monthName = parts[0];
+    const year = parts[1];
+    const monthIndex = monthNames.indexOf(monthName);
+
+    if (monthIndex !== -1 && !isNaN(parseInt(year))) {
+      const monthNumber = (monthIndex + 1).toString().padStart(2, "0");
+      return `${year}-${monthNumber}`;
+    }
+  }
+
+  return "";
+};
+
+const convertFromMonthFormat = (monthInput: string): string => {
+  if (!monthInput) return "";
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const [year, month] = monthInput.split("-");
+  if (year && month) {
+    const monthIndex = parseInt(month) - 1;
+    if (monthIndex >= 0 && monthIndex < 12) {
+      return `${monthNames[monthIndex]} ${year}`;
+    }
+  }
+
+  return monthInput;
+};
 
 export function ProfileAboutCustomizer({
   className,
@@ -152,7 +217,18 @@ export function ProfileAboutCustomizer({
 
   const updateAchievement = (index: number, field: string, value: string) => {
     const newAchievements = [...editData.achievements];
-    newAchievements[index] = { ...newAchievements[index], [field]: value };
+    const currentAchievement = newAchievements[index];
+
+    if (!currentAchievement) return;
+
+    newAchievements[index] = {
+      title: field === "title" ? value : currentAchievement.title,
+      description:
+        field === "description" ? value : currentAchievement.description,
+      date: field === "date" ? value : currentAchievement.date,
+      icon: field === "icon" ? value : currentAchievement.icon,
+    };
+
     setEditData({ ...editData, achievements: newAchievements });
   };
 
@@ -177,289 +253,322 @@ export function ProfileAboutCustomizer({
                   Customize
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader className="dialog-header-mobile">
-                  <DialogTitle className="dialog-title-mobile">
+              <DialogContent
+                showCloseButton={false}
+                className="max-w-[95vw] sm:max-w-4xl lg:max-w-6xl xl:max-w-7xl max-h-[95vh] w-full flex flex-col p-0"
+              >
+                <DialogHeader className="shrink-0 p-4 sm:p-6 pb-3 sm:pb-4 border-b dialog-header-mobile">
+                  <DialogTitle className="dialog-title-mobile text-lg sm:text-xl font-semibold">
                     Customize About Section
                   </DialogTitle>
                 </DialogHeader>
 
-                <div className="space-y-6 mt-6">
-                  {/* Bio */}
-                  <div>
-                    <Label htmlFor="bio">Bio</Label>
-                    <Textarea
-                      id="bio"
-                      value={editData.bio}
-                      onChange={(e) =>
-                        setEditData({ ...editData, bio: e.target.value })
-                      }
-                      className="mt-2 min-h-32"
-                      placeholder="Tell others about yourself..."
-                    />
-                  </div>
-
-                  <Separator />
-
-                  {/* Personal Info */}
-                  <div>
-                    <Label className="text-base font-semibold mb-4 block">
-                      Personal Information
-                    </Label>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="location">Location</Label>
-                        <Input
-                          id="location"
-                          value={editData.location}
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              location: e.target.value,
-                            })
-                          }
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="occupation">Occupation</Label>
-                        <Input
-                          id="occupation"
-                          value={editData.occupation}
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              occupation: e.target.value,
-                            })
-                          }
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="education">Education</Label>
-                        <Input
-                          id="education"
-                          value={editData.education}
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              education: e.target.value,
-                            })
-                          }
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={editData.email}
-                          onChange={(e) =>
-                            setEditData({ ...editData, email: e.target.value })
-                          }
-                          className="mt-1"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Social Links */}
-                  <div>
-                    <Label className="text-base font-semibold mb-4 block">
-                      Social Links
-                    </Label>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="website">Website</Label>
-                        <Input
-                          id="website"
-                          value={editData.website}
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              website: e.target.value,
-                            })
-                          }
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="twitter">Twitter</Label>
-                        <Input
-                          id="twitter"
-                          value={editData.twitter}
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              twitter: e.target.value,
-                            })
-                          }
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="github">GitHub</Label>
-                        <Input
-                          id="github"
-                          value={editData.github}
-                          onChange={(e) =>
-                            setEditData({ ...editData, github: e.target.value })
-                          }
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="linkedin">LinkedIn</Label>
-                        <Input
-                          id="linkedin"
-                          value={editData.linkedin}
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              linkedin: e.target.value,
-                            })
-                          }
-                          className="mt-1"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Interests */}
-                  <div>
-                    <Label className="text-base font-semibold mb-4 block">
-                      Interests
-                    </Label>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {editData.interests.map((interest, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center gap-1 bg-electric-blue/10 text-electric-blue px-3 py-1 rounded-full text-sm"
-                        >
-                          {interest}
-                          <button
-                            onClick={() => removeInterest(interest)}
-                            className="ml-1 hover:text-red-500"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex gap-2">
-                      <Input
-                        value={newInterest}
-                        onChange={(e) => setNewInterest(e.target.value)}
-                        placeholder="Add an interest..."
-                        onKeyPress={(e) => e.key === "Enter" && addInterest()}
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+                  <div className="space-y-4 sm:space-y-6">
+                    {/* Bio */}
+                    <div>
+                      <Label htmlFor="bio">Bio</Label>
+                      <Textarea
+                        id="bio"
+                        value={editData.bio}
+                        onChange={(e) =>
+                          setEditData({ ...editData, bio: e.target.value })
+                        }
+                        className="mt-2 min-h-32"
+                        placeholder="Tell others about yourself..."
                       />
-                      <Button onClick={addInterest} size="sm">
-                        <Plus className="h-4 w-4" />
-                      </Button>
                     </div>
-                  </div>
 
-                  <Separator />
+                    <Separator />
 
-                  {/* Achievements */}
-                  <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <Label className="text-base font-semibold">
-                        Achievements
+                    {/* Personal Info */}
+                    <div>
+                      <Label className="text-sm sm:text-base font-semibold mb-3 sm:mb-4 block">
+                        Personal Information
                       </Label>
-                      <Button
-                        onClick={addAchievement}
-                        size="sm"
-                        variant="outline"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Achievement
-                      </Button>
-                    </div>
-                    <div className="space-y-4">
-                      {editData.achievements.map((achievement, index) => (
-                        <div
-                          key={index}
-                          className="p-4 border rounded-lg space-y-3"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <Input
-                                value={achievement.icon}
-                                onChange={(e) =>
-                                  updateAchievement(
-                                    index,
-                                    "icon",
-                                    e.target.value
-                                  )
-                                }
-                                className="w-16 text-center"
-                                placeholder="🎯"
-                              />
-                              <Input
-                                value={achievement.title}
-                                onChange={(e) =>
-                                  updateAchievement(
-                                    index,
-                                    "title",
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Achievement title..."
-                                className="flex-1"
-                              />
-                            </div>
-                            <Button
-                              onClick={() => removeAchievement(index)}
-                              size="sm"
-                              variant="outline"
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <Textarea
-                            value={achievement.description}
-                            onChange={(e) =>
-                              updateAchievement(
-                                index,
-                                "description",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Achievement description..."
-                            rows={2}
-                          />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <div>
+                          <Label htmlFor="location">Location</Label>
                           <Input
-                            value={achievement.date}
+                            id="location"
+                            value={editData.location}
                             onChange={(e) =>
-                              updateAchievement(index, "date", e.target.value)
+                              setEditData({
+                                ...editData,
+                                location: e.target.value,
+                              })
                             }
-                            placeholder="Date (e.g., March 2024)"
+                            className="mt-1"
                           />
                         </div>
-                      ))}
+                        <div>
+                          <Label htmlFor="occupation">Occupation</Label>
+                          <Input
+                            id="occupation"
+                            value={editData.occupation}
+                            onChange={(e) =>
+                              setEditData({
+                                ...editData,
+                                occupation: e.target.value,
+                              })
+                            }
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="education">Education</Label>
+                          <Input
+                            id="education"
+                            value={editData.education}
+                            onChange={(e) =>
+                              setEditData({
+                                ...editData,
+                                education: e.target.value,
+                              })
+                            }
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="email">Email</Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            value={editData.email}
+                            onChange={(e) =>
+                              setEditData({
+                                ...editData,
+                                email: e.target.value,
+                              })
+                            }
+                            className="mt-1"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Social Links */}
+                    <div>
+                      <Label className="text-sm sm:text-base font-semibold mb-3 sm:mb-4 block">
+                        Social Links
+                      </Label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <div>
+                          <Label htmlFor="website">Website</Label>
+                          <Input
+                            id="website"
+                            value={editData.website}
+                            onChange={(e) =>
+                              setEditData({
+                                ...editData,
+                                website: e.target.value,
+                              })
+                            }
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="twitter">Twitter</Label>
+                          <Input
+                            id="twitter"
+                            value={editData.twitter}
+                            onChange={(e) =>
+                              setEditData({
+                                ...editData,
+                                twitter: e.target.value,
+                              })
+                            }
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="github">GitHub</Label>
+                          <Input
+                            id="github"
+                            value={editData.github}
+                            onChange={(e) =>
+                              setEditData({
+                                ...editData,
+                                github: e.target.value,
+                              })
+                            }
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="linkedin">LinkedIn</Label>
+                          <Input
+                            id="linkedin"
+                            value={editData.linkedin}
+                            onChange={(e) =>
+                              setEditData({
+                                ...editData,
+                                linkedin: e.target.value,
+                              })
+                            }
+                            className="mt-1"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Interests */}
+                    <div>
+                      <Label className="text-sm sm:text-base font-semibold mb-3 sm:mb-4 block">
+                        Interests
+                      </Label>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {editData.interests.map((interest, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-1 bg-electric-blue/10 text-electric-blue px-3 py-1 rounded-full text-sm"
+                          >
+                            {interest}
+                            <button
+                              onClick={() => removeInterest(interest)}
+                              className="ml-1 hover:text-red-500"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <Input
+                          value={newInterest}
+                          onChange={(e) => setNewInterest(e.target.value)}
+                          placeholder="Add an interest..."
+                          onKeyPress={(e) => e.key === "Enter" && addInterest()}
+                          className="flex-1"
+                        />
+                        <Button
+                          onClick={addInterest}
+                          size="sm"
+                          className="w-full sm:w-auto"
+                        >
+                          <Plus className="h-4 w-4 sm:mr-2" />
+                          <span className="hidden sm:inline">Add</span>
+                        </Button>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Achievements */}
+                    <div>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 space-y-2 sm:space-y-0">
+                        <Label className="text-sm sm:text-base font-semibold">
+                          Achievements
+                        </Label>
+                        <Button
+                          onClick={addAchievement}
+                          size="sm"
+                          variant="outline"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Achievement
+                        </Button>
+                      </div>
+                      <div className="space-y-4">
+                        {editData.achievements.map((achievement, index) => (
+                          <div
+                            key={index}
+                            className="p-3 sm:p-4 border rounded-lg space-y-3"
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
+                              <div className="flex items-center gap-2 flex-1">
+                                <Input
+                                  value={achievement.icon}
+                                  onChange={(e) =>
+                                    updateAchievement(
+                                      index,
+                                      "icon",
+                                      e.target.value
+                                    )
+                                  }
+                                  className="w-12 sm:w-16 text-center text-sm"
+                                  placeholder="🎯"
+                                />
+                                <Input
+                                  value={achievement.title}
+                                  onChange={(e) =>
+                                    updateAchievement(
+                                      index,
+                                      "title",
+                                      e.target.value
+                                    )
+                                  }
+                                  placeholder="Achievement title..."
+                                  className="flex-1 text-sm"
+                                />
+                              </div>
+                              <Button
+                                onClick={() => removeAchievement(index)}
+                                size="sm"
+                                variant="outline"
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <Textarea
+                              value={achievement.description}
+                              onChange={(e) =>
+                                updateAchievement(
+                                  index,
+                                  "description",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Achievement description..."
+                              rows={2}
+                            />
+                            <Input
+                              type="month"
+                              value={
+                                achievement.date
+                                  ? convertToMonthFormat(achievement.date)
+                                  : ""
+                              }
+                              onChange={(e) =>
+                                updateAchievement(
+                                  index,
+                                  "date",
+                                  convertFromMonthFormat(e.target.value)
+                                )
+                              }
+                              placeholder="Select month and year"
+                              className="text-sm"
+                            />
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex justify-end space-x-3 mt-6 pt-6 border-t">
-                  <Button variant="outline" onClick={handleCancel}>
-                    <X className="h-4 w-4 mr-2" />
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleSave}
-                    className="bg-electric-blue hover:bg-electric-blue/90"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    Save Changes
-                  </Button>
+                <div className="shrink-0 p-4 sm:p-6 pt-3 sm:pt-4 border-t bg-muted/30">
+                  <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
+                    <Button
+                      variant="outline"
+                      onClick={handleCancel}
+                      className="w-full sm:w-auto"
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSave}
+                      className="bg-electric-blue hover:bg-electric-blue/90 w-full sm:w-auto"
+                    >
+                      <Save className="h-4 w-4 mr-2" />
+                      Save Changes
+                    </Button>
+                  </div>
                 </div>
               </DialogContent>
             </Dialog>
@@ -562,6 +671,13 @@ export function ProfileAboutCustomizer({
                 </span>
               ))}
             </div>
+          </div>
+
+          <Separator />
+
+          {/* Detailed About Section - Web Builder */}
+          <div>
+            <DetailedAboutSection />
           </div>
 
           <Separator />

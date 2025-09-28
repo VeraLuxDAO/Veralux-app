@@ -2,9 +2,11 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NavigationLayout } from "@/components/navigation-layout";
-import { ProfileHeaderCustomizer } from "@/components/profile-header-customizer";
+import { WebBuilderPlaceholder } from "@/components/web-builder-placeholder";
+import { CompactProfileHeader } from "@/components/compact-profile-header";
 import { ProfileDashboard } from "@/components/profile-dashboard";
 import { ProfileAboutCustomizer } from "@/components/profile-about-customizer";
+import { DetailedAboutSection } from "@/components/detailed-about-section";
 import { ProfileSkills } from "@/components/profile-skills";
 import { ProfileAnalytics } from "@/components/profile-analytics";
 
@@ -12,8 +14,11 @@ export default function ProfilePage() {
   return (
     <NavigationLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Customizable Profile Header */}
-        <ProfileHeaderCustomizer />
+        {/* Web Builder Placeholder - Full Width Yellow Section */}
+        <WebBuilderPlaceholder />
+
+        {/* Compact Profile Header - Shrunk to Red Square Size */}
+        <CompactProfileHeader />
 
         {/* Main Profile Tabs */}
         <Tabs defaultValue="dashboard" className="space-y-6">
