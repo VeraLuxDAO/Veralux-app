@@ -159,9 +159,13 @@ export function CompactProfileHeader({ className }: CompactProfileHeaderProps) {
     <div className={cn("mb-6", className)}>
       <Card
         className={cn(
-          "compact-profile-header border-0 overflow-hidden relative transition-all duration-300 shadow-xl backdrop-blur-sm",
+          "compact-profile-header border-0 overflow-hidden relative transition-all duration-300 shadow-2xl backdrop-blur-md rounded-2xl ring-1 ring-white/10",
           backgroundStyles[backgroundStyle as keyof typeof backgroundStyles]
         )}
+        style={{
+          boxShadow:
+            "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+        }}
       >
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/20 to-black/40 z-0"></div>

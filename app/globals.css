@@ -957,6 +957,116 @@ body::-webkit-scrollbar {
   /* max-height: 140px; */
 }
 
+/* Prevent horizontal scroll globally */
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* Full-bleed Web Builder Section */
+.web-builder-fullbleed {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  position: relative;
+  overflow-x: hidden;
+  min-height: 0; /* Prevent flex grow issues */
+}
+
+/* Safe area handling for mobile devices */
+@supports (padding: max(0px)) {
+  .web-builder-fullbleed {
+    padding-left: max(env(safe-area-inset-left), 0px);
+    padding-right: max(env(safe-area-inset-right), 0px);
+  }
+}
+
+/* RTL support for full-bleed sections */
+[dir="rtl"] .web-builder-fullbleed {
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+}
+
+/* Enhanced mobile safe areas */
+@media screen and (max-width: 390px) {
+  .profile-card-overlap {
+    margin-top: -2.5rem; /* Even more conservative on very small screens */
+  }
+
+  /* Ensure profile card has enough space on very small screens */
+  .compact-profile-header {
+    margin-bottom: 1rem;
+  }
+}
+
+/* Tablet landscape optimization */
+@media screen and (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  .profile-card-overlap {
+    margin-top: -4.5rem;
+  }
+}
+
+/* Profile card overlap styling */
+.profile-card-overlap {
+  position: relative;
+  z-index: 10;
+  margin-top: -4rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-card-overlap .compact-profile-header {
+  filter: drop-shadow(0 20px 25px rgba(0, 0, 0, 0.15))
+    drop-shadow(0 8px 10px rgba(0, 0, 0, 0.1));
+  transform: translateZ(0); /* Force hardware acceleration */
+  will-change: transform;
+}
+
+@media (min-width: 640px) {
+  .profile-card-overlap {
+    margin-top: -5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .profile-card-overlap {
+    margin-top: -6rem;
+  }
+}
+
+/* Prevent horizontal scroll on small screens */
+@media (max-width: 480px) {
+  .profile-card-overlap {
+    margin-top: -3rem;
+  }
+
+  .web-builder-fullbleed {
+    overflow-x: hidden;
+  }
+}
+
+/* Notch and dynamic island support */
+@supports (top: env(safe-area-inset-top)) {
+  .web-builder-fullbleed {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .profile-card-overlap {
+    margin-top: calc(-4rem + env(safe-area-inset-top));
+  }
+
+  @media (min-width: 640px) {
+    .profile-card-overlap {
+      margin-top: calc(-5rem + env(safe-area-inset-top));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .profile-card-overlap {
+      margin-top: calc(-6rem + env(safe-area-inset-top));
+    }
+  }
+}
+
 /* Enhanced Modal Responsiveness and Centering */
 /* Default modal centering for desktop and tablet */
 [data-radix-dialog-content] {
