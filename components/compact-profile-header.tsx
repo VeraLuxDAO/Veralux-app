@@ -159,7 +159,7 @@ export function CompactProfileHeader({ className }: CompactProfileHeaderProps) {
     <div className={cn("mb-6", className)}>
       <Card
         className={cn(
-          "compact-profile-header border-0 overflow-hidden relative transition-all duration-300 shadow-lg",
+          "compact-profile-header border-0 overflow-hidden relative transition-all duration-300 shadow-xl backdrop-blur-sm",
           backgroundStyles[backgroundStyle as keyof typeof backgroundStyles]
         )}
       >

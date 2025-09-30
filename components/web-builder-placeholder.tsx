@@ -34,13 +34,14 @@ export function WebBuilderPlaceholder({
   const [isBuilderOpen, setIsBuilderOpen] = useState(false);
 
   return (
-    <div className={cn("mb-6", className)}>
-      <Card
-        className="border-2 border-dashed border-yellow-400/60 bg-yellow-50/30 dark:bg-yellow-900/10 hover:border-yellow-500/80 hover:bg-yellow-50/50 dark:hover:bg-yellow-900/20 transition-all duration-300 cursor-pointer group"
+    <div className={cn("w-full", className)}>
+      <div
+        className="w-full bg-yellow-50/40 dark:bg-yellow-900/15 hover:bg-yellow-50/60 dark:hover:bg-yellow-900/25 transition-all duration-300 cursor-pointer group border-b-2 border-dashed border-yellow-400/40"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        style={{ paddingBottom: "6rem" }} // Extra padding to extend behind profile header
       >
-        <CardContent className="p-8 sm:p-12 lg:p-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
           <div className="text-center space-y-6">
             {/* Icon and Title */}
             <div className="space-y-4">
@@ -191,8 +192,8 @@ export function WebBuilderPlaceholder({
               <span>Web Builder Ready</span>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
