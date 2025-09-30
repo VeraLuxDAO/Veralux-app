@@ -12,13 +12,13 @@ import { ProfileAnalytics } from "@/components/profile-analytics";
 
 export default function ProfilePage() {
   return (
-    <NavigationLayout>
+    <NavigationLayout className="overflow-x-hidden">
       {/* Web Builder Placeholder - Full Width Edge to Edge */}
       <WebBuilderPlaceholder />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        {/* Compact Profile Header - Positioned over web builder */}
-        <div className="relative -mt-20 z-10">
+        {/* Compact Profile Header - Positioned over web builder with responsive overlap */}
+        <div className="profile-card-overlap">
           <CompactProfileHeader />
         </div>
 
