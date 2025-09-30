@@ -13,12 +13,14 @@ import { ProfileAnalytics } from "@/components/profile-analytics";
 export default function ProfilePage() {
   return (
     <NavigationLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Web Builder Placeholder - Full Width Yellow Section */}
-        <WebBuilderPlaceholder />
+      {/* Web Builder Placeholder - Full Width Edge to Edge */}
+      <WebBuilderPlaceholder />
 
-        {/* Compact Profile Header - Shrunk to Red Square Size */}
-        <CompactProfileHeader />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        {/* Compact Profile Header - Positioned over web builder */}
+        <div className="relative -mt-20 z-10">
+          <CompactProfileHeader />
+        </div>
 
         {/* Main Profile Tabs */}
         <Tabs defaultValue="dashboard" className="space-y-6">
