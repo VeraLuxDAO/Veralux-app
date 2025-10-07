@@ -347,23 +347,23 @@ export default function ChatPage() {
         )}
 
         {/* Messages Area */}
-        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          <ScrollArea className="flex-1">
-            <div className="chat-messages-container">
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-background">
+          <ScrollArea className="flex-1 h-full">
+            <div className="flex flex-col justify-end min-h-full px-1 sm:px-2">
               {messages.length === 0 ? (
-                <div className="flex items-center justify-center flex-1 p-8">
+                <div className="flex items-center justify-center flex-1 p-6 sm:p-8">
                   <div className="text-center text-muted-foreground">
-                    <div className="text-4xl mb-4">💬</div>
-                    <div className="text-sm">
+                    <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">💬</div>
+                    <div className="text-sm sm:text-base font-medium">
                       Welcome to #{activeChannel?.name}
                     </div>
-                    <div className="text-xs mt-1">
+                    <div className="text-xs sm:text-sm mt-1 opacity-75">
                       This is the beginning of your conversation.
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="chat-messages-list">
+                <div className="flex flex-col py-2 sm:py-4 space-y-1 sm:space-y-2">
                   {messages.map((message, index) => {
                     const prevMessage = messages[index - 1];
                     const isGrouped =
@@ -376,13 +376,12 @@ export default function ChatPage() {
                         300000; // 5 minutes
 
                     return (
-                      <div key={message.id} className="chat-message-item">
-                        <ChatMessageComponent
-                          message={message}
-                          showAvatar={!message.isOwn}
-                          isGrouped={isGrouped}
-                        />
-                      </div>
+                      <ChatMessageComponent
+                        key={message.id}
+                        message={message}
+                        showAvatar={!message.isOwn}
+                        isGrouped={isGrouped}
+                      />
                     );
                   })}
                   <div ref={messagesEndRef} />
@@ -393,11 +392,11 @@ export default function ChatPage() {
         </div>
 
         {/* Chat Input */}
-        <div className="chat-input-container border-t border-border bg-background flex-shrink-0">
+        <div className="flex-shrink-0 bg-background border-t border-border/50">
           <ChatInput
             onSendMessage={handleSendMessage}
             placeholder={`Message #${activeChannel?.name || "channel"}`}
-            className="border-0 chat-input-field"
+            className="chat-input-container"
           />
         </div>
       </div>

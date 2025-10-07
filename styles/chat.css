@@ -70,6 +70,23 @@
   flex-shrink: 0;
 }
 
+/* Enhanced Chat Input Styling */
+.chat-input-container {
+  background: hsl(var(--background));
+  border-top: 1px solid hsl(var(--border) / 0.5);
+}
+
+.chat-input-field {
+  font-size: 16px !important; /* Prevent zoom on iOS */
+  line-height: 1.5;
+  transition: all 0.2s ease-in-out;
+}
+
+.chat-input-field:focus {
+  outline: none;
+  box-shadow: none;
+}
+
 /* Better spacing for mobile chat */
 @media screen and (max-width: 768px) {
   .chat-messages-list {
@@ -153,19 +170,20 @@
   /* Chat input */
   .chat-input-container {
     padding: 0.75rem !important;
-    gap: 0.5rem !important;
+    gap: 0.75rem !important;
   }
 
   .chat-input-field {
-    min-height: 2.25rem !important;
-    font-size: 0.875rem !important;
-    padding: 0.5rem 0.75rem !important;
+    min-height: 2.75rem !important;
+    font-size: 16px !important; /* Prevent zoom on iOS */
+    padding: 0.75rem 1rem !important;
+    line-height: 1.4 !important;
   }
 
   .chat-input-button {
-    width: 2.25rem !important;
-    height: 2.25rem !important;
-    padding: 0.375rem !important;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    padding: 0.5rem !important;
   }
 
   /* Compact spacing */

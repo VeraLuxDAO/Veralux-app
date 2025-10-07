@@ -49,7 +49,7 @@ export function ChatMessageComponent({
   return (
     <div
       className={cn(
-        "group flex gap-2 sm:gap-3 px-2 sm:px-3 py-1 sm:py-1.5 hover:bg-muted/20 transition-colors rounded-lg mx-1 sm:mx-2",
+        "group flex gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 hover:bg-muted/20 transition-colors",
         isGrouped && "py-0.5 sm:py-1",
         message.isOwn && "flex-row-reverse"
       )}
@@ -57,7 +57,7 @@ export function ChatMessageComponent({
       {/* Avatar */}
       <div className="flex-shrink-0">
         {showAvatar && !isGrouped && !message.isOwn ? (
-          <Avatar className="chat-message-avatar w-7 h-7 sm:w-8 sm:h-8 ring-2 ring-background">
+          <Avatar className="chat-message-avatar w-8 h-8 sm:w-9 sm:h-9 ring-2 ring-background mt-0.5">
             <AvatarImage src={message.authorAvatar} />
             <AvatarFallback className="text-xs sm:text-sm font-medium bg-primary/10 text-primary">
               {message.authorName
@@ -67,7 +67,7 @@ export function ChatMessageComponent({
             </AvatarFallback>
           </Avatar>
         ) : (
-          <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center">
             {!message.isOwn && (
               <span className="chat-message-time text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
                 {message.timestamp.toLocaleTimeString([], {
@@ -83,18 +83,21 @@ export function ChatMessageComponent({
       {/* Message Content */}
       <div
         className={cn(
-          "flex-1 min-w-0 max-w-[85%] sm:max-w-none",
-          message.isOwn && "flex flex-col items-end"
+          "flex-1 min-w-0 max-w-[80%] sm:max-w-[75%]",
+          message.isOwn && "flex flex-col items-end max-w-[85%] sm:max-w-[80%]"
         )}
       >
         {/* Header (only show if not grouped) */}
         {!isGrouped && !message.isOwn && (
           <div className="flex items-center gap-2 mb-1">
-            <span className="chat-message-author font-semibold text-xs sm:text-sm text-foreground">
+            <span className="chat-message-author font-semibold text-sm sm:text-base text-foreground">
               {message.authorName}
             </span>
             <span className="chat-message-time text-xs text-muted-foreground">
-              {timeAgo}
+              {message.timestamp.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </span>
           </div>
         )}
@@ -103,15 +106,15 @@ export function ChatMessageComponent({
         {message.replyTo && (
           <div
             className={cn(
-              "mb-2 pl-3 border-l-2 border-muted bg-muted/30 rounded-r py-1 px-2",
+              "mb-2 pl-3 border-l-2 border-primary/50 bg-muted/50 rounded-r py-2 px-3",
               message.isOwn &&
                 "border-l-0 border-r-2 pr-3 pl-2 rounded-l rounded-r-none"
             )}
           >
-            <div className="text-xs text-muted-foreground">
-              <span className="font-medium">{message.replyTo.authorName}</span>
+            <div className="text-xs text-primary font-medium mb-1">
+              Replying to {message.replyTo.authorName}
             </div>
-            <div className="text-xs text-muted-foreground truncate">
+            <div className="text-xs text-muted-foreground line-clamp-2">
               {message.replyTo.content}
             </div>
           </div>
@@ -120,9 +123,9 @@ export function ChatMessageComponent({
         {/* Message Text */}
         <div
           className={cn(
-            "chat-message-content text-sm leading-relaxed whitespace-pre-wrap break-words",
+            "chat-message-content text-sm sm:text-base leading-relaxed whitespace-pre-wrap break-words",
             message.isOwn
-              ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md px-3 py-2 max-w-fit shadow-sm"
+              ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md px-3 sm:px-4 py-2 sm:py-2.5 max-w-fit shadow-sm"
               : "text-foreground"
           )}
         >
@@ -131,7 +134,12 @@ export function ChatMessageComponent({
 
         {/* Timestamp for own messages */}
         {message.isOwn && !isGrouped && (
-          <div className="text-xs text-muted-foreground mt-1">{timeAgo}</div>
+          <div className="text-xs text-muted-foreground mt-1">
+            {message.timestamp.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </div>
         )}
 
         {/* Reactions */}
@@ -148,7 +156,7 @@ export function ChatMessageComponent({
                 variant="ghost"
                 size="sm"
                 className={cn(
-                  "h-6 px-2 text-xs rounded-full",
+                  "h-6 sm:h-7 px-2 text-xs rounded-full",
                   reaction.hasReacted
                     ? "bg-primary/20 text-primary border border-primary/30"
                     : "bg-muted hover:bg-muted/80"
