@@ -302,7 +302,7 @@ export function DesktopChatLayout({
                   <ChatMessageComponent
                     key={message.id}
                     message={message}
-                    showAvatar={!message.isOwn}
+                    showAvatar={true}
                     isGrouped={isGrouped}
                   />
                 );

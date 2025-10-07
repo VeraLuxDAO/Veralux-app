@@ -159,6 +159,7 @@ const mockMessages: ChatMessage[] = [
       "This is exactly what we need for mainstream adoption. Lower fees = more users 💪",
     authorId: "current-user",
     authorName: "You",
+    authorAvatar: "/user-profile-illustration.png",
     timestamp: new Date(Date.now() - 1800000),
     type: "text",
     isOwn: true,
@@ -189,6 +190,7 @@ export default function ChatPage() {
       content,
       authorId: "current-user",
       authorName: "You",
+      authorAvatar: "/user-profile-illustration.png",
       timestamp: new Date(),
       type: "text",
       isOwn: true,
@@ -379,7 +381,7 @@ export default function ChatPage() {
                       <ChatMessageComponent
                         key={message.id}
                         message={message}
-                        showAvatar={!message.isOwn}
+                        showAvatar={true}
                         isGrouped={isGrouped}
                       />
                     );

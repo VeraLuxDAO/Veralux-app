@@ -56,10 +56,22 @@ export function ChatMessageComponent({
     >
       {/* Avatar */}
       <div className="flex-shrink-0">
-        {showAvatar && !isGrouped && !message.isOwn ? (
-          <Avatar className="chat-message-avatar w-8 h-8 sm:w-9 sm:h-9 ring-2 ring-background mt-0.5">
+        {showAvatar && !isGrouped ? (
+          <Avatar
+            className={cn(
+              "chat-message-avatar w-8 h-8 sm:w-9 sm:h-9 ring-2 ring-background mt-0.5",
+              message.isOwn && "ring-primary/20"
+            )}
+          >
             <AvatarImage src={message.authorAvatar} />
-            <AvatarFallback className="text-xs sm:text-sm font-medium bg-primary/10 text-primary">
+            <AvatarFallback
+              className={cn(
+                "text-xs sm:text-sm font-medium",
+                message.isOwn
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-primary/10 text-primary"
+              )}
+            >
               {message.authorName
                 .split(" ")
                 .map((n) => n[0])
@@ -83,7 +95,7 @@ export function ChatMessageComponent({
       {/* Message Content */}
       <div
         className={cn(
-          "flex-1 min-w-0 max-w-[80%] sm:max-w-[75%]",
+          "flex-1 min-w-0 max-w-[80%] sm:max-w-[75%] message-bubble-container",
           message.isOwn && "flex flex-col items-end max-w-[85%] sm:max-w-[80%]"
         )}
       >
@@ -123,11 +135,17 @@ export function ChatMessageComponent({
         {/* Message Text */}
         <div
           className={cn(
-            "chat-message-content text-sm sm:text-base leading-relaxed whitespace-pre-wrap break-words",
+            "chat-message-content text-sm sm:text-base leading-relaxed whitespace-pre-wrap break-words word-break overflow-wrap-anywhere",
             message.isOwn
-              ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md px-3 sm:px-4 py-2 sm:py-2.5 max-w-fit shadow-sm"
-              : "text-foreground"
+              ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md px-3 sm:px-4 py-2 sm:py-2.5 shadow-sm max-w-[85%] sm:max-w-[75%] inline-block"
+              : "text-foreground max-w-full"
           )}
+          style={{
+            wordWrap: "break-word",
+            overflowWrap: "anywhere",
+            hyphens: "auto",
+            wordBreak: "break-word",
+          }}
         >
           {message.content}
         </div>
