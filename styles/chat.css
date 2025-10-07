@@ -70,6 +70,40 @@
   flex-shrink: 0;
 }
 
+/* Desktop Chat Scroll Fix */
+.desktop-chat-container {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.desktop-messages-area {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Ensure ScrollArea works properly */
+[data-radix-scroll-area-viewport] {
+  height: 100% !important;
+}
+
+/* Fix scroll behavior */
+.scroll-area-content {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+/* Desktop Chat Input Improvements */
+.desktop-chat-layout .chat-input-container {
+  padding: 1.25rem 1.5rem !important;
+}
+
+.desktop-chat-layout .flex.gap-3 {
+  gap: 1rem !important;
+}
+
 /* Enhanced Chat Input Styling */
 .chat-input-container {
   background: hsl(var(--background));

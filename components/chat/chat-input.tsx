@@ -18,6 +18,7 @@ interface ChatInputProps {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  forceDesktop?: boolean;
 }
 
 export function ChatInput({
@@ -25,6 +26,7 @@ export function ChatInput({
   placeholder = "Message in current circle channel",
   disabled = false,
   className,
+  forceDesktop = false,
 }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
@@ -66,8 +68,13 @@ export function ChatInput({
   return (
     <div className={cn("bg-background p-4 sm:p-5 safe-area-bottom", className)}>
       <div className="flex gap-1 sm:gap-2 max-w-full items-center">
-        {/* Desktop Layout (>= 450px) */}
-        <div className="hidden min-[450px]:flex gap-1 sm:gap-2 flex-1 items-center">
+        {/* Desktop Layout (>= 450px or forceDesktop) */}
+        <div
+          className={cn(
+            "gap-3 sm:gap-4 flex-1 items-center",
+            forceDesktop ? "flex" : "hidden min-[450px]:flex"
+          )}
+        >
           {/* Media Button (Left) */}
           <Button
             variant="ghost"
@@ -135,8 +142,13 @@ export function ChatInput({
           </div>
         </div>
 
-        {/* Mobile Layout (< 450px) */}
-        <div className="flex min-[450px]:hidden items-end gap-3 flex-1 relative">
+        {/* Mobile Layout (< 450px and not forceDesktop) */}
+        <div
+          className={cn(
+            "flex items-end gap-3 flex-1 relative",
+            forceDesktop ? "hidden" : "flex min-[450px]:hidden"
+          )}
+        >
           {/* Mobile Menu Button */}
           <Button
             variant="ghost"
@@ -240,7 +252,7 @@ export function ChatInput({
       </div>
 
       {/* Mobile Menu Backdrop */}
-      {showMobileMenu && (
+      {showMobileMenu && !forceDesktop && (
         <div
           className="fixed inset-0 z-40 min-[450px]:hidden"
           onClick={() => setShowMobileMenu(false)}
