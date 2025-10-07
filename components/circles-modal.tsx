@@ -251,8 +251,11 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
   );
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-2xl h-[85vh] max-h-[600px] p-0 gap-0">
+    <Dialog open={isOpen} onOpenChange={() => {}}>
+      <DialogContent
+        className="w-[95vw] max-w-2xl h-[85vh] max-h-[600px] p-0 gap-0"
+        showCloseButton={false}
+      >
         <DialogHeader className="p-4 sm:p-6 pb-0">
           <DialogTitle className="text-lg sm:text-xl font-bold">
             Circles
@@ -263,12 +266,12 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
           {/* Search Bar */}
           <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-border">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
               <Input
                 placeholder="Search circles..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-10 sm:h-11"
+                className="circles-search-input pl-10 pr-4 h-11 text-sm rounded-lg"
               />
             </div>
           </div>
@@ -347,6 +350,17 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
               </div>
             </TabsContent>
           </Tabs>
+
+          {/* Cancel Button */}
+          <div className="p-4 sm:p-6 pt-3 sm:pt-4 border-t border-border bg-card/50">
+            <Button
+              onClick={onClose}
+              variant="outline"
+              className="w-full h-11 text-sm font-medium hover:bg-muted/80 transition-colors"
+            >
+              Cancel
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
