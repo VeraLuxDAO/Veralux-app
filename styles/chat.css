@@ -1,5 +1,80 @@
 /* Chat-specific styles for better mobile experience */
 
+/* Enhanced Modal Responsiveness and Centering */
+/* Default modal centering for desktop and tablet */
+[data-radix-dialog-content] {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  margin: 0 !important;
+  z-index: 50 !important;
+}
+
+/* Ensure modal overlay is properly positioned */
+[data-radix-dialog-overlay] {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 50 !important;
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* Mobile modal adjustments */
+@media screen and (max-width: 768px) {
+  [data-radix-dialog-content] {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    height: 85vh !important;
+    max-height: 85vh !important;
+    margin: 0 !important;
+    border-radius: 12px !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  [data-radix-dialog-content] {
+    width: 98vw !important;
+    max-width: 98vw !important;
+    height: 90vh !important;
+    max-height: 90vh !important;
+    border-radius: 8px !important;
+  }
+}
+
+/* Chat Layout Optimizations */
+.chat-messages-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 0;
+}
+
+.chat-messages-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0.5rem 0;
+  min-height: 0;
+}
+
+.chat-message-item {
+  flex-shrink: 0;
+}
+
+/* Better spacing for mobile chat */
+@media screen and (max-width: 768px) {
+  .chat-messages-list {
+    padding: 0.25rem 0;
+  }
+
+  .chat-message-item {
+    margin-bottom: 0.25rem;
+  }
+}
+
 /* Safe area support for mobile devices */
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom);

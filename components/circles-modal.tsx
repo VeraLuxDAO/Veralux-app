@@ -252,7 +252,7 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-2xl h-[85vh] max-h-[600px] p-0 gap-0 m-4">
+      <DialogContent className="w-[95vw] max-w-2xl h-[85vh] max-h-[600px] p-0 gap-0">
         <DialogHeader className="p-4 sm:p-6 pb-0">
           <DialogTitle className="text-lg sm:text-xl font-bold">
             Circles

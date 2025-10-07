@@ -245,9 +245,9 @@ export default function ChatPage() {
       </div>
 
       {/* Mobile Layout */}
-      <div className="md:hidden flex flex-col h-screen bg-background">
+      <div className="md:hidden flex flex-col h-screen bg-background overflow-hidden">
         {/* Mobile Header */}
-        <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-10">
+        <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-card/95 backdrop-blur-md flex-shrink-0">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <Button
               variant="ghost"
@@ -315,7 +315,7 @@ export default function ChatPage() {
 
         {/* Current Channel Info */}
         {activeChannel && (
-          <div className="px-4 py-2 border-b border-border bg-muted/20">
+          <div className="px-4 py-2 border-b border-border bg-muted/20 flex-shrink-0">
             <div className="flex items-center gap-2">
               {activeChannel.type === "text" ? (
                 <Hash className="h-4 w-4 text-muted-foreground" />
@@ -338,46 +338,53 @@ export default function ChatPage() {
         )}
 
         {/* Messages Area */}
-        <ScrollArea className="flex-1 bg-background">
-          <div className="pb-4 min-h-full">
-            {messages.length === 0 ? (
-              <div className="flex items-center justify-center h-full p-8">
-                <div className="text-center text-muted-foreground">
-                  <div className="text-4xl mb-4">💬</div>
-                  <div className="text-sm">No messages yet</div>
-                  <div className="text-xs mt-1">
-                    Be the first to say something!
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <ScrollArea className="flex-1">
+            <div className="chat-messages-container">
+              {messages.length === 0 ? (
+                <div className="flex items-center justify-center flex-1 p-8">
+                  <div className="text-center text-muted-foreground">
+                    <div className="text-4xl mb-4">💬</div>
+                    <div className="text-sm">
+                      Welcome to #{activeChannel?.name}
+                    </div>
+                    <div className="text-xs mt-1">
+                      This is the beginning of your conversation.
+                    </div>
                   </div>
                 </div>
-              </div>
-            ) : (
-              messages.map((message, index) => {
-                const prevMessage = messages[index - 1];
-                const isGrouped =
-                  prevMessage &&
-                  prevMessage.authorId === message.authorId &&
-                  prevMessage.type !== "system" &&
-                  message.type !== "system" &&
-                  message.timestamp.getTime() -
-                    prevMessage.timestamp.getTime() <
-                    300000; // 5 minutes
+              ) : (
+                <div className="chat-messages-list">
+                  {messages.map((message, index) => {
+                    const prevMessage = messages[index - 1];
+                    const isGrouped =
+                      prevMessage &&
+                      prevMessage.authorId === message.authorId &&
+                      prevMessage.type !== "system" &&
+                      message.type !== "system" &&
+                      message.timestamp.getTime() -
+                        prevMessage.timestamp.getTime() <
+                        300000; // 5 minutes
 
-                return (
-                  <ChatMessageComponent
-                    key={message.id}
-                    message={message}
-                    showAvatar={!message.isOwn}
-                    isGrouped={isGrouped}
-                  />
-                );
-              })
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-        </ScrollArea>
+                    return (
+                      <div key={message.id} className="chat-message-item">
+                        <ChatMessageComponent
+                          message={message}
+                          showAvatar={!message.isOwn}
+                          isGrouped={isGrouped}
+                        />
+                      </div>
+                    );
+                  })}
+                  <div ref={messagesEndRef} />
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        </div>
 
         {/* Chat Input */}
-        <div className="border-t border-border bg-background">
+        <div className="border-t border-border bg-background flex-shrink-0">
           <ChatInput
             onSendMessage={handleSendMessage}
             placeholder={`Message #${activeChannel?.name || "channel"}`}
