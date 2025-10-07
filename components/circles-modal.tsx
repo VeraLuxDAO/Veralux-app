@@ -264,15 +264,15 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
 
         <div className="flex flex-col h-full overflow-hidden">
           {/* Search Bar */}
-          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-border">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-border/50">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
               <Input
                 placeholder="Search circles..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="circles-search-input pl-10 pr-4 h-11 text-sm rounded-lg"
+                className="pr-12 pl-4 h-12 text-base placeholder:text-muted-foreground/60 border-border/30 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 rounded-2xl bg-muted/30 focus:bg-background transition-all duration-200"
               />
+              <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground/50 pointer-events-none" />
             </div>
           </div>
 
