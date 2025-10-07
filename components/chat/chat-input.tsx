@@ -57,12 +57,12 @@ export function ChatInput({
 
   return (
     <div className={cn("bg-background p-3 sm:p-4 safe-area-bottom", className)}>
-      <div className="flex items-end gap-2 sm:gap-3">
+      <div className="flex items-end gap-2 sm:gap-3 chat-compact-spacing">
         {/* Add/Attachment Button */}
         <Button
           variant="ghost"
           size="sm"
-          className="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 p-0 rounded-full hover:bg-muted active:scale-95 transition-transform"
+          className="chat-input-button chat-touch-target flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 p-0 rounded-full hover:bg-muted active:scale-95 transition-transform"
           disabled={disabled}
         >
           <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -85,7 +85,7 @@ export function ChatInput({
               placeholder={placeholder}
               disabled={disabled}
               className={cn(
-                "flex-1 min-h-[36px] sm:min-h-[40px] max-h-32 resize-none border-0 bg-transparent",
+                "chat-input-field flex-1 min-h-[36px] sm:min-h-[40px] max-h-32 resize-none border-0 bg-transparent",
                 "focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
                 "placeholder:text-muted-foreground text-sm leading-5 py-2 sm:py-2.5 px-3 sm:px-4",
                 "scrollbar-thin scrollbar-thumb-muted-foreground/20"
@@ -94,11 +94,11 @@ export function ChatInput({
             />
 
             {/* Input Actions */}
-            <div className="flex items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2">
+            <div className="flex items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 chat-compact-spacing">
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-7 h-7 sm:w-8 sm:h-8 p-0 hover:bg-background/80 rounded-full active:scale-95 transition-transform"
+                className="chat-input-button w-7 h-7 sm:w-8 sm:h-8 p-0 hover:bg-background/80 rounded-full active:scale-95 transition-transform"
                 disabled={disabled}
               >
                 <Paperclip className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -107,7 +107,7 @@ export function ChatInput({
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-7 h-7 sm:w-8 sm:h-8 p-0 hover:bg-background/80 rounded-full active:scale-95 transition-transform"
+                className="chat-input-button w-7 h-7 sm:w-8 sm:h-8 p-0 hover:bg-background/80 rounded-full active:scale-95 transition-transform"
                 disabled={disabled}
               >
                 <Smile className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -122,7 +122,7 @@ export function ChatInput({
           disabled={!message.trim() || disabled}
           size="sm"
           className={cn(
-            "flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 p-0 rounded-full transition-all duration-200",
+            "chat-input-button chat-touch-target flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 p-0 rounded-full transition-all duration-200",
             "active:scale-95 disabled:scale-100",
             message.trim()
               ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl"

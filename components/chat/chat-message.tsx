@@ -49,7 +49,7 @@ export function ChatMessageComponent({
   return (
     <div
       className={cn(
-        "group flex gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 hover:bg-muted/30 transition-colors",
+        "group flex gap-2 sm:gap-3 px-2 sm:px-3 py-1 sm:py-1.5 hover:bg-muted/20 transition-colors rounded-lg mx-1 sm:mx-2",
         isGrouped && "py-0.5 sm:py-1",
         message.isOwn && "flex-row-reverse"
       )}
@@ -57,9 +57,9 @@ export function ChatMessageComponent({
       {/* Avatar */}
       <div className="flex-shrink-0">
         {showAvatar && !isGrouped && !message.isOwn ? (
-          <Avatar className="w-8 h-8 sm:w-10 sm:h-10">
+          <Avatar className="chat-message-avatar w-7 h-7 sm:w-8 sm:h-8 ring-2 ring-background">
             <AvatarImage src={message.authorAvatar} />
-            <AvatarFallback className="text-xs sm:text-sm">
+            <AvatarFallback className="text-xs sm:text-sm font-medium bg-primary/10 text-primary">
               {message.authorName
                 .split(" ")
                 .map((n) => n[0])
@@ -67,9 +67,9 @@ export function ChatMessageComponent({
             </AvatarFallback>
           </Avatar>
         ) : (
-          <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center">
             {!message.isOwn && (
-              <span className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="chat-message-time text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
                 {message.timestamp.toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -90,10 +90,12 @@ export function ChatMessageComponent({
         {/* Header (only show if not grouped) */}
         {!isGrouped && !message.isOwn && (
           <div className="flex items-center gap-2 mb-1">
-            <span className="font-semibold text-sm text-foreground">
+            <span className="chat-message-author font-semibold text-xs sm:text-sm text-foreground">
               {message.authorName}
             </span>
-            <span className="text-xs text-muted-foreground">{timeAgo}</span>
+            <span className="chat-message-time text-xs text-muted-foreground">
+              {timeAgo}
+            </span>
           </div>
         )}
 
@@ -118,9 +120,9 @@ export function ChatMessageComponent({
         {/* Message Text */}
         <div
           className={cn(
-            "text-sm leading-relaxed whitespace-pre-wrap break-words",
+            "chat-message-content text-sm leading-relaxed whitespace-pre-wrap break-words",
             message.isOwn
-              ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md px-3 py-2 max-w-fit"
+              ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md px-3 py-2 max-w-fit shadow-sm"
               : "text-foreground"
           )}
         >

@@ -247,26 +247,26 @@ export default function ChatPage() {
       {/* Mobile Layout */}
       <div className="md:hidden flex flex-col h-screen bg-background overflow-hidden">
         {/* Mobile Header */}
-        <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-card/95 backdrop-blur-md flex-shrink-0">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
+        <div className="chat-header-mobile flex items-center justify-between px-3 py-2 border-b border-border bg-card/95 backdrop-blur-md flex-shrink-0">
+          <div className="flex items-center gap-2 flex-1 min-w-0 chat-compact-spacing">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => router.back()}
-              className="p-2 hover:bg-muted/80"
+              className="chat-header-button chat-touch-target p-2 hover:bg-muted/80 rounded-lg"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
 
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-sm">{circle.icon}</span>
+            <div className="flex items-center gap-2 flex-1 min-w-0 chat-compact-spacing">
+              <div className="chat-header-icon w-7 h-7 sm:w-8 sm:h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-xs sm:text-sm">{circle.icon}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <h1 className="font-semibold text-sm truncate">
+                <h1 className="chat-header-title font-semibold text-sm truncate">
                   {circle.name}
                 </h1>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <div className="chat-header-subtitle flex items-center gap-1 text-xs text-muted-foreground">
                   <span>{circle.memberCount.toLocaleString()}</span>
                   <span>•</span>
                   <span>{circle.onlineCount} online</span>
@@ -275,7 +275,7 @@ export default function ChatPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-1 flex-shrink-0">
+          <div className="flex items-center gap-1 flex-shrink-0 chat-compact-spacing">
             <Sheet
               open={isChannelSidebarOpen}
               onOpenChange={setIsChannelSidebarOpen}
@@ -284,9 +284,9 @@ export default function ChatPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="p-2 hover:bg-muted/80"
+                  className="chat-header-button chat-touch-target p-2 hover:bg-muted/80 rounded-lg"
                 >
-                  <Menu className="h-5 w-5" />
+                  <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="p-0 w-80 max-w-[85vw]">
@@ -307,29 +307,38 @@ export default function ChatPage() {
               </SheetContent>
             </Sheet>
 
-            <Button variant="ghost" size="sm" className="p-2 hover:bg-muted/80">
-              <Users className="h-5 w-5" />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="chat-header-button chat-touch-target p-2 hover:bg-muted/80 rounded-lg"
+            >
+              <Users className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
           </div>
         </div>
 
         {/* Current Channel Info */}
         {activeChannel && (
-          <div className="px-4 py-2 border-b border-border bg-muted/20 flex-shrink-0">
-            <div className="flex items-center gap-2">
+          <div className="chat-channel-info px-3 sm:px-4 py-2 border-b border-border bg-muted/20 flex-shrink-0">
+            <div className="flex items-center gap-2 chat-compact-spacing">
               {activeChannel.type === "text" ? (
-                <Hash className="h-4 w-4 text-muted-foreground" />
+                <Hash className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
               ) : (
-                <Volume2 className="h-4 w-4 text-muted-foreground" />
+                <Volume2 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
               )}
-              <span className="font-medium text-sm">#{activeChannel.name}</span>
+              <span className="font-medium text-xs sm:text-sm truncate">
+                #{activeChannel.name}
+              </span>
               {activeChannel.isPrivate && (
-                <Badge variant="secondary" className="text-xs h-5 px-2">
+                <Badge
+                  variant="secondary"
+                  className="text-xs h-4 sm:h-5 px-1.5 sm:px-2 flex-shrink-0"
+                >
                   Private
                 </Badge>
               )}
               {activeChannel.unreadCount && activeChannel.unreadCount > 0 && (
-                <Badge className="bg-primary text-primary-foreground text-xs h-5 px-2">
+                <Badge className="bg-primary text-primary-foreground text-xs h-4 sm:h-5 px-1.5 sm:px-2 flex-shrink-0">
                   {activeChannel.unreadCount} new
                 </Badge>
               )}
@@ -384,11 +393,11 @@ export default function ChatPage() {
         </div>
 
         {/* Chat Input */}
-        <div className="border-t border-border bg-background flex-shrink-0">
+        <div className="chat-input-container border-t border-border bg-background flex-shrink-0">
           <ChatInput
             onSendMessage={handleSendMessage}
             placeholder={`Message #${activeChannel?.name || "channel"}`}
-            className="border-0"
+            className="border-0 chat-input-field"
           />
         </div>
       </div>
