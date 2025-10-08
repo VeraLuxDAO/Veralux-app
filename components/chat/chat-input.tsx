@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, useRef, KeyboardEvent } from "react";
+import { useState, useRef, KeyboardEvent, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { EmojiPicker } from "@/components/ui/emoji-picker";
 import {
   ImagePlus,
   Send,
-  Smile,
   Sticker,
   MoreHorizontal,
   X,
+  Smile,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -31,7 +32,19 @@ export function ChatInput({
   const [message, setMessage] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 450);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const handleSend = () => {
     const trimmedMessage = message.trim();
@@ -65,33 +78,72 @@ export function ChatInput({
     }
   };
 
+  const handleEmojiSelect = (emoji: string) => {
+    if (!textareaRef.current) return;
+
+    const textarea = textareaRef.current;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const currentValue = message;
+
+    // Insert emoji at cursor position
+    const newValue =
+      currentValue.slice(0, start) + emoji + currentValue.slice(end);
+    setMessage(newValue);
+
+    // Restore cursor position after emoji
+    setTimeout(() => {
+      if (textarea) {
+        const newCursorPos = start + emoji.length;
+        textarea.setSelectionRange(newCursorPos, newCursorPos);
+        textarea.focus();
+      }
+    }, 0);
+
+    // Auto-resize textarea
+    setTimeout(() => {
+      if (textarea) {
+        textarea.style.height = "auto";
+        textarea.style.height = `${textarea.scrollHeight}px`;
+        setIsExpanded(textarea.scrollHeight > 40);
+      }
+    }, 0);
+  };
+
   return (
-    <div className={cn("bg-background p-4 sm:p-5 safe-area-bottom", className)}>
-      <div className="flex gap-1 sm:gap-2 max-w-full items-center">
-        {/* Desktop Layout (>= 450px or forceDesktop) */}
+    <div
+      className={cn(
+        "bg-background/95 backdrop-blur-md border-t border-border/50",
+        "p-3 sm:p-4 md:p-5 safe-area-bottom",
+        "shadow-lg shadow-black/5 chat-input-container",
+        className
+      )}
+    >
+      <div className="flex gap-2 sm:gap-3 max-w-full items-center">
+        {/* Telegram-Style Desktop Layout (>= 450px or forceDesktop) */}
         <div
           className={cn(
             "gap-3 sm:gap-4 flex-1 items-center",
             forceDesktop ? "flex" : "hidden min-[450px]:flex"
           )}
         >
-          {/* Media Button (Left) */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 p-0 rounded-full media-button chat-input-action group"
-            disabled={disabled}
-          >
-            <ImagePlus className="h-5 w-5 sm:h-5 sm:w-5 text-primary group-hover:text-primary/80 transition-colors" />
-          </Button>
+          {/* Emoji Picker - Outside input field */}
+          <div className="flex-shrink-0">
+            <EmojiPicker
+              onEmojiSelect={handleEmojiSelect}
+              className="w-9 h-9 sm:w-10 sm:h-10"
+            />
+          </div>
 
           {/* Message Input Container */}
           <div className="flex-1 relative min-w-0">
             <div
               className={cn(
-                "flex items-end bg-muted/40 rounded-3xl transition-all duration-200 border border-border/20",
-                isExpanded && "rounded-3xl",
-                "focus-within:border-primary/30 focus-within:bg-muted/60 focus-within:shadow-sm"
+                "relative rounded-2xl sm:rounded-3xl transition-all duration-200",
+                "bg-muted/30 hover:bg-muted/40",
+                "border border-border/30 hover:border-border/50",
+                "focus-within:border-primary/50 focus-within:bg-background/90",
+                "focus-within:shadow-sm focus-within:shadow-primary/10"
               )}
             >
               {/* Text Input */}
@@ -103,10 +155,11 @@ export function ChatInput({
                 placeholder={placeholder}
                 disabled={disabled}
                 className={cn(
-                  "flex-1 min-h-[48px] sm:min-h-[52px] max-h-32 resize-none border-0 bg-transparent",
+                  "w-full min-h-[48px] sm:min-h-[52px] max-h-40 resize-none border-0 bg-transparent",
                   "focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
-                  "placeholder:text-muted-foreground/60 text-base sm:text-base leading-6 py-3.5 sm:py-4 pl-5 sm:pl-6 pr-3 sm:pr-4",
-                  "scrollbar-thin scrollbar-thumb-muted-foreground/20 font-normal rounded-3xl overflow-hidden"
+                  "placeholder:text-muted-foreground/60 text-base sm:text-lg leading-relaxed",
+                  "py-3 sm:py-4 pl-4 sm:pl-5 pr-14 sm:pr-16 font-medium",
+                  "scrollbar-thin scrollbar-thumb-muted-foreground/20 rounded-2xl sm:rounded-3xl"
                 )}
                 rows={1}
                 style={{
@@ -116,98 +169,55 @@ export function ChatInput({
                 }}
               />
 
-              {/* Right Side Actions */}
-              <div className="flex items-center gap-1 sm:gap-2 pr-2 sm:pr-3 py-2 flex-shrink-0">
-                {/* Emoji Button */}
+              {/* Right: Attachment Button */}
+              <div className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-8 h-8 sm:w-9 sm:h-9 p-0 chat-input-action group"
+                  className={cn(
+                    "w-8 h-8 sm:w-9 sm:h-9 p-0 rounded-full group flex-shrink-0",
+                    "hover:bg-muted/60 active:bg-muted/80",
+                    "transition-all duration-200",
+                    "hover:scale-105 active:scale-95",
+                    disabled && "opacity-50 cursor-not-allowed"
+                  )}
                   disabled={disabled}
+                  onClick={() => {
+                    // Handle attachment functionality
+                    console.log("Attachment clicked");
+                  }}
                 >
-                  <Smile className="h-4 w-4 sm:h-4 sm:w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-                </Button>
-
-                {/* GIF/Stickers Button */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-8 h-8 sm:w-9 sm:h-9 p-0 chat-input-action group"
-                  disabled={disabled}
-                >
-                  <Sticker className="h-4 w-4 sm:h-4 sm:w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  <ImagePlus className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
                 </Button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Mobile Layout (< 450px and not forceDesktop) */}
+        {/* Telegram-Style Mobile Layout (< 450px and not forceDesktop) */}
         <div
           className={cn(
-            "flex items-end gap-3 flex-1 relative",
+            "flex items-end gap-2 flex-1 relative",
             forceDesktop ? "hidden" : "flex min-[450px]:hidden"
           )}
         >
-          {/* Mobile Menu Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex-shrink-0 w-10 h-10 p-0 rounded-full chat-input-action group"
-            disabled={disabled}
-            onClick={() => setShowMobileMenu(!showMobileMenu)}
-          >
-            <MoreHorizontal className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-          </Button>
+          {/* Emoji Picker - Outside input field */}
+          <div className="flex-shrink-0">
+            <EmojiPicker
+              onEmojiSelect={handleEmojiSelect}
+              className="w-9 h-9"
+            />
+          </div>
 
-          {/* Mobile Actions Menu */}
-          {showMobileMenu && (
-            <div className="absolute bottom-full left-0 mb-2 bg-background border border-border rounded-2xl shadow-lg p-2 flex gap-2 z-50 mobile-actions-menu">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-10 h-10 p-0 rounded-full media-button chat-input-action group"
-                disabled={disabled}
-                onClick={() => setShowMobileMenu(false)}
-              >
-                <ImagePlus className="h-5 w-5 text-primary group-hover:text-primary/80 transition-colors" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-10 h-10 p-0 rounded-full chat-input-action group"
-                disabled={disabled}
-                onClick={() => setShowMobileMenu(false)}
-              >
-                <Smile className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-10 h-10 p-0 rounded-full chat-input-action group"
-                disabled={disabled}
-                onClick={() => setShowMobileMenu(false)}
-              >
-                <Sticker className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-8 h-8 p-0 rounded-full hover:bg-muted/80"
-                onClick={() => setShowMobileMenu(false)}
-              >
-                <X className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            </div>
-          )}
-
-          {/* Mobile Message Input Container */}
+          {/* Center: Input Container (Telegram Style) */}
           <div className="flex-1 relative min-w-0">
             <div
               className={cn(
-                "flex items-end bg-muted/40 rounded-3xl transition-all duration-200 border border-border/20",
-                isExpanded && "rounded-3xl",
-                "focus-within:border-primary/30 focus-within:bg-muted/60 focus-within:shadow-sm"
+                "relative rounded-2xl transition-all duration-200",
+                "bg-muted/30 hover:bg-muted/40",
+                "border border-border/30 hover:border-border/50",
+                "focus-within:border-primary/50 focus-within:bg-background/90",
+                "focus-within:shadow-sm focus-within:shadow-primary/10"
               )}
             >
               <Textarea
@@ -218,10 +228,11 @@ export function ChatInput({
                 placeholder={placeholder}
                 disabled={disabled}
                 className={cn(
-                  "flex-1 min-h-[48px] max-h-32 resize-none border-0 bg-transparent",
+                  "w-full min-h-[44px] max-h-32 resize-none border-0 bg-transparent",
                   "focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
-                  "placeholder:text-muted-foreground/60 text-base leading-6 py-3.5 px-5",
-                  "scrollbar-thin scrollbar-thumb-muted-foreground/20 font-normal rounded-3xl overflow-hidden"
+                  "placeholder:text-muted-foreground/60 text-base leading-relaxed",
+                  "py-3 pl-4 pr-12 rounded-2xl",
+                  "scrollbar-thin scrollbar-thumb-muted-foreground/20"
                 )}
                 rows={1}
                 style={{
@@ -230,6 +241,28 @@ export function ChatInput({
                   overflowWrap: "break-word",
                 }}
               />
+
+              {/* Right: Attachment Button */}
+              <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "w-8 h-8 p-0 rounded-full group flex-shrink-0",
+                    "hover:bg-muted/60 active:bg-muted/80",
+                    "transition-all duration-200",
+                    "hover:scale-105 active:scale-95",
+                    disabled && "opacity-50 cursor-not-allowed"
+                  )}
+                  disabled={disabled}
+                  onClick={() => {
+                    // Handle attachment functionality
+                    console.log("Attachment clicked");
+                  }}
+                >
+                  <ImagePlus className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -240,24 +273,36 @@ export function ChatInput({
           disabled={!message.trim() || disabled}
           size="sm"
           className={cn(
-            "flex-shrink-0 w-12 h-12 sm:w-13 sm:h-13 p-0 rounded-full transition-all duration-200",
-            "active:scale-95 disabled:scale-100 disabled:opacity-50",
+            "flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 p-0 rounded-full",
+            "transition-all duration-300 ease-out transform",
+            "active:scale-90 disabled:scale-100",
+            "shadow-lg hover:shadow-xl disabled:shadow-sm",
+            message.trim() && "send-button-active",
             message.trim()
-              ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl border-0"
-              : "bg-muted/60 text-muted-foreground cursor-not-allowed border border-border/30"
+              ? [
+                  "bg-gradient-to-br from-primary via-primary to-primary/90",
+                  "hover:from-primary/95 hover:via-primary/90 hover:to-primary/80",
+                  "text-primary-foreground border-0",
+                  "hover:scale-110 hover:rotate-12",
+                  "shadow-primary/25 hover:shadow-primary/40",
+                ]
+              : [
+                  "bg-gradient-to-br from-muted/80 to-muted/60",
+                  "text-muted-foreground/60 cursor-not-allowed",
+                  "border border-border/20 opacity-60",
+                ]
           )}
         >
-          <Send className="h-5 w-5 sm:h-6 sm:w-6 ml-0.5" />
+          <Send
+            className={cn(
+              "transition-all duration-200",
+              message.trim()
+                ? "h-5 w-5 sm:h-6 sm:w-6 ml-0.5 text-primary-foreground"
+                : "h-5 w-5 sm:h-5 sm:w-5 ml-0.5 text-muted-foreground/50"
+            )}
+          />
         </Button>
       </div>
-
-      {/* Mobile Menu Backdrop */}
-      {showMobileMenu && !forceDesktop && (
-        <div
-          className="fixed inset-0 z-40 min-[450px]:hidden"
-          onClick={() => setShowMobileMenu(false)}
-        />
-      )}
     </div>
   );
 }

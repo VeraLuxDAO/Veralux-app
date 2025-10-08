@@ -506,10 +506,410 @@
   }
 }
 
+/* Enhanced Chat Input Animations */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--primary), 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(var(--primary), 0);
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up-fade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Chat Input Enhanced Styling */
+.chat-input-container {
+  animation: slide-up-fade 0.3s ease-out;
+}
+
+/* Send Button Pulse Animation */
+.send-button-active {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Mobile Menu Animation */
+.mobile-actions-menu {
+  animation: bounce-in 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Enhanced Button Hover Effects */
+.chat-input-action {
+  position: relative;
+  overflow: hidden;
+}
+
+.chat-input-action::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.3) 0%,
+    transparent 70%
+  );
+  transition: all 0.3s ease;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.chat-input-action:hover::before {
+  width: 100px;
+  height: 100px;
+}
+
+/* Improved Focus States */
+.chat-input-field:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(var(--primary), 0.1);
+}
+
+/* Smooth Transitions for All Interactive Elements */
+.chat-input-container * {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced Scrollbar for Chat Input */
+.chat-input-field::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chat-input-field::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-input-field::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 2px;
+}
+
+.chat-input-field::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Modern Emoji Picker Popup */
+.emoji-popup {
+  backdrop-filter: blur(20px) saturate(180%);
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
+    "Twemoji Mozilla", "Android Emoji", sans-serif;
+  font-feature-settings: "liga" on, "clig" on, "kern" on;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  z-index: 9999 !important;
+}
+
+/* Light mode emoji popup */
+:root .emoji-popup {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.15),
+    0 8px 16px -4px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark mode emoji popup */
+.dark .emoji-popup {
+  background: rgba(15, 15, 15, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6),
+    0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Ensure popover content is visible */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
+
+[data-radix-popover-content] {
+  z-index: 9999 !important;
+}
+
+@keyframes modern-popup-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0px);
+  }
+}
+
+@keyframes telegram-picker-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Mobile emoji picker animation */
+@media (max-width: 450px) {
+  .telegram-emoji-picker {
+    animation: telegram-picker-mobile-enter 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+@keyframes telegram-picker-mobile-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Enhanced emoji picker scrollbar */
+.telegram-emoji-picker [data-radix-scroll-area-scrollbar] {
+  width: 8px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 4px;
+  opacity: 1 !important;
+  margin: 2px;
+}
+
+.telegram-emoji-picker [data-radix-scroll-area-thumb] {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.telegram-emoji-picker [data-radix-scroll-area-thumb]:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Emoji Button Effects */
+.emoji-popup button {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
+    "Twemoji Mozilla", "Android Emoji", sans-serif !important;
+  font-variant-emoji: emoji;
+  text-rendering: optimizeLegibility;
+  position: relative;
+  overflow: hidden;
+}
+
+.emoji-popup button:hover {
+  transform: scale(1.1);
+}
+
+.emoji-popup button:active {
+  transform: scale(0.95);
+  transition-duration: 0.1s;
+}
+
+/* Scrollbar styling for emoji popup */
+.emoji-popup [data-radix-scroll-area-scrollbar] {
+  width: 6px !important;
+  background: transparent !important;
+  border-radius: 3px;
+  opacity: 1 !important;
+}
+
+.emoji-popup [data-radix-scroll-area-thumb] {
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+/* Light mode scrollbar */
+:root .emoji-popup [data-radix-scroll-area-thumb] {
+  background: rgba(0, 0, 0, 0.2) !important;
+}
+
+:root .emoji-popup [data-radix-scroll-area-thumb]:hover {
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Dark mode scrollbar */
+.dark .emoji-popup [data-radix-scroll-area-thumb] {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark .emoji-popup [data-radix-scroll-area-thumb]:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Enhanced emoji font support */
+.font-emoji,
+.telegram-emoji-picker .font-emoji,
+.telegram-emoji-picker span {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
+    "Twemoji Mozilla", "Android Emoji", sans-serif !important;
+  font-variant-emoji: emoji;
+  font-feature-settings: "liga" on, "clig" on;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-synthesis: none;
+}
+
+/* Fix for flag emojis specifically */
+.telegram-emoji-picker button span {
+  display: inline-block;
+  line-height: 1;
+  vertical-align: middle;
+  font-size: inherit;
+  font-style: normal;
+  font-weight: normal;
+  text-decoration: none;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+}
+
+/* Responsive emoji picker improvements */
+.telegram-emoji-picker {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.telegram-emoji-picker button {
+  font-size: 1.25rem !important;
+  line-height: 1 !important;
+}
+
+.telegram-emoji-picker [data-radix-scroll-area-root] {
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+.telegram-emoji-picker [data-radix-scroll-area-viewport] {
+  height: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
 /* High DPI display optimizations */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   .crisp-edges {
     image-rendering: crisp-edges;
     image-rendering: -webkit-optimize-contrast;
   }
+}
+
+/* Header scroll animations and improvements */
+.header-scroll-hide {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.header-scroll-show {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Two-row header styling */
+.two-row-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark .two-row-header {
+  background: rgba(0, 0, 0, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive button text hiding */
+@media (max-width: 480px) {
+  .header-button-text {
+    display: none;
+  }
+
+  .header-button-icon-only {
+    padding: 0.5rem;
+    min-width: 2rem;
+    min-height: 2rem;
+  }
+}
+
+/* Circles dropdown styling */
+.circles-dropdown-trigger {
+  transition: all 0.2s ease;
+}
+
+.circles-dropdown-trigger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.circles-dropdown-trigger[data-state="open"] {
+  background: rgba(var(--muted), 0.6);
+}
+
+.circles-dropdown-trigger[data-state="open"] .chevron-down {
+  transform: rotate(180deg);
+}
+
+.chevron-down {
+  transition: transform 0.2s ease;
+}
+
+/* Active circle indicator */
+.active-circle-indicator {
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    var(--primary-foreground)
+  );
+  box-shadow: 0 0 0 2px rgba(var(--primary), 0.2);
+}
+
+/* Emoji picker search box styling */
+.emoji-popup .search-input-container {
+  position: relative;
+}
+
+.emoji-popup .search-input-container .search-icon-right {
+  pointer-events: none;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.emoji-popup .search-input-container:focus-within .search-icon-right {
+  opacity: 0.8;
 }

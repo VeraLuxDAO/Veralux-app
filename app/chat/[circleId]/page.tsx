@@ -6,7 +6,24 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { ArrowLeft, Menu, Users, Settings, Hash, Volume2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  ArrowLeft,
+  Menu,
+  Users,
+  Settings,
+  Hash,
+  Volume2,
+  Search,
+  Home,
+  MoreHorizontal,
+  ChevronDown,
+} from "lucide-react";
 import {
   ChatMessageComponent,
   type ChatMessage,
@@ -176,6 +193,10 @@ export default function ChatPage() {
     mockChannelCategories
   );
   const [isChannelSidebarOpen, setIsChannelSidebarOpen] = useState(false);
+  const [isMemberSidebarOpen, setIsMemberSidebarOpen] = useState(false);
+  const [isTopNavVisible, setIsTopNavVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [isCirclesDropdownOpen, setIsCirclesDropdownOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const circle = mockCircles[circleId as keyof typeof mockCircles];
@@ -183,6 +204,26 @@ export default function ChatPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Handle scroll behavior for top nav visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down & past threshold - hide top nav
+        setIsTopNavVisible(false);
+      } else {
+        // Scrolling up or at top - show top nav
+        setIsTopNavVisible(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
 
   const handleSendMessage = (content: string) => {
     const newMessage: ChatMessage = {
@@ -233,7 +274,7 @@ export default function ChatPage() {
   return (
     <>
       {/* Desktop Layout */}
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <DesktopChatLayout
           circle={circle}
           messages={messages}
@@ -246,38 +287,109 @@ export default function ChatPage() {
         />
       </div>
 
-      {/* Mobile Layout */}
-      <div className="md:hidden flex flex-col h-screen bg-background overflow-hidden">
-        {/* Mobile Header */}
-        <div className="chat-header-mobile flex items-center justify-between px-3 py-2 border-b border-border bg-card/95 backdrop-blur-md flex-shrink-0">
-          <div className="flex items-center gap-2 flex-1 min-w-0 chat-compact-spacing">
+      {/* Mobile & Tablet Layout */}
+      <div className="lg:hidden flex flex-col h-screen bg-background overflow-hidden">
+        {/* New Two-Row Header Design */}
+        <div className="flex flex-col bg-card/95 backdrop-blur-md border-b border-border flex-shrink-0">
+          {/* Top Navigation Bar - Hides/appears on scroll */}
+          <div
+            className={cn(
+              "flex items-center justify-between px-3 py-2 border-b border-border/50 transition-all duration-300",
+              isTopNavVisible
+                ? "translate-y-0 opacity-100"
+                : "-translate-y-full opacity-0 absolute"
+            )}
+          >
+            {/* Left: Back to Home */}
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => router.back()}
-              className="chat-header-button chat-touch-target p-2 hover:bg-muted/80 rounded-lg"
+              onClick={() => router.push("/")}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted/60 text-sm font-medium"
             >
-              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+              <Home className="h-4 w-4" />
+              <span className="hidden sm:inline">Back To Home</span>
             </Button>
 
-            <div className="flex items-center gap-2 flex-1 min-w-0 chat-compact-spacing">
-              <div className="chat-header-icon w-7 h-7 sm:w-8 sm:h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-xs sm:text-sm">{circle.icon}</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h1 className="chat-header-title font-semibold text-sm truncate">
-                  {circle.name}
-                </h1>
-                <div className="chat-header-subtitle flex items-center gap-1 text-xs text-muted-foreground">
-                  <span>{circle.memberCount.toLocaleString()}</span>
-                  <span>•</span>
-                  <span>{circle.onlineCount} online</span>
-                </div>
-              </div>
+            {/* Center: Circle Info with Dropdown */}
+            <div className="flex items-center gap-2 sm:gap-3 flex-1 justify-center min-w-0">
+              <DropdownMenu
+                open={isCirclesDropdownOpen}
+                onOpenChange={setIsCirclesDropdownOpen}
+              >
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="circles-dropdown-trigger flex items-center gap-2 px-2 sm:px-3 py-2 bg-muted/30 rounded-lg hover:bg-muted/40 transition-colors"
+                  >
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-xs sm:text-sm">{circle.icon}</span>
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs sm:text-sm font-semibold truncate">
+                        {circle.name}
+                      </span>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <span>{circle.memberCount.toLocaleString()}</span>
+                        <span>•</span>
+                        <span>{circle.onlineCount} online</span>
+                      </div>
+                    </div>
+                    <ChevronDown className="chevron-down h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="w-64">
+                  {Object.entries(mockCircles).map(([key, circleData]) => (
+                    <DropdownMenuItem
+                      key={key}
+                      onClick={() => {
+                        if (key !== circleId) {
+                          router.push(`/chat/${key}`);
+                        }
+                        setIsCirclesDropdownOpen(false);
+                      }}
+                      className={cn(
+                        "flex items-center gap-3 p-3 cursor-pointer",
+                        key === circleId && "bg-muted/50"
+                      )}
+                    >
+                      <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm">{circleData.icon}</span>
+                      </div>
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <span className="text-sm font-semibold truncate">
+                          {circleData.name}
+                        </span>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <span>{circleData.memberCount.toLocaleString()}</span>
+                          <span>•</span>
+                          <span>{circleData.onlineCount} online</span>
+                        </div>
+                      </div>
+                      {key === circleId && (
+                        <div className="active-circle-indicator w-2 h-2 bg-primary rounded-full flex-shrink-0" />
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
+
+            {/* Right: Settings */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted/60 text-sm font-medium"
+            >
+              <Settings className="h-4 w-4" />
+              <span className="hidden sm:inline">Settings</span>
+              <MoreHorizontal className="h-4 w-4 sm:hidden" />
+            </Button>
           </div>
 
-          <div className="flex items-center gap-1 flex-shrink-0 chat-compact-spacing">
+          {/* Second Row: Channels, Search, Members */}
+          <div className="flex items-center justify-between px-2 sm:px-3 py-2">
+            {/* Left: Channels */}
             <Sheet
               open={isChannelSidebarOpen}
               onOpenChange={setIsChannelSidebarOpen}
@@ -286,12 +398,16 @@ export default function ChatPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="chat-header-button chat-touch-target p-2 hover:bg-muted/80 rounded-lg"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-lg hover:bg-muted/60 text-xs sm:text-sm font-medium"
                 >
-                  <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <Hash className="h-4 w-4" />
+                  <span className="hidden xs:inline sm:inline">Channels</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="p-0 w-80 max-w-[85vw]">
+              <SheetContent
+                side="left"
+                className="p-0 w-80 md:w-96 max-w-[85vw]"
+              >
                 <div className="p-4 border-b border-border bg-card">
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center">
@@ -309,38 +425,68 @@ export default function ChatPage() {
               </SheetContent>
             </Sheet>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              className="chat-header-button chat-touch-target p-2 hover:bg-muted/80 rounded-lg"
+            {/* Center: Search */}
+            <div className="flex-1 max-w-md mx-2 sm:mx-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full flex items-center gap-2 px-2 sm:px-4 py-2 rounded-lg hover:bg-muted/60 text-xs sm:text-sm font-medium justify-center bg-muted/20"
+              >
+                <Search className="h-4 w-4" />
+                <span className="hidden sm:inline">Search Current Channel</span>
+                <span className="sm:hidden">Search</span>
+              </Button>
+            </div>
+
+            {/* Right: Members */}
+            <Sheet
+              open={isMemberSidebarOpen}
+              onOpenChange={setIsMemberSidebarOpen}
             >
-              <Users className="h-4 w-4 sm:h-5 sm:w-5" />
-            </Button>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-lg hover:bg-muted/60 text-xs sm:text-sm font-medium"
+                >
+                  <Users className="h-4 w-4" />
+                  <span className="hidden xs:inline sm:inline">Members</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="p-0 w-80">
+                <div className="p-4">
+                  <h3 className="font-semibold mb-4">Members</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Members panel content goes here...
+                  </p>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
 
         {/* Current Channel Info */}
         {activeChannel && (
-          <div className="chat-channel-info px-3 sm:px-4 py-2 border-b border-border bg-muted/20 flex-shrink-0">
-            <div className="flex items-center gap-2 chat-compact-spacing">
+          <div className="chat-channel-info px-3 md:px-4 py-2 md:py-2.5 border-b border-border bg-muted/20 flex-shrink-0">
+            <div className="flex items-center gap-2 md:gap-3 chat-compact-spacing">
               {activeChannel.type === "text" ? (
-                <Hash className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                <Hash className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
               ) : (
-                <Volume2 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                <Volume2 className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
               )}
-              <span className="font-medium text-xs sm:text-sm truncate">
+              <span className="font-medium text-xs md:text-sm truncate">
                 #{activeChannel.name}
               </span>
               {activeChannel.isPrivate && (
                 <Badge
                   variant="secondary"
-                  className="text-xs h-4 sm:h-5 px-1.5 sm:px-2 flex-shrink-0"
+                  className="text-xs h-4 md:h-5 px-1.5 md:px-2 flex-shrink-0"
                 >
                   Private
                 </Badge>
               )}
               {activeChannel.unreadCount && activeChannel.unreadCount > 0 && (
-                <Badge className="bg-primary text-primary-foreground text-xs h-4 sm:h-5 px-1.5 sm:px-2 flex-shrink-0">
+                <Badge className="bg-primary text-primary-foreground text-xs h-4 md:h-5 px-1.5 md:px-2 flex-shrink-0">
                   {activeChannel.unreadCount} new
                 </Badge>
               )}
@@ -351,21 +497,21 @@ export default function ChatPage() {
         {/* Messages Area */}
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-background">
           <ScrollArea className="flex-1 h-full">
-            <div className="flex flex-col justify-end min-h-full px-1 sm:px-2">
+            <div className="flex flex-col justify-end min-h-full px-1 md:px-3">
               {messages.length === 0 ? (
-                <div className="flex items-center justify-center flex-1 p-6 sm:p-8">
+                <div className="flex items-center justify-center flex-1 p-6 md:p-10">
                   <div className="text-center text-muted-foreground">
-                    <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">💬</div>
-                    <div className="text-sm sm:text-base font-medium">
+                    <div className="text-3xl md:text-5xl mb-3 md:mb-5">💬</div>
+                    <div className="text-sm md:text-lg font-medium">
                       Welcome to #{activeChannel?.name}
                     </div>
-                    <div className="text-xs sm:text-sm mt-1 opacity-75">
+                    <div className="text-xs md:text-sm mt-1 opacity-75">
                       This is the beginning of your conversation.
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-col py-2 sm:py-4 space-y-1 sm:space-y-2">
+                <div className="flex flex-col py-2 md:py-4 space-y-1 md:space-y-2">
                   {messages.map((message, index) => {
                     const prevMessage = messages[index - 1];
                     const isGrouped =
@@ -382,7 +528,7 @@ export default function ChatPage() {
                         key={message.id}
                         message={message}
                         showAvatar={true}
-                        isGrouped={isGrouped}
+                        isGrouped={isGrouped || false}
                       />
                     );
                   })}
