@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Home, Users, UserPlus, Bell, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter, usePathname } from "next/navigation";
+import { CirclesModal } from "@/components/circles-modal";
 
 interface MobileBottomBarProps {
   isMenuOpen?: boolean;
@@ -18,6 +19,7 @@ export function MobileBottomBar({
 }: MobileBottomBarProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [isCirclesModalOpen, setIsCirclesModalOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -68,35 +70,44 @@ export function MobileBottomBar({
       label: "Home",
       path: "/",
       badge: null,
+      action: null,
     },
     {
       icon: Users,
       label: "Circles",
       path: "/circles",
       badge: null,
+      action: () => setIsCirclesModalOpen(true),
     },
     {
       icon: UserPlus,
       label: "Following",
       path: "/following",
       badge: null,
+      action: null,
     },
     {
       icon: Bell,
       label: "Notifications",
       path: "/notifications",
       badge: "3",
+      action: null,
     },
     {
       icon: MessageCircle,
       label: "Messages",
       path: "/messages",
       badge: "2",
+      action: null,
     },
   ];
 
-  const handleNavigation = (path: string) => {
-    router.push(path);
+  const handleNavigation = (path: string, action?: () => void) => {
+    if (action) {
+      action();
+    } else {
+      router.push(path);
+    }
   };
 
   return (
@@ -127,7 +138,7 @@ export function MobileBottomBar({
               key={item.path}
               variant="ghost"
               size="sm"
-              onClick={() => handleNavigation(item.path)}
+              onClick={() => handleNavigation(item.path, item.action)}
               className={cn(
                 "flex flex-col items-center space-y-1 p-2 h-auto min-w-0 flex-1",
                 "transition-all duration-300 cursor-pointer",
@@ -152,6 +163,12 @@ export function MobileBottomBar({
           );
         })}
       </div>
+
+      {/* Circles Modal */}
+      <CirclesModal
+        isOpen={isCirclesModalOpen}
+        onClose={() => setIsCirclesModalOpen(false)}
+      />
     </nav>
   );
 }
