@@ -131,7 +131,7 @@ export function ChatInput({
           <div className="flex-shrink-0">
             <EmojiPicker
               onEmojiSelect={handleEmojiSelect}
-              className="w-9 h-9 sm:w-10 sm:h-10"
+              className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10"
             />
           </div>
 
@@ -155,11 +155,11 @@ export function ChatInput({
                 placeholder={placeholder}
                 disabled={disabled}
                 className={cn(
-                  "w-full min-h-[48px] sm:min-h-[52px] max-h-40 resize-none border-0 bg-transparent",
+                  "w-full min-h-[44px] xs:min-h-[48px] sm:min-h-[52px] max-h-40 resize-none border-0 bg-transparent",
                   "focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
-                  "placeholder:text-muted-foreground/60 text-base sm:text-lg leading-relaxed",
-                  "py-3 sm:py-4 pl-4 sm:pl-5 pr-14 sm:pr-16 font-medium",
-                  "scrollbar-thin scrollbar-thumb-muted-foreground/20 rounded-2xl sm:rounded-3xl"
+                  "placeholder:text-muted-foreground/60 text-sm xs:text-base sm:text-lg leading-relaxed",
+                  "py-2.5 xs:py-3 sm:py-4 pl-3 xs:pl-4 sm:pl-5 pr-12 xs:pr-14 sm:pr-16 font-medium",
+                  "scrollbar-thin scrollbar-thumb-muted-foreground/20 rounded-2xl sm:rounded-3xl mobile-search-input"
                 )}
                 rows={1}
                 style={{
@@ -170,12 +170,12 @@ export function ChatInput({
               />
 
               {/* Right: Attachment Button */}
-              <div className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2">
+              <div className="absolute right-1.5 xs:right-2 sm:right-3 top-1/2 -translate-y-1/2">
                 <Button
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "w-8 h-8 sm:w-9 sm:h-9 p-0 rounded-full group flex-shrink-0",
+                    "w-7 h-7 xs:w-8 xs:h-8 sm:w-9 sm:h-9 p-0 rounded-full group flex-shrink-0",
                     "hover:bg-muted/60 active:bg-muted/80",
                     "transition-all duration-200",
                     "hover:scale-105 active:scale-95",
@@ -187,7 +187,7 @@ export function ChatInput({
                     console.log("Attachment clicked");
                   }}
                 >
-                  <ImagePlus className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  <ImagePlus className="h-3.5 w-3.5 xs:h-4 xs:w-4 sm:h-5 sm:w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
                 </Button>
               </div>
             </div>
@@ -205,7 +205,7 @@ export function ChatInput({
           <div className="flex-shrink-0">
             <EmojiPicker
               onEmojiSelect={handleEmojiSelect}
-              className="w-9 h-9"
+              className="w-8 h-8 xs:w-9 xs:h-9"
             />
           </div>
 
@@ -228,10 +228,10 @@ export function ChatInput({
                 placeholder={placeholder}
                 disabled={disabled}
                 className={cn(
-                  "w-full min-h-[44px] max-h-32 resize-none border-0 bg-transparent",
+                  "w-full min-h-[40px] xs:min-h-[44px] max-h-32 resize-none border-0 bg-transparent",
                   "focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
-                  "placeholder:text-muted-foreground/60 text-base leading-relaxed",
-                  "py-3 pl-4 pr-12 rounded-2xl",
+                  "placeholder:text-muted-foreground/60 text-sm xs:text-base leading-relaxed",
+                  "py-2.5 xs:py-3 pl-3 xs:pl-4 pr-10 xs:pr-12 rounded-2xl mobile-search-input",
                   "scrollbar-thin scrollbar-thumb-muted-foreground/20"
                 )}
                 rows={1}
@@ -243,12 +243,12 @@ export function ChatInput({
               />
 
               {/* Right: Attachment Button */}
-              <div className="absolute right-2 top-1/2 -translate-y-1/2">
+              <div className="absolute right-1.5 xs:right-2 top-1/2 -translate-y-1/2">
                 <Button
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "w-8 h-8 p-0 rounded-full group flex-shrink-0",
+                    "w-7 h-7 xs:w-8 xs:h-8 p-0 rounded-full group flex-shrink-0",
                     "hover:bg-muted/60 active:bg-muted/80",
                     "transition-all duration-200",
                     "hover:scale-105 active:scale-95",
@@ -260,7 +260,7 @@ export function ChatInput({
                     console.log("Attachment clicked");
                   }}
                 >
-                  <ImagePlus className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  <ImagePlus className="h-3.5 w-3.5 xs:h-4 xs:w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                 </Button>
               </div>
             </div>
@@ -273,7 +273,7 @@ export function ChatInput({
           disabled={!message.trim() || disabled}
           size="sm"
           className={cn(
-            "flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 p-0 rounded-full",
+            "flex-shrink-0 w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14 p-0 rounded-full mobile-touch-target",
             "transition-all duration-300 ease-out transform",
             "active:scale-90 disabled:scale-100",
             "shadow-lg hover:shadow-xl disabled:shadow-sm",
