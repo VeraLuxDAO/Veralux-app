@@ -6,17 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import {
-  Hash,
-  Volume2,
-  Settings,
-  Users,
-  Search,
-  Bell,
-  Pin,
-  AtSign,
-  HelpCircle,
-} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Hash, Volume2, Settings, Users, Search } from "lucide-react";
 import {
   ChatMessageComponent,
   type ChatMessage,
@@ -106,6 +97,7 @@ export function DesktopChatLayout({
 }: DesktopChatLayoutProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showMemberList, setShowMemberList] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -241,19 +233,18 @@ export function DesktopChatLayout({
             )}
           </div>
 
-          <div className="flex items-center gap-1 lg:gap-2 flex-shrink-0">
-            <Button variant="ghost" size="sm" className="hover:bg-muted/80">
-              <Bell className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm" className="hover:bg-muted/80">
-              <Pin className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm" className="hover:bg-muted/80">
-              <AtSign className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm" className="hover:bg-muted/80">
-              <Search className="h-4 w-4" />
-            </Button>
+          <div className="flex items-center gap-2 lg:gap-3 flex-shrink-0">
+            {/* Search Input Field */}
+            <div className="search-input-container relative w-48 lg:w-56">
+              <Search className="search-icon absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search messages..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-8 text-sm bg-muted/30 border-border/30 focus:border-primary/50 focus:ring-1 focus:ring-primary/20 rounded-lg"
+              />
+            </div>
+
             <Button
               variant="ghost"
               size="sm"
@@ -264,9 +255,6 @@ export function DesktopChatLayout({
               )}
             >
               <Users className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm" className="hover:bg-muted/80">
-              <HelpCircle className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -305,7 +293,7 @@ export function DesktopChatLayout({
                         key={message.id}
                         message={message}
                         showAvatar={true}
-                        isGrouped={isGrouped}
+                        isGrouped={isGrouped || false}
                       />
                     );
                   })}

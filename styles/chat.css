@@ -913,3 +913,33 @@
 .emoji-popup .search-input-container:focus-within .search-icon-right {
   opacity: 0.8;
 }
+
+/* Chat header search input styling */
+.desktop-chat-container .search-input-container,
+.chat-header-search {
+  position: relative;
+}
+
+.desktop-chat-container .search-input-container input,
+.chat-header-search input {
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.desktop-chat-container .search-input-container input:focus,
+.chat-header-search input:focus {
+  background: rgba(var(--background), 0.9);
+  box-shadow: 0 0 0 2px rgba(var(--primary), 0.2);
+}
+
+.desktop-chat-container .search-input-container .search-icon,
+.chat-header-search .search-icon {
+  pointer-events: none;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.desktop-chat-container .search-input-container:focus-within .search-icon,
+.chat-header-search:focus-within .search-icon {
+  opacity: 0.8;
+}

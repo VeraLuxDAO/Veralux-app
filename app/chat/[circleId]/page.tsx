@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -197,6 +198,7 @@ export default function ChatPage() {
   const [isTopNavVisible, setIsTopNavVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isCirclesDropdownOpen, setIsCirclesDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const circle = mockCircles[circleId as keyof typeof mockCircles];
@@ -425,17 +427,17 @@ export default function ChatPage() {
               </SheetContent>
             </Sheet>
 
-            {/* Center: Search */}
+            {/* Center: Search Input */}
             <div className="flex-1 max-w-md mx-2 sm:mx-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full flex items-center gap-2 px-2 sm:px-4 py-2 rounded-lg hover:bg-muted/60 text-xs sm:text-sm font-medium justify-center bg-muted/20"
-              >
-                <Search className="h-4 w-4" />
-                <span className="hidden sm:inline">Search Current Channel</span>
-                <span className="sm:hidden">Search</span>
-              </Button>
+              <div className="chat-header-search relative">
+                <Search className="search-icon absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search messages..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 h-8 sm:h-9 text-xs sm:text-sm bg-muted/30 border-border/30 focus:border-primary/50 focus:ring-1 focus:ring-primary/20 rounded-lg"
+                />
+              </div>
             </div>
 
             {/* Right: Members */}
