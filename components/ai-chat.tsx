@@ -147,7 +147,7 @@ export function AIChat({ className = "" }: AIChatProps) {
         }}
       >
         <Button
-          onClick={handleToggle}
+        onClick={handleToggle}
           disabled={isAnimating}
           className={cn(
             "desktop-ai-tab-button group relative cursor-pointer transform-gpu",

@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
+import { CirclesModal } from "@/components/circles-modal";
 
 interface DesktopTopBarProps {
   className?: string;
@@ -27,6 +28,7 @@ interface DesktopTopBarProps {
 
 export function DesktopTopBar({ className }: DesktopTopBarProps) {
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [isCirclesModalOpen, setIsCirclesModalOpen] = useState(false);
   const auth = useAuth();
   const router = useRouter();
 
@@ -127,12 +129,12 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
             </Badge>
           </Button>
 
-          {/* Messages */}
+          {/* Circles (Messages Button) */}
           <Button
             variant="ghost"
             size="sm"
             className="relative"
-            onClick={() => router.push("/messages")}
+            onClick={() => setIsCirclesModalOpen(true)}
           >
             <MessageCircle className="h-5 w-5" />
             <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 bg-primary text-primary-foreground text-xs flex items-center justify-center">
@@ -163,6 +165,12 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
           )}
         </div>
       </div>
+
+      {/* Circles Modal */}
+      <CirclesModal
+        isOpen={isCirclesModalOpen}
+        onClose={() => setIsCirclesModalOpen(false)}
+      />
     </header>
   );
 }
