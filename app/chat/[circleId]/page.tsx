@@ -49,6 +49,8 @@ const mockCircles = {
     icon: "🏗️",
     memberCount: 1247,
     onlineCount: 47,
+    unreadCount: 0,
+    hasNotifications: false,
   },
   "gaming-alpha": {
     id: "gaming-alpha",
@@ -56,6 +58,8 @@ const mockCircles = {
     icon: "🎮",
     memberCount: 856,
     onlineCount: 23,
+    unreadCount: 5,
+    hasNotifications: false,
   },
   "nft-collectors": {
     id: "nft-collectors",
@@ -63,6 +67,8 @@ const mockCircles = {
     icon: "💎",
     memberCount: 2341,
     onlineCount: 31,
+    unreadCount: 0,
+    hasNotifications: true,
   },
 };
 
@@ -279,10 +285,11 @@ export default function ChatPage() {
 
   return (
     <>
-      {/* Desktop Layout - Optimized for larger screens */}
-      <div className="hidden min-[1200px]:block">
+      {/* Desktop Layout - Optimized for larger screens (1024px+) */}
+      <div className="hidden lg:block">
         <DesktopChatLayout
-          circle={circle}
+          circles={Object.values(mockCircles)}
+          activeCircle={circle}
           messages={messages}
           channelCategories={channelCategories}
           activeChannelId={activeChannelId}
@@ -290,11 +297,13 @@ export default function ChatPage() {
           onSendMessage={handleSendMessage}
           onChannelSelect={handleChannelSelect}
           onCategoryToggle={handleCategoryToggle}
+          onCircleSelect={(circleId) => router.push(`/chat/${circleId}`)}
+          onNavigateHome={() => router.push("/")}
         />
       </div>
 
-      {/* Mobile & Tablet Layout - Ultra Modern (up to 1199px) */}
-      <div className="min-[1200px]:hidden flex flex-col h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950/20 overflow-hidden">
+      {/* Mobile & Tablet Layout - Ultra Modern (up to 1023px) */}
+      <div className="lg:hidden flex flex-col h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-blue-950/20">
         {/* Ultra Modern Two-Row Header Design */}
         <div className="flex flex-col bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl border-b border-slate-200/60 dark:border-slate-700/60 flex-shrink-0 shadow-xl shadow-slate-900/5 dark:shadow-black/20">
           {/* Ultra Modern Top Navigation Bar */}
@@ -322,22 +331,46 @@ export default function ChatPage() {
             </Button>
 
             {/* Center: Circle Info with Dropdown */}
-            <div className="flex items-center gap-2 sm:gap-3 flex-1 justify-center min-w-0">
+            <div className="flex items-center gap-2 sm:gap-3 flex-1 justify-center min-w-0 relative">
               <DropdownMenu
                 open={isCirclesDropdownOpen}
                 onOpenChange={setIsCirclesDropdownOpen}
               >
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="circles-dropdown-trigger flex items-center gap-1.5 xs:gap-2 px-2 xs:px-2.5 sm:px-3 py-2 xs:py-2.5 bg-gradient-to-r from-white/70 via-slate-50/50 to-white/70 dark:from-slate-800/70 dark:via-slate-700/50 dark:to-slate-800/70 rounded-xl xs:rounded-2xl hover:bg-gradient-to-r hover:from-white/90 hover:via-slate-50/70 hover:to-white/90 dark:hover:from-slate-700/90 dark:hover:via-slate-600/70 dark:hover:to-slate-700/90 transition-all duration-300 hover:scale-[1.02] shadow-lg xs:shadow-xl shadow-slate-900/8 xs:shadow-slate-900/10 dark:shadow-black/15 xs:dark:shadow-black/20 backdrop-blur-sm border border-white/50 dark:border-slate-600/50"
-                  >
+                  <button className="circles-dropdown-trigger flex items-center gap-1.5 xs:gap-2 px-2 xs:px-2.5 sm:px-3 py-2 xs:py-2.5 bg-gradient-to-r from-white/70 via-slate-50/50 to-white/70 dark:from-slate-800/70 dark:via-slate-700/50 dark:to-slate-800/70 rounded-xl xs:rounded-2xl hover:bg-gradient-to-r hover:from-white/90 hover:via-slate-50/70 hover:to-white/90 dark:hover:from-slate-700/90 dark:hover:via-slate-600/70 dark:hover:to-slate-700/90 transition-all duration-300 hover:scale-[1.02] shadow-lg xs:shadow-xl shadow-slate-900/8 xs:shadow-slate-900/10 dark:shadow-black/15 xs:dark:shadow-black/20 backdrop-blur-sm border border-white/50 dark:border-slate-600/50 cursor-pointer">
                     <div className="relative group">
+                      {/* Main Active Circle */}
                       <div className="w-7 h-7 xs:w-8 xs:h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-violet-500 via-blue-500 to-cyan-500 rounded-xl xs:rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg xs:shadow-xl shadow-blue-500/25 xs:shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-all duration-300 group-hover:scale-105">
                         <span className="text-sm xs:text-base sm:text-lg font-bold filter drop-shadow-sm">
                           {circle.icon}
                         </span>
                       </div>
+
+                      {/* Preview of Other Circles - Mobile Version */}
+                      <div className="absolute -right-1 top-0 flex flex-col gap-0.5 hidden xs:flex">
+                        {Object.values(mockCircles)
+                          .filter((c) => c.id !== circle.id)
+                          .slice(0, 2)
+                          .map((otherCircle, index) => (
+                            <div
+                              key={otherCircle.id}
+                              className={cn(
+                                "w-3 h-3 bg-gradient-to-br from-slate-400 to-slate-600 rounded-md flex items-center justify-center shadow-sm transition-all duration-300 group-hover:scale-110",
+                                index === 0 ? "opacity-70" : "opacity-50"
+                              )}
+                            >
+                              <span className="text-[8px]">
+                                {otherCircle.icon}
+                              </span>
+                              {otherCircle.unreadCount != null &&
+                                otherCircle.unreadCount > 0 && (
+                                  <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
+                                )}
+                            </div>
+                          ))}
+                      </div>
+
+                      {/* Online indicator */}
                       <div className="absolute -bottom-0.5 xs:-bottom-1 -right-0.5 xs:-right-1 w-3 h-3 xs:w-3.5 xs:h-3.5 bg-gradient-to-r from-emerald-400 to-green-500 rounded-full border-2 border-white dark:border-slate-800 shadow-md xs:shadow-lg animate-pulse"></div>
                     </div>
                     <div className="flex flex-col min-w-0">
@@ -357,42 +390,106 @@ export default function ChatPage() {
                         </span>
                       </div>
                     </div>
-                    <ChevronDown className="chevron-down h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground ml-1" />
-                  </Button>
+                    <ChevronDown className="chevron-down h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground ml-1 group-hover:rotate-180 transition-transform duration-300" />
+                  </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" className="w-64">
-                  {Object.entries(mockCircles).map(([key, circleData]) => (
-                    <DropdownMenuItem
-                      key={key}
-                      onClick={() => {
-                        if (key !== circleId) {
-                          router.push(`/chat/${key}`);
-                        }
-                        setIsCirclesDropdownOpen(false);
-                      }}
-                      className={cn(
-                        "flex items-center gap-3 p-3 cursor-pointer",
-                        key === circleId && "bg-muted/50"
-                      )}
-                    >
-                      <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-sm">{circleData.icon}</span>
-                      </div>
-                      <div className="flex flex-col min-w-0 flex-1">
-                        <span className="text-sm font-semibold truncate">
-                          {circleData.name}
-                        </span>
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <span>{circleData.memberCount.toLocaleString()}</span>
-                          <span>•</span>
-                          <span>{circleData.onlineCount} online</span>
+                <DropdownMenuContent
+                  align="center"
+                  className="w-[calc(100vw-2rem)] max-w-sm sm:w-80 sm:max-w-md p-3 sm:p-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/60 shadow-2xl rounded-2xl"
+                  sideOffset={8}
+                  avoidCollisions={true}
+                  collisionPadding={16}
+                >
+                  <div className="px-2 sm:px-3 py-2 mb-3">
+                    <div className="flex items-center gap-2 text-sm sm:text-base font-semibold text-slate-700 dark:text-slate-300">
+                      <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-violet-500" />
+                      Switch Circle
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                      Choose your community space
+                    </p>
+                  </div>
+
+                  <div className="w-full h-px bg-slate-200/60 dark:bg-slate-700/60 mb-2" />
+
+                  {Object.entries(mockCircles).map(([key, circleData]) => {
+                    const isActive = key === circleId;
+                    return (
+                      <DropdownMenuItem
+                        key={key}
+                        onClick={() => {
+                          if (key !== circleId) {
+                            router.push(`/chat/${key}`);
+                          }
+                          setIsCirclesDropdownOpen(false);
+                        }}
+                        className={cn(
+                          "flex items-center gap-3 sm:gap-4 p-3 sm:p-4 m-1 rounded-xl sm:rounded-2xl cursor-pointer transition-all duration-300 hover:scale-[1.01] sm:hover:scale-[1.02] touch-manipulation",
+                          isActive
+                            ? "bg-gradient-to-r from-violet-100/80 via-blue-100/60 to-cyan-100/80 dark:from-violet-900/40 dark:via-blue-900/30 dark:to-cyan-900/40 border border-violet-200/60 dark:border-violet-700/60"
+                            : "hover:bg-slate-100/60 dark:hover:bg-slate-800/60 active:bg-slate-200/60 dark:active:bg-slate-700/60"
+                        )}
+                      >
+                        <div className="relative">
+                          <div
+                            className={cn(
+                              "w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300",
+                              isActive
+                                ? "bg-gradient-to-br from-violet-500 via-blue-500 to-cyan-500 shadow-blue-500/25"
+                                : "bg-gradient-to-br from-slate-400 to-slate-600 hover:from-violet-400 hover:to-blue-500 shadow-slate-500/20"
+                            )}
+                          >
+                            <span className="text-base sm:text-lg filter drop-shadow-sm">
+                              {circleData.icon}
+                            </span>
+                          </div>
+
+                          {/* Notification indicators */}
+                          {circleData.unreadCount != null &&
+                            circleData.unreadCount > 0 && (
+                              <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 min-w-[18px] sm:min-w-[20px] h-4 sm:h-5 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
+                                <span className="text-xs text-white font-bold px-0.5 sm:px-1">
+                                  {circleData.unreadCount > 99
+                                    ? "99+"
+                                    : circleData.unreadCount}
+                                </span>
+                              </div>
+                            )}
+
+                          {circleData.hasNotifications &&
+                            (!circleData.unreadCount ||
+                              circleData.unreadCount === 0) && (
+                              <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-full shadow-lg animate-pulse" />
+                            )}
                         </div>
-                      </div>
-                      {key === circleId && (
-                        <div className="active-circle-indicator w-2 h-2 bg-primary rounded-full flex-shrink-0" />
-                      )}
-                    </DropdownMenuItem>
-                  ))}
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+                            <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white truncate">
+                              {circleData.name}
+                            </h3>
+                            {isActive && (
+                              <div className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 bg-violet-100 dark:bg-violet-900/30 rounded-full">
+                                <Zap className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-violet-600 dark:text-violet-400" />
+                                <span className="text-xs font-semibold text-violet-700 dark:text-violet-300 hidden sm:inline">
+                                  Active
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 sm:gap-3 text-xs text-slate-600 dark:text-slate-400">
+                            <span className="font-medium">
+                              {circleData.memberCount.toLocaleString()} members
+                            </span>
+                            <span className="hidden sm:inline">•</span>
+                            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                              {circleData.onlineCount} online
+                            </span>
+                          </div>
+                        </div>
+                      </DropdownMenuItem>
+                    );
+                  })}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

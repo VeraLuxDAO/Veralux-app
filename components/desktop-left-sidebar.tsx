@@ -75,9 +75,27 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
       { name: "Mike Chen", avatar: "/developer-avatar.png", isOnline: false },
     ],
     circles: [
-      { name: "DeFi Builders", icon: "🔒", members: 47, isActive: true },
-      { name: "Gaming Alpha", icon: "🎮", members: 23, isActive: true },
-      { name: "NFT Collectors", icon: "💎", members: 31, isActive: false },
+      {
+        name: "DeFi Builders",
+        icon: "🏗️",
+        members: 47,
+        isActive: true,
+        routeId: "defi-builders",
+      },
+      {
+        name: "Gaming Alpha",
+        icon: "🎮",
+        members: 23,
+        isActive: true,
+        routeId: "gaming-alpha",
+      },
+      {
+        name: "NFT Collectors",
+        icon: "💎",
+        members: 31,
+        isActive: false,
+        routeId: "nft-collectors",
+      },
     ],
   };
 
@@ -209,7 +227,8 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
               {connections.circles.slice(0, 3).map((circle, index) => (
                 <button
                   key={index}
-                  className="w-full flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                  onClick={() => handleNavigation(`/chat/${circle.routeId}`)}
+                  className="w-full flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
                 >
                   <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
                     <span className="text-sm">{circle.icon}</span>

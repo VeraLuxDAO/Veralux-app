@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -18,7 +18,12 @@ export function DashboardSidebar({
   onMobileClose,
 }: DashboardSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
+
+  const handleNavigation = (path: string) => {
+    router.push(path);
+  };
 
   return (
     <>
@@ -167,22 +172,25 @@ export function DashboardSidebar({
 
               <Button
                 variant="ghost"
+                onClick={() => handleNavigation("/chat/defi-builders")}
                 className="w-full justify-start text-sm text-foreground hover:text-primary hover:bg-accent"
               >
-                <span className="mr-2 text-base">🔒</span>
+                <span className="mr-2 text-base">🏗️</span>
                 DeFi Builders
               </Button>
 
               <Button
                 variant="ghost"
+                onClick={() => handleNavigation("/chat/gaming-alpha")}
                 className="w-full justify-start text-sm text-foreground hover:text-primary hover:bg-accent"
               >
-                <span className="mr-2 text-base">🎯</span>
-                Gaming Guild Alpha
+                <span className="mr-2 text-base">🎮</span>
+                Gaming Alpha
               </Button>
 
               <Button
                 variant="ghost"
+                onClick={() => handleNavigation("/chat/nft-collectors")}
                 className="w-full justify-start text-sm text-foreground hover:text-primary hover:bg-accent"
               >
                 <span className="mr-2 text-base">💎</span>
