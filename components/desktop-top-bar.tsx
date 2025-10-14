@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { CirclesModal } from "@/components/circles-modal";
+import { RoomsSlidingPanel } from "@/components/rooms-sliding-panel";
 
 interface DesktopTopBarProps {
   className?: string;
@@ -29,6 +30,7 @@ interface DesktopTopBarProps {
 export function DesktopTopBar({ className }: DesktopTopBarProps) {
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const [isCirclesModalOpen, setIsCirclesModalOpen] = useState(false);
+  const [isRoomsPanelOpen, setIsRoomsPanelOpen] = useState(false);
   const auth = useAuth();
   const router = useRouter();
 
@@ -129,12 +131,22 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
             </Badge>
           </Button>
 
-          {/* Circles (Messages Button) */}
+          {/* Circles Button */}
           <Button
             variant="ghost"
             size="sm"
             className="relative"
             onClick={() => setIsCirclesModalOpen(true)}
+          >
+            <Users className="h-5 w-5" />
+          </Button>
+
+          {/* Messages Button (Rooms) */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="relative"
+            onClick={() => setIsRoomsPanelOpen(true)}
           >
             <MessageCircle className="h-5 w-5" />
             <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 bg-primary text-primary-foreground text-xs flex items-center justify-center">
@@ -170,6 +182,12 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
       <CirclesModal
         isOpen={isCirclesModalOpen}
         onClose={() => setIsCirclesModalOpen(false)}
+      />
+
+      {/* Rooms Sliding Panel */}
+      <RoomsSlidingPanel
+        isOpen={isRoomsPanelOpen}
+        onClose={() => setIsRoomsPanelOpen(false)}
       />
     </header>
   );
