@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -20,6 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { CirclesModal } from "@/components/circles-modal";
 
 interface DesktopLeftSidebarProps {
   className?: string;
@@ -28,6 +30,7 @@ interface DesktopLeftSidebarProps {
 export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const [isCirclesModalOpen, setIsCirclesModalOpen] = useState(false);
 
   const handleNavigation = (path: string) => {
     router.push(path);
@@ -249,7 +252,7 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => handleNavigation("/circles")}
+                onClick={() => setIsCirclesModalOpen(true)}
                 className="w-full text-xs text-muted-foreground hover:text-foreground"
               >
                 <MoreHorizontal className="mr-2 h-4 w-4" />
@@ -294,6 +297,12 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
           </Button>
         </div>
       </div>
+
+      {/* Circles Modal */}
+      <CirclesModal
+        isOpen={isCirclesModalOpen}
+        onClose={() => setIsCirclesModalOpen(false)}
+      />
     </aside>
   );
 }
