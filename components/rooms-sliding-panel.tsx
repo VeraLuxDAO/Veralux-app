@@ -24,6 +24,7 @@ import {
   Mic,
   Plus,
   MessageCircle,
+  ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -178,6 +179,12 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Resizable divider state
+  const [roomsListWidth, setRoomsListWidth] = useState(320); // Default width
+  const [isResizing, setIsResizing] = useState(false);
+  const MIN_WIDTH = 240; // Minimum width for rooms list
+  const MAX_WIDTH = 500; // Maximum width for rooms list
+
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -209,6 +216,45 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
       document.body.style.overflow = "";
     };
   }, [isOpen]);
+
+  // Handle resizing - mouse events
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
+
+      const panel = document.querySelector(".rooms-sliding-panel");
+      if (!panel) return;
+
+      const panelRect = panel.getBoundingClientRect();
+      const newWidth = e.clientX - panelRect.left;
+
+      // Clamp width between MIN_WIDTH and MAX_WIDTH
+      const clampedWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, newWidth));
+      setRoomsListWidth(clampedWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+
+    if (isResizing) {
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizing, MIN_WIDTH, MAX_WIDTH]);
+
+  const handleMouseDown = () => {
+    setIsResizing(true);
+  };
 
   const handleEmojiSelect = (emoji: string) => {
     setMessageInput((prev) => prev + emoji);
@@ -263,14 +309,39 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
       room.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Hide AI button when rooms panel is open
+  useEffect(() => {
+    const aiButton = document.querySelector(".desktop-ai-tab-container");
+    if (aiButton) {
+      if (isOpen) {
+        (aiButton as HTMLElement).style.transition = "opacity 0.3s ease";
+        (aiButton as HTMLElement).style.opacity = "0";
+        (aiButton as HTMLElement).style.pointerEvents = "none";
+      } else {
+        (aiButton as HTMLElement).style.transition = "opacity 0.3s ease";
+        (aiButton as HTMLElement).style.opacity = "1";
+        (aiButton as HTMLElement).style.pointerEvents = "auto";
+      }
+    }
+
+    // Cleanup on unmount
+    return () => {
+      const aiButton = document.querySelector(".desktop-ai-tab-container");
+      if (aiButton) {
+        (aiButton as HTMLElement).style.opacity = "1";
+        (aiButton as HTMLElement).style.pointerEvents = "auto";
+      }
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
     <>
-      {/* Backdrop - positioned below top nav but above content */}
+      {/* Backdrop */}
       <div
         className={cn(
-          "fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[90] transition-opacity duration-300",
+          "fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[55] transition-opacity duration-300",
           "hidden md:block",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
@@ -281,25 +352,36 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
       {/* Sliding Panel - Desktop Only */}
       <div
         className={cn(
-          "fixed right-0 h-[calc(100vh-5rem)] w-[50vw] min-w-[680px] max-w-[1200px]",
-          "bg-[#0e1621] border-l border-[#17212b] shadow-2xl z-[100]",
+          "rooms-sliding-panel",
+          "fixed right-0 h-[calc(100vh-5rem)] z-[60]",
+          "bg-[#0e1621] border-l border-[#17212b] shadow-2xl",
           "transform transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
           "hidden md:block",
+          // Responsive widths
+          "w-[90vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw] 2xl:w-[50vw]",
+          "max-w-[1200px] min-w-[600px]",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
         style={{ top: "5rem" }}
       >
-        <div className="flex h-full">
+        <div className="flex h-full overflow-hidden">
           {/* Rooms List - Left Side */}
-          <div className="w-[340px] flex-shrink-0 border-r border-[#2b3642]/50 flex flex-col bg-[#0e1621]">
+          <div
+            className={cn(
+              "flex-shrink-0 border-r-0 flex flex-col bg-[#0e1621] relative overflow-hidden transition-none",
+              // Hide rooms list when chat is selected on medium screens
+              selectedRoom ? "hidden lg:flex" : "flex"
+            )}
+            style={{ width: `${roomsListWidth}px` }}
+          >
             {/* Header */}
-            <div className="px-3 py-3 border-b border-[#2b3642]/50 bg-[#17212b] flex-shrink-0 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#4bd865] to-[#3ca854] flex items-center justify-center">
-                    <Lock className="h-4 w-4 text-white" />
+            <div className="px-2 md:px-3 py-2.5 md:py-3 border-b border-[#2b3642]/50 bg-[#17212b] flex-shrink-0 shadow-sm w-full max-w-full overflow-hidden">
+              <div className="flex items-center justify-between mb-2 md:mb-3 w-full">
+                <div className="flex items-center gap-1.5 md:gap-2">
+                  <div className="h-7 w-7 md:h-8 md:w-8 rounded-full bg-gradient-to-br from-[#4bd865] to-[#3ca854] flex items-center justify-center">
+                    <Lock className="h-3.5 w-3.5 md:h-4 md:w-4 text-white" />
                   </div>
-                  <h2 className="text-[16px] font-bold text-white tracking-tight">
+                  <h2 className="text-[14px] md:text-[16px] font-bold text-white tracking-tight">
                     Private Rooms
                   </h2>
                 </div>
@@ -307,100 +389,111 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                   variant="ghost"
                   size="sm"
                   onClick={onClose}
-                  className="h-8 w-8 p-0 hover:bg-[#2b3642]/60 active:bg-[#2b3642]/80 text-gray-400 hover:text-white rounded-full transition-all"
+                  className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-[#2b3642]/60 active:bg-[#2b3642]/80 text-gray-400 hover:text-white rounded-full transition-all"
                 >
-                  <X className="h-[18px] w-[18px]" />
+                  <X className="h-[16px] w-[16px] md:h-[18px] md:w-[18px]" />
                 </Button>
               </div>
 
               {/* Search */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none" />
+                <Search className="absolute left-2.5 md:left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 md:h-4 md:w-4 text-gray-500 pointer-events-none" />
                 <Input
                   placeholder="Search rooms..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 pr-3 h-9 bg-[#0e1621] border border-[#2b3642]/30 text-white text-[13px] placeholder:text-gray-500 focus:ring-0 focus:border-[#5c6bc0]/50 rounded-lg transition-all"
+                  className="pl-8 md:pl-9 pr-2.5 md:pr-3 h-8 md:h-9 bg-[#0e1621] border border-[#2b3642]/30 text-white text-[12px] md:text-[13px] placeholder:text-gray-500 focus:ring-0 focus:border-[#5c6bc0]/50 rounded-lg transition-all"
                 />
               </div>
             </div>
 
             {/* Rooms List */}
-            <ScrollArea className="flex-1 overflow-y-auto">
-              <div className="p-0">
+            <ScrollArea className="flex-1 overflow-hidden w-full">
+              <div className="w-full max-w-full overflow-hidden">
                 {filteredRooms.map((room) => (
                   <button
                     key={room.id}
                     onClick={() => setSelectedRoom(room)}
                     className={cn(
-                      "w-full flex items-center gap-3.5 px-3 py-3 transition-all duration-150",
+                      "w-full max-w-full flex items-center gap-3 px-3 md:px-4 py-3 transition-all duration-150",
                       "hover:bg-[#17212b]/80 cursor-pointer active:bg-[#1c2733]",
+                      "relative z-0 overflow-hidden",
                       selectedRoom?.id === room.id ? "bg-[#17212b]" : ""
                     )}
                   >
                     {/* Avatar */}
                     <div className="relative flex-shrink-0">
-                      <Avatar className="h-[52px] w-[52px] ring-1 ring-[#2b3642]/20">
+                      <Avatar className="h-[50px] w-[50px] md:h-[52px] md:w-[52px]">
                         <AvatarImage src={room.avatar} />
                         <AvatarFallback className="bg-gradient-to-br from-[#2b3642] to-[#1c2733] text-white text-base font-medium">
                           {room.type === "group" ? "👥" : room.name[0]}
                         </AvatarFallback>
                       </Avatar>
                       {room.isOnline && room.type === "dm" && (
-                        <div className="absolute bottom-0 right-0 w-[13px] h-[13px] bg-[#4bd865] border-[2.5px] border-[#0e1621] rounded-full" />
+                        <div className="absolute bottom-0 right-0 w-[12px] h-[12px] bg-[#4bd865] border-[2.5px] border-[#0e1621] rounded-full" />
                       )}
                     </div>
 
-                    {/* Content */}
-                    <div className="flex-1 min-w-0 py-0.5">
-                      <div className="flex items-start justify-between mb-1">
-                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                          <span className="font-semibold text-[15px] text-white truncate leading-tight">
-                            {room.name}
+                    {/* Content - Telegram-style layout */}
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                      {/* Row 1: Name and Timestamp */}
+                      <div className="flex items-baseline justify-start gap-2 mb-1.5">
+                        <h3 className="font-semibold text-[15px] text-white truncate">
+                          {room.name}
+                        </h3>
+                        {room.lastMessageTime && (
+                          <span className="text-[13px] text-[#aaaaaa] font-normal whitespace-nowrap flex-shrink-0">
+                            {formatTime(room.lastMessageTime)}
                           </span>
-                          {room.type === "group" && (
-                            <span className="text-[10px] text-gray-500 flex-shrink-0">
-                              👥
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
-                          {room.isPinned && (
-                            <Pin className="h-2.5 w-2.5 text-gray-500 fill-gray-500" />
-                          )}
-                          <span className="text-[11px] text-gray-500 font-medium">
-                            {room.lastMessageTime &&
-                              formatTime(room.lastMessageTime)}
-                          </span>
-                        </div>
+                        )}
                       </div>
 
+                      {/* Row 2: Message Preview and Unread Badge */}
                       <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 flex-1 min-w-0 overflow-hidden">
+                          {/* Status Icons */}
                           {room.isMuted && (
-                            <VolumeX className="h-3 w-3 text-gray-500 flex-shrink-0" />
+                            <VolumeX className="h-[14px] w-[14px] text-[#707579] flex-shrink-0" />
                           )}
-                          <p className="text-[13px] text-[#8B96A5] truncate leading-tight">
+                          {room.isPinned && (
+                            <Pin className="h-[14px] w-[14px] text-[#707579] flex-shrink-0" />
+                          )}
+                          {!room.unreadCount &&
+                            room.type === "dm" &&
+                            !room.isTyping && (
+                              <CheckCheck className="h-[14px] w-[14px] text-[#4bd865] flex-shrink-0" />
+                            )}
+
+                          {/* Message Preview */}
+                          <p className="text-[14px] text-[#8b98a5] truncate">
                             {room.isTyping ? (
-                              <span className="text-[#4bd865] italic font-medium">
+                              <span className="text-[#4bd865] italic">
                                 typing...
                               </span>
                             ) : (
-                              <span className="line-clamp-1">
-                                {room.lastMessage}
+                              <span className="truncate">
+                                {room.type === "group" && room.lastMessage && (
+                                  <span className="text-[#8b98a5]">
+                                    {room.lastMessage.split(":")[0]}:{" "}
+                                  </span>
+                                )}
+                                {room.lastMessage
+                                  ?.split(":")
+                                  .slice(1)
+                                  .join(":") || room.lastMessage}
                               </span>
                             )}
                           </p>
                         </div>
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                          {room.unreadCount > 0 ? (
-                            <Badge className="h-[18px] min-w-[18px] px-1 bg-[#4bd865] text-[#0e1621] text-[10px] rounded-full flex items-center justify-center font-bold shadow-sm">
+
+                        {/* Unread Badge - Telegram style */}
+                        {room.unreadCount > 0 && (
+                          <div className="h-[22px] min-w-[22px] px-1.5 bg-[#4cd964] rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-[13px] text-white font-semibold">
                               {room.unreadCount > 99 ? "99+" : room.unreadCount}
-                            </Badge>
-                          ) : room.type === "dm" ? (
-                            <CheckCheck className="h-[14px] w-[14px] text-[#4bd865]" />
-                          ) : null}
-                        </div>
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </button>
@@ -409,34 +502,68 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
             </ScrollArea>
           </div>
 
+          {/* Resizable Divider */}
+          <div
+            className={cn(
+              "relative flex-shrink-0 w-1 bg-[#2b3642]/50 group hover:bg-[#5c6bc0] transition-colors duration-200",
+              "hidden lg:block",
+              isResizing && "bg-[#5c6bc0]"
+            )}
+            onMouseDown={handleMouseDown}
+            style={{
+              userSelect: "none",
+              cursor: "col-resize",
+            }}
+          >
+            {/* Visual indicator */}
+            <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 group-hover:w-1.5 transition-all pointer-events-none">
+              <div className="h-full w-full bg-transparent group-hover:bg-[#5c6bc0]/50 transition-all" />
+            </div>
+            {/* Wider hit area for better UX */}
+            <div
+              className="absolute inset-y-0 -left-2 -right-2"
+              style={{ cursor: "col-resize" }}
+            />
+          </div>
+
           {/* Chat Area - Right Side */}
           {selectedRoom ? (
-            <div className="flex-1 flex flex-col min-w-0 bg-[#0e1621]">
+            <div className="flex-1 flex flex-col min-w-0 bg-[#0e1621] relative z-0">
               {/* Chat Header */}
-              <div className="flex-shrink-0 px-4 py-2.5 border-b border-[#2b3642]/50 bg-[#17212b]">
+              <div className="flex-shrink-0 px-2 md:px-3 lg:px-4 py-2 md:py-2.5 border-b border-[#2b3642]/50 bg-[#17212b]">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 md:gap-2 lg:gap-3 flex-1 min-w-0">
+                    {/* Back button - only visible on md-lg screens when room is selected */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedRoom(null)}
+                      className="h-8 w-8 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full transition-all lg:hidden"
+                    >
+                      <ArrowLeft className="h-[18px] w-[18px]" />
+                    </Button>
+
                     <div className="relative flex-shrink-0">
-                      <Avatar className="h-[42px] w-[42px]">
+                      <Avatar className="h-[36px] w-[36px] md:h-[38px] md:w-[38px] lg:h-[42px] lg:w-[42px]">
                         <AvatarImage src={selectedRoom.avatar} />
-                        <AvatarFallback className="bg-[#2b3642] text-white text-sm">
+                        <AvatarFallback className="bg-[#2b3642] text-white text-xs md:text-sm">
                           {selectedRoom.type === "group"
                             ? "👥"
                             : selectedRoom.name[0]}
                         </AvatarFallback>
                       </Avatar>
                       {selectedRoom.isOnline && selectedRoom.type === "dm" && (
-                        <div className="absolute bottom-0 right-0 w-[11px] h-[11px] bg-[#4bd865] border-[2.5px] border-[#17212b] rounded-full" />
+                        <div className="absolute bottom-0 right-0 w-[9px] h-[9px] md:w-[10px] md:h-[10px] lg:w-[11px] lg:h-[11px] bg-[#4bd865] border-[2px] md:border-[2.5px] border-[#17212b] rounded-full" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-white flex items-center gap-1.5 truncate text-[15px] leading-tight">
+                      <h3 className="font-medium text-white flex items-center gap-1 md:gap-1.5 truncate text-[13px] md:text-[14px] lg:text-[15px] leading-tight">
                         {selectedRoom.name}
                         {selectedRoom.isEncrypted && (
-                          <Lock className="h-3 w-3 text-[#4bd865] flex-shrink-0" />
+                          <Lock className="h-2.5 w-2.5 md:h-3 md:w-3 text-[#4bd865] flex-shrink-0" />
                         )}
                       </h3>
-                      <p className="text-[11px] text-[#707579] truncate leading-tight mt-0.5">
+                      <p className="text-[10px] md:text-[11px] text-[#707579] truncate leading-tight mt-0.5">
                         {selectedRoom.type === "dm"
                           ? selectedRoom.isOnline
                             ? "online"
@@ -450,30 +577,30 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 w-8 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full transition-all"
+                      className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full transition-all"
                     >
-                      <Phone className="h-[18px] w-[18px]" />
+                      <Phone className="h-[16px] w-[16px] md:h-[18px] md:w-[18px]" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 w-8 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full transition-all"
+                      className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full transition-all"
                     >
-                      <Video className="h-[18px] w-[18px]" />
+                      <Video className="h-[16px] w-[16px] md:h-[18px] md:w-[18px]" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 w-8 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full transition-all"
+                      className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full transition-all"
                     >
-                      <Search className="h-[18px] w-[18px]" />
+                      <Search className="h-[16px] w-[16px] md:h-[18px] md:w-[18px]" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 w-8 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full transition-all"
+                      className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full transition-all"
                     >
-                      <MoreVertical className="h-[18px] w-[18px]" />
+                      <MoreVertical className="h-[16px] w-[16px] md:h-[18px] md:w-[18px]" />
                     </Button>
                   </div>
                 </div>
@@ -481,10 +608,10 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
 
               {/* Messages Area */}
               <div
-                className="flex-1 overflow-y-auto px-4 py-3"
+                className="flex-1 overflow-y-auto px-2 md:px-3 lg:px-4 py-2 md:py-3"
                 ref={messagesContainerRef}
               >
-                <div className="space-y-2 max-w-4xl mx-auto">
+                <div className="space-y-1.5 md:space-y-2 max-w-4xl mx-auto">
                   {messages.map((message, index) => {
                     const showAvatar =
                       index === 0 ||
@@ -502,11 +629,11 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                         )}
                       >
                         {/* Avatar */}
-                        <div className="flex-shrink-0 w-8 mt-auto">
+                        <div className="flex-shrink-0 w-6 md:w-7 lg:w-8 mt-auto">
                           {showAvatar && !message.isOwn ? (
-                            <Avatar className="h-8 w-8">
+                            <Avatar className="h-6 w-6 md:h-7 md:w-7 lg:h-8 lg:w-8">
                               <AvatarImage src={message.senderAvatar} />
-                              <AvatarFallback className="bg-[#2b3642] text-white text-xs">
+                              <AvatarFallback className="bg-[#2b3642] text-white text-[10px] md:text-xs">
                                 {message.senderName[0]}
                               </AvatarFallback>
                             </Avatar>
@@ -516,13 +643,13 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                         {/* Message Bubble */}
                         <div
                           className={cn(
-                            "flex flex-col max-w-[65%]",
+                            "flex flex-col max-w-[75%] md:max-w-[70%] lg:max-w-[65%]",
                             message.isOwn ? "items-end" : "items-start"
                           )}
                         >
                           <div
                             className={cn(
-                              "px-3 py-2 rounded-lg shadow-sm",
+                              "px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg shadow-sm",
                               message.isOwn
                                 ? "bg-[#5c6bc0] text-white rounded-br-sm"
                                 : "bg-[#1c2733] text-white rounded-bl-sm"
@@ -531,18 +658,18 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                             {showAvatar &&
                               !message.isOwn &&
                               selectedRoom.type === "group" && (
-                                <p className="text-xs font-medium mb-1 text-[#4bd865]">
+                                <p className="text-[11px] md:text-xs font-medium mb-0.5 md:mb-1 text-[#4bd865]">
                                   {message.senderName}
                                 </p>
                               )}
-                            <p className="text-[15px] break-words leading-[1.4]">
+                            <p className="text-[13px] md:text-[14px] lg:text-[15px] break-words leading-[1.4]">
                               {message.content}
                             </p>
                             {/* Time inside bubble - Telegram style */}
-                            <div className="flex items-center justify-end gap-1 mt-1">
+                            <div className="flex items-center justify-end gap-0.5 md:gap-1 mt-0.5 md:mt-1">
                               <span
                                 className={cn(
-                                  "text-[11px]",
+                                  "text-[10px] md:text-[11px]",
                                   message.isOwn
                                     ? "text-white/70"
                                     : "text-gray-400"
@@ -553,9 +680,9 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                               {message.isOwn && (
                                 <>
                                   {message.isRead ? (
-                                    <CheckCheck className="h-3.5 w-3.5 text-white/70" />
+                                    <CheckCheck className="h-3 w-3 md:h-3.5 md:w-3.5 text-white/70" />
                                   ) : (
-                                    <Check className="h-3.5 w-3.5 text-white/70" />
+                                    <Check className="h-3 w-3 md:h-3.5 md:w-3.5 text-white/70" />
                                   )}
                                 </>
                               )}
@@ -571,21 +698,21 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
               </div>
 
               {/* Input Area */}
-              <div className="flex-shrink-0 px-4 py-3 border-t border-[#2b3642]/50 bg-[#17212b]">
-                <div className="flex items-center gap-3">
+              <div className="flex-shrink-0 px-2 md:px-3 lg:px-4 py-2 md:py-2.5 lg:py-3 border-t border-[#2b3642]/50 bg-[#17212b] relative z-0">
+                <div className="flex items-center gap-1.5 md:gap-2 lg:gap-3 relative z-0">
                   {/* Attachment Button */}
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-10 w-10 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full flex-shrink-0 transition-all"
+                    className="h-8 w-8 md:h-9 md:w-9 lg:h-10 lg:w-10 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full flex-shrink-0 transition-all"
                     title="Attach file"
                   >
-                    <Paperclip className="h-5 w-5" />
+                    <Paperclip className="h-4 w-4 md:h-[18px] md:w-[18px] lg:h-5 lg:w-5" />
                   </Button>
 
                   {/* Input Field Container */}
-                  <div className="flex-1 relative">
-                    <div className="flex items-center gap-2 bg-[#0e1621] rounded-lg px-3 py-2 border border-[#2b3642]/30 hover:border-[#2b3642]/60 focus-within:border-[#5c6bc0]/50 transition-all">
+                  <div className="flex-1 relative z-0">
+                    <div className="flex items-center gap-1.5 md:gap-2 bg-[#0e1621] rounded-lg px-2 md:px-2.5 lg:px-3 py-1.5 md:py-2 border border-[#2b3642]/30 hover:border-[#2b3642]/60 focus-within:border-[#5c6bc0]/50 transition-all">
                       <Input
                         ref={inputRef}
                         placeholder="Write a message..."
@@ -597,20 +724,22 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                             handleSendMessage();
                           }
                         }}
-                        className="flex-1 h-6 bg-transparent border-none text-white text-[14px] placeholder:text-gray-500 focus:ring-0 focus-visible:ring-0 p-0 shadow-none"
+                        className="flex-1 h-5 md:h-6 bg-transparent border-none text-white text-[13px] md:text-[14px] placeholder:text-gray-500 focus:ring-0 focus-visible:ring-0 p-0 shadow-none"
                         autoComplete="off"
                       />
+                      {/* EmojiPicker has z-[9999] and renders in a portal, so it will appear above everything */}
                       <EmojiPicker
                         onEmojiSelect={handleEmojiSelect}
+                        align="right"
                         trigger={
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 w-6 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full flex-shrink-0"
+                            className="h-5 w-5 md:h-6 md:w-6 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full flex-shrink-0 relative z-0"
                             title="Emoji"
                             type="button"
                           >
-                            <Smile className="h-4 w-4" />
+                            <Smile className="h-3.5 w-3.5 md:h-4 md:w-4" />
                           </Button>
                         }
                       />
@@ -622,32 +751,32 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                     <Button
                       size="sm"
                       onClick={handleSendMessage}
-                      className="h-10 w-10 p-0 rounded-full bg-[#5c6bc0] hover:bg-[#7986cb] flex-shrink-0 transition-all active:scale-95 shadow-md"
+                      className="h-8 w-8 md:h-9 md:w-9 lg:h-10 lg:w-10 p-0 rounded-full bg-[#5c6bc0] hover:bg-[#7986cb] flex-shrink-0 transition-all active:scale-95 shadow-md"
                       title="Send message"
                     >
-                      <Send className="h-5 w-5" />
+                      <Send className="h-4 w-4 md:h-[18px] md:w-[18px] lg:h-5 lg:w-5" />
                     </Button>
                   ) : (
                     <Button
                       size="sm"
-                      className="h-10 w-10 p-0 rounded-full hover:bg-[#2b3642]/50 text-gray-400 hover:text-white flex-shrink-0 transition-all"
+                      className="h-8 w-8 md:h-9 md:w-9 lg:h-10 lg:w-10 p-0 rounded-full hover:bg-[#2b3642]/50 text-gray-400 hover:text-white flex-shrink-0 transition-all"
                       title="Voice message"
                       variant="ghost"
                     >
-                      <Mic className="h-5 w-5" />
+                      <Mic className="h-4 w-4 md:h-[18px] md:w-[18px] lg:h-5 lg:w-5" />
                     </Button>
                   )}
                 </div>
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center bg-[#0e1621]">
-              <div className="text-center">
-                <MessageCircle className="h-20 w-20 mx-auto mb-5 opacity-10 text-gray-500" />
-                <p className="text-[17px] font-medium mb-1.5 text-white">
+            <div className="flex-1 flex items-center justify-center bg-[#0e1621] px-4 relative z-0">
+              <div className="text-center relative">
+                <MessageCircle className="h-14 w-14 md:h-16 md:w-16 lg:h-20 lg:w-20 mx-auto mb-3 md:mb-4 lg:mb-5 opacity-10 text-gray-500" />
+                <p className="text-[14px] md:text-[15px] lg:text-[17px] font-medium mb-1 md:mb-1.5 text-white">
                   Select a chat to start messaging
                 </p>
-                <p className="text-[13px] text-[#707579]">
+                <p className="text-[11px] md:text-[12px] lg:text-[13px] text-[#707579]">
                   Choose from your existing conversations
                 </p>
               </div>
