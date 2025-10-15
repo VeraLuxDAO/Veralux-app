@@ -146,7 +146,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
             variant="ghost"
             size="sm"
             className="relative"
-            onClick={() => setIsRoomsPanelOpen(true)}
+            onClick={() => setIsRoomsPanelOpen(!isRoomsPanelOpen)}
           >
             <MessageCircle className="h-5 w-5" />
             <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 bg-primary text-primary-foreground text-xs flex items-center justify-center">
