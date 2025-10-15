@@ -174,7 +174,7 @@ export function EmojiPicker({
             )}
             style={{
               bottom: "80px",
-              ...(align === "left" ? { left: "80px" } : { right: "80px" }),
+              ...(align === "left" ? { left: "0px" } : { right: "80px" }),
               pointerEvents: "auto",
             }}
           >
