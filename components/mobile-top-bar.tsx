@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { LighthouseLogo } from "@/components/lighthouse-logo";
-import { Search, Menu, TrendingUp, Hash, Users, Zap } from "lucide-react";
+import { Search, Menu, TrendingUp, Hash, Users, Zap, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
@@ -25,6 +25,9 @@ export function MobileTopBar({
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const auth = useAuth();
   const router = useRouter();
 
@@ -81,6 +84,19 @@ export function MobileTopBar({
     router.push("/");
   };
 
+  const handleSearchIconClick = () => {
+    setIsSearchExpanded(true);
+    setShowSearchDropdown(false);
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 100);
+  };
+
+  const handleSearchClose = () => {
+    setIsSearchExpanded(false);
+    setSearchQuery("");
+  };
+
   const trendingItems = [
     { icon: TrendingUp, label: "#DeFiSummer", count: "12.4K" },
     { icon: Hash, label: "#NFTGaming", count: "8.7K" },
@@ -110,65 +126,115 @@ export function MobileTopBar({
       >
         <div className="flex items-center justify-between px-2 sm:px-4 py-2 sm:py-3">
           {/* Logo */}
-          <LighthouseLogo
-            size="md"
-            onClick={handleLogoClick}
-            className="flex-shrink-0 cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95"
-          />
+          {!isSearchExpanded && (
+            <LighthouseLogo
+              size="md"
+              onClick={handleLogoClick}
+              className="flex-shrink-0 cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95"
+            />
+          )}
 
-          {/* Search Bar */}
-          <div className="flex-1 mx-1 sm:mx-4 relative">
-            <div className="relative">
-              <Input
-                placeholder="Search..."
-                className="w-full pl-8 sm:pl-10 md:pl-12 pr-3 sm:pr-4 py-1.5 sm:py-2 bg-muted/50 border-border rounded-full text-xs sm:text-sm placeholder:text-xs sm:placeholder:text-sm placeholder:opacity-70 transition-all duration-300 focus:bg-muted/70 focus:shadow-lg focus:scale-[1.02] hover:bg-muted/60"
-                onFocus={() => setShowSearchDropdown(true)}
-                onBlur={() =>
-                  setTimeout(() => setShowSearchDropdown(false), 200)
-                }
-              />
-              <Search className="absolute left-2.5 sm:left-3 md:left-4 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-muted-foreground flex-shrink-0 pointer-events-none transition-all duration-300" />
-            </div>
-
-            {/* Trending Dropdown */}
-            {showSearchDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg p-3 z-50 transform-gpu transition-all duration-300 ease-out animate-in slide-in-from-top-2 fade-in-0 scale-in-95">
-                <h4 className="text-sm font-medium text-card-foreground mb-2">
-                  Trending
-                </h4>
-                <div className="space-y-2">
-                  {trendingItems.map((item, index) => (
-                    <button
-                      key={index}
-                      className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-[1.02] cursor-pointer active:scale-[0.98]"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <item.icon className="h-4 w-4 text-primary" />
-                        <span className="text-sm text-card-foreground">
-                          {item.label}
-                        </span>
-                      </div>
-                      <Badge variant="secondary" className="text-xs">
-                        {item.count}
-                      </Badge>
-                    </button>
-                  ))}
-                </div>
+          {/* Search - Collapsible or Icon */}
+          {!isSearchExpanded ? (
+            <div className="flex-1 mx-1 sm:mx-4 relative">
+              <div className="relative">
+                <Input
+                  placeholder="Search..."
+                  className="w-full pl-8 sm:pl-10 md:pl-12 pr-3 sm:pr-4 py-1.5 sm:py-2 bg-muted/50 border-border rounded-full text-xs sm:text-sm placeholder:text-xs sm:placeholder:text-sm placeholder:opacity-70 transition-all duration-300 focus:bg-muted/70 focus:shadow-lg focus:scale-[1.02] hover:bg-muted/60"
+                  onFocus={() => setShowSearchDropdown(true)}
+                  onBlur={() =>
+                    setTimeout(() => setShowSearchDropdown(false), 200)
+                  }
+                />
+                <Search className="absolute left-2.5 sm:left-3 md:left-4 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-muted-foreground flex-shrink-0 pointer-events-none transition-all duration-300" />
               </div>
-            )}
-          </div>
+
+              {/* Trending Dropdown */}
+              {showSearchDropdown && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg p-3 z-50 transform-gpu transition-all duration-300 ease-out animate-in slide-in-from-top-2 fade-in-0 scale-in-95">
+                  <h4 className="text-sm font-medium text-card-foreground mb-2">
+                    Trending
+                  </h4>
+                  <div className="space-y-2">
+                    {trendingItems.map((item, index) => (
+                      <button
+                        key={index}
+                        className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-all duration-200 hover:scale-[1.02] cursor-pointer active:scale-[0.98]"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <item.icon className="h-4 w-4 text-primary" />
+                          <span className="text-sm text-card-foreground">
+                            {item.label}
+                          </span>
+                        </div>
+                        <Badge variant="secondary" className="text-xs">
+                          {item.count}
+                        </Badge>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Expanded Search */
+            <div className="flex-1 mx-1 sm:mx-2 relative">
+              <Input
+                ref={searchInputRef}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search flows, users, topics..."
+                className="w-full pl-8 pr-8 py-1.5 sm:py-2 bg-muted/50 border-border rounded-full text-xs sm:text-sm transition-all duration-300 focus:bg-muted/70"
+              />
+              <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground pointer-events-none" />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 rounded-full hover:bg-muted"
+                onClick={handleSearchClose}
+              >
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          )}
 
           {/* Right Side */}
-          <div className="flex items-center">
-            {/* Menu Button Only */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onMenuToggle}
-              className="p-2 transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer hover:bg-muted/70"
-            >
-              <Menu className="h-5 w-5 transition-transform duration-200" />
-            </Button>
+          <div className="flex items-center gap-2">
+            {auth.isAuthenticated ? (
+              <>
+                {/* Menu Button for Authenticated Users */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onMenuToggle}
+                  className="p-2 transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer hover:bg-muted/70"
+                >
+                  <Menu className="h-5 w-5 transition-transform duration-200" />
+                </Button>
+              </>
+            ) : (
+              <>
+                {/* Sign In Button for Unauthenticated Users */}
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={auth.signInWithGoogle}
+                  disabled={auth.isLoading}
+                  className="rounded-full px-4 py-1 h-8 text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-all"
+                >
+                  {auth.isLoading ? "..." : "Sign In"}
+                </Button>
+                {/* Menu Button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onMenuToggle}
+                  className="p-2 transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer hover:bg-muted/70"
+                >
+                  <Menu className="h-5 w-5 transition-transform duration-200" />
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>

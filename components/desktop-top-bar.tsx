@@ -1,25 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { LighthouseLogo } from "@/components/lighthouse-logo";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { WalletConnectButton } from "@/components/wallet-connect-button";
 import {
   Search,
   Bell,
   MessageCircle,
-  TrendingUp,
-  Hash,
-  Users,
-  Zap,
+  UserCircle,
+  Gamepad2,
+  Wrench,
+  ShoppingCart,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { CirclesModal } from "@/components/circles-modal";
 import { RoomsSlidingPanel } from "@/components/rooms-sliding-panel";
 import { NotificationCenterPopover } from "@/components/notification-center-popover";
@@ -29,159 +28,326 @@ interface DesktopTopBarProps {
 }
 
 export function DesktopTopBar({ className }: DesktopTopBarProps) {
-  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const [isCirclesModalOpen, setIsCirclesModalOpen] = useState(false);
   const [isRoomsPanelOpen, setIsRoomsPanelOpen] = useState(false);
   const [isNotificationsPanelOpen, setIsNotificationsPanelOpen] =
     useState(false);
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const auth = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogoClick = () => {
     router.push("/");
   };
 
-  const trendingItems = [
-    { icon: TrendingUp, label: "#DeFiSummer", count: "12.4K" },
-    { icon: Hash, label: "#NFTGaming", count: "8.7K" },
-    { icon: Users, label: "#Web3Community", count: "6.2K" },
-    { icon: Zap, label: "#BuildInPublic", count: "4.1K" },
+  const handleSearchIconClick = () => {
+    setIsSearchExpanded(true);
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 150);
+  };
+
+  const handleSearchClose = () => {
+    setIsSearchExpanded(false);
+    setSearchQuery("");
+  };
+
+  const handleSearchBlur = () => {
+    // Only close if there's no search query
+    if (!searchQuery.trim()) {
+      setTimeout(() => {
+        setIsSearchExpanded(false);
+      }, 200);
+    }
+  };
+
+  // Close search when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isSearchExpanded) {
+        const target = event.target as Node;
+        const searchContainer = document.getElementById("search-container");
+        const searchButton = document.getElementById("search-button");
+
+        if (
+          searchContainer &&
+          !searchContainer.contains(target) &&
+          searchButton &&
+          !searchButton.contains(target)
+        ) {
+          handleSearchClose();
+        }
+      }
+    };
+
+    if (isSearchExpanded) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isSearchExpanded]);
+
+  const navItems = [
+    { icon: UserCircle, label: "Connect", path: "/" },
+    { icon: Gamepad2, label: "Play", path: "/gaming" },
+    { icon: Wrench, label: "Build", path: "/dev" },
+    { icon: ShoppingCart, label: "Trade", path: "/marketplace" },
   ];
 
   return (
-    <header
-      className={cn(
-        "desktop-top-bar fixed top-0 left-0 right-0 z-50 hidden md:block",
-        "bg-card/95 backdrop-blur-md border-b border-border",
-        "transition-all duration-500 ease-out transform-gpu will-change-transform",
-        className
-      )}
-      style={{
-        willChange: "transform, opacity",
-      }}
-    >
-      <div className="flex items-center justify-between px-6 py-4">
-        {/* Left Side - Logo */}
-        <div className="flex items-center space-x-4">
-          <LighthouseLogo
-            size="lg"
-            onClick={handleLogoClick}
-            className="flex-shrink-0"
-          />
-          <div className="flex flex-col">
-            <span className="text-xl font-bold text-foreground">VeraLux</span>
-            <span className="text-xs text-muted-foreground">
-              Web3 Social Platform
-            </span>
-          </div>
-        </div>
+    <>
+      <header
+        className={cn(
+          "desktop-top-bar fixed top-0 left-0 right-0 z-50 hidden md:block",
+          "bg-transparent",
+          "transition-all duration-300 ease-out",
+          className
+        )}
+      >
+        <div className="flex items-center justify-center px-8 pt-4 pb-3.5 relative">
+          {/* Center - Navigation Pills with Icons - Centered ignoring sidebar */}
+          <nav className="flex items-center gap-8 bg-[#080E11]/40 border border-white/[0.08] rounded-full p-3 backdrop-blur-[20px] h-[60px]">
+            {navItems.map((item) => {
+              const isActive = pathname === item.path;
+              return (
+                <Button
+                  key={item.path}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => router.push(item.path)}
+                  className={cn(
+                    "flex items-center gap-2 rounded-full px-4 py-2 transition-all duration-200 font-medium text-sm h-9",
+                    isActive
+                      ? "bg-white/10 text-foreground"
+                      : "hover:bg-white/10 text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <item.icon className="h-4 w-4" />
+                  <span>{item.label}</span>
+                </Button>
+              );
+            })}
+          </nav>
 
-        {/* Center - Search Bar */}
-        <div className="flex-1 max-w-2xl mx-8 relative">
-          <div className="relative">
-            <Input
-              placeholder="Search flows, users, topics..."
-              className="w-full pl-12 pr-4 py-3 bg-muted/50 border-border rounded-full"
-              onFocus={() => setShowSearchDropdown(true)}
-              onBlur={() => setTimeout(() => setShowSearchDropdown(false), 200)}
-            />
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <kbd className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xs text-muted-foreground bg-muted rounded px-2 py-1">
-              ⌘K
-            </kbd>
-          </div>
+          {/* Right Side - Actions Container - Aligned with sidebar at 70px from edge */}
+          <div className="fixed right-[70px]" id="search-container">
+            {auth.isAuthenticated ? (
+              /* Authenticated State */
+              isSearchExpanded ? (
+                /* Search Expanded - Full width container */
+                <div className="flex items-center p-3 gap-6 w-[502px] h-[60px] bg-[#080E11]/90 border border-[#E5F7FD]/20 backdrop-blur-[20px] rounded-[20px] transition-all duration-300 ease-in-out animate-in fade-in zoom-in-95">
+                  {/* Search Input */}
+                  <div className="relative flex-1 animate-in fade-in slide-in-from-left-4 duration-300">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                    <Input
+                      ref={searchInputRef}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onBlur={handleSearchBlur}
+                      placeholder="Search flows, users, topics"
+                      className="w-full h-9 pl-10 pr-3 bg-transparent border-0 text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm"
+                    />
+                  </div>
 
-          {/* Trending Dropdown */}
-          {showSearchDropdown && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg shadow-lg p-4 z-50 transform-gpu transition-all duration-300 ease-out animate-in slide-in-from-top-2 fade-in-0 scale-in-95">
-              <h4 className="text-sm font-medium text-card-foreground mb-3">
-                Trending
-              </h4>
-              <div className="grid grid-cols-2 gap-2">
-                {trendingItems.map((item, index) => (
+                  {/* Vertical Separator */}
+                  <div
+                    className="h-6 w-0.5"
+                    style={{
+                      backgroundColor: "rgba(155, 182, 204, 0.4)",
+                    }}
+                  />
+
+                  {/* Notifications */}
                   <button
-                    key={index}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                    onClick={() =>
+                      setIsNotificationsPanelOpen(!isNotificationsPanelOpen)
+                    }
+                    className="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/5 transition-colors"
                   >
-                    <div className="flex items-center space-x-3">
-                      <item.icon className="h-4 w-4 text-primary" />
-                      <span className="text-sm text-card-foreground">
-                        {item.label}
-                      </span>
-                    </div>
-                    <Badge variant="secondary" className="text-xs">
-                      {item.count}
+                    <Bell className="h-5 w-5 text-white" />
+                    <Badge
+                      className="absolute -top-0.5 -right-0.5 w-4 h-4 p-0 flex items-center justify-center rounded-full"
+                      style={{
+                        backgroundColor: "rgba(250, 222, 253, 1)",
+                        color: "rgba(0, 2, 5, 1)",
+                        fontSize: "12px",
+                        fontWeight: 500,
+                        lineHeight: "16px",
+                      }}
+                    >
+                      3
                     </Badge>
                   </button>
-                ))}
+
+                  {/* Messages Button */}
+                  <button
+                    onClick={() => setIsRoomsPanelOpen(!isRoomsPanelOpen)}
+                    className="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/5 transition-colors"
+                  >
+                    <MessageCircle className="h-5 w-5 text-white" />
+                    <Badge
+                      className="absolute -top-0.5 -right-0.5 w-4 h-4 p-0 flex items-center justify-center rounded-full"
+                      style={{
+                        backgroundColor: "rgba(250, 222, 253, 1)",
+                        color: "rgba(0, 2, 5, 1)",
+                        fontSize: "12px",
+                        fontWeight: 500,
+                        lineHeight: "16px",
+                      }}
+                    >
+                      2
+                    </Badge>
+                  </button>
+
+                  {/* Profile Avatar */}
+                  <button
+                    onClick={() => router.push("/profile")}
+                    className="relative flex items-center justify-center"
+                  >
+                    <Avatar className="h-10 w-10 border-2 border-transparent hover:border-primary/30 transition-all">
+                      <AvatarImage src={auth.user?.picture} />
+                      <AvatarFallback className="bg-primary/20 text-primary text-sm font-medium">
+                        {auth.user?.name?.charAt(0) || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    {/* Online Indicator */}
+                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#080E11] rounded-full" />
+                  </button>
+                </div>
+              ) : (
+                /* Search Collapsed - Compact container */
+                <div className="flex items-center p-3 gap-6 w-[246px] h-[60px] bg-[#080E11]/90 border border-[#E5F7FD]/20 backdrop-blur-[20px] rounded-[20px] transition-all duration-300 ease-in-out animate-in fade-in zoom-in-95">
+                  {/* Search Icon Button */}
+                  <button
+                    id="search-button"
+                    onClick={handleSearchIconClick}
+                    className="flex items-center justify-center w-6 h-6 text-gray-400 hover:text-white transition-colors"
+                  >
+                    <Search className="h-5 w-5" />
+                  </button>
+
+                  {/* Vertical Separator */}
+                  <div
+                    className="h-6 w-0.5"
+                    style={{
+                      backgroundColor: "rgba(155, 182, 204, 0.4)",
+                    }}
+                  />
+
+                  {/* Notifications */}
+                  <button
+                    onClick={() =>
+                      setIsNotificationsPanelOpen(!isNotificationsPanelOpen)
+                    }
+                    className="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/5 transition-colors"
+                  >
+                    <Bell className="h-5 w-5 text-white" />
+                    <Badge
+                      className="absolute -top-0.5 -right-0.5 w-4 h-4 p-0 flex items-center justify-center rounded-full"
+                      style={{
+                        backgroundColor: "rgba(250, 222, 253, 1)",
+                        color: "rgba(0, 2, 5, 1)",
+                        fontSize: "12px",
+                        fontWeight: 500,
+                        lineHeight: "16px",
+                      }}
+                    >
+                      3
+                    </Badge>
+                  </button>
+
+                  {/* Messages Button */}
+                  <button
+                    onClick={() => setIsRoomsPanelOpen(!isRoomsPanelOpen)}
+                    className="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/5 transition-colors"
+                  >
+                    <MessageCircle className="h-5 w-5 text-white" />
+                    <Badge
+                      className="absolute -top-0.5 -right-0.5 w-4 h-4 p-0 flex items-center justify-center rounded-full"
+                      style={{
+                        backgroundColor: "rgba(250, 222, 253, 1)",
+                        color: "rgba(0, 2, 5, 1)",
+                        fontSize: "12px",
+                        fontWeight: 500,
+                        lineHeight: "16px",
+                      }}
+                    >
+                      2
+                    </Badge>
+                  </button>
+
+                  {/* Profile Avatar */}
+                  <button
+                    onClick={() => router.push("/profile")}
+                    className="relative flex items-center justify-center"
+                  >
+                    <Avatar className="h-10 w-10 border-2 border-transparent hover:border-primary/30 transition-all">
+                      <AvatarImage src={auth.user?.picture} />
+                      <AvatarFallback className="bg-primary/20 text-primary text-sm font-medium">
+                        {auth.user?.name?.charAt(0) || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    {/* Online Indicator */}
+                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#080E11] rounded-full" />
+                  </button>
+                </div>
+              )
+            ) : /* Not Authenticated State */
+            isSearchExpanded ? (
+              /* Search Expanded - Show input + Sign In */
+              <div className="flex items-center justify-evenly p-3 gap-6 w-[350px] h-[60px] bg-[#080E11]/90 border border-[#E5F7FD]/20 backdrop-blur-[20px] rounded-[20px] transition-all duration-300 ease-in-out animate-in fade-in zoom-in-95">
+                {/* Search Input */}
+                <div className="relative flex-1 animate-in fade-in slide-in-from-left-4 duration-300">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  <Input
+                    ref={searchInputRef}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onBlur={handleSearchBlur}
+                    placeholder="Search flows, users, topics"
+                    className="w-full h-9 pl-10 pr-3 bg-transparent border-0 text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm"
+                  />
+                </div>
+
+                {/* Sign In Button */}
+                <button
+                  onClick={auth.signInWithGoogle}
+                  disabled={auth.isLoading}
+                  className="flex items-center justify-center px-[18px] py-2.5 gap-2.5 w-[82px] h-8 bg-white text-black font-medium text-sm rounded-2xl shadow-[0px_12px_5px_rgba(255,255,255,0.01),0px_7px_4px_rgba(255,255,255,0.05),0px_3px_3px_rgba(255,255,255,0.09),0px_1px_2px_rgba(255,255,255,0.1)] hover:bg-white/90 transition-all disabled:opacity-50"
+                >
+                  {auth.isLoading ? "..." : "Sign In"}
+                </button>
               </div>
-            </div>
-          )}
+            ) : (
+              /* Search Collapsed - Compact container */
+              <div className="flex items-center justify-evenly p-3 gap-6 w-[186px] h-[60px] bg-[#080E11]/90 border border-[#E5F7FD]/20 backdrop-blur-[20px] rounded-[20px] transition-all duration-300 ease-in-out animate-in fade-in zoom-in-95">
+                {/* Search Icon Button */}
+                <button
+                  id="search-button"
+                  onClick={handleSearchIconClick}
+                  className="flex items-center justify-center w-6 h-6 text-gray-400 hover:text-white transition-colors"
+                >
+                  <Search className="h-5 w-5" />
+                </button>
+
+                {/* Sign In Button */}
+                <button
+                  onClick={auth.signInWithGoogle}
+                  disabled={auth.isLoading}
+                  className="flex items-center justify-center px-[18px] py-2.5 gap-2.5 w-[82px] h-8 bg-white text-black font-medium text-sm rounded-2xl shadow-[0px_12px_5px_rgba(255,255,255,0.01),0px_7px_4px_rgba(255,255,255,0.05),0px_3px_3px_rgba(255,255,255,0.09),0px_1px_2px_rgba(255,255,255,0.1)] hover:bg-white/90 transition-all disabled:opacity-50"
+                >
+                  {auth.isLoading ? "..." : "Sign In"}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-
-        {/* Right Side - Actions */}
-        <div className="flex items-center space-x-4">
-          {/* Notifications */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="relative"
-            onClick={() =>
-              setIsNotificationsPanelOpen(!isNotificationsPanelOpen)
-            }
-          >
-            <Bell className="h-5 w-5" />
-            <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 bg-primary text-primary-foreground text-xs flex items-center justify-center">
-              3
-            </Badge>
-          </Button>
-
-          {/* Circles Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="relative"
-            onClick={() => setIsCirclesModalOpen(true)}
-          >
-            <Users className="h-5 w-5" />
-          </Button>
-
-          {/* Messages Button (Rooms) */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="relative"
-            onClick={() => setIsRoomsPanelOpen(!isRoomsPanelOpen)}
-          >
-            <MessageCircle className="h-5 w-5" />
-            <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 bg-primary text-primary-foreground text-xs flex items-center justify-center">
-              2
-            </Badge>
-          </Button>
-
-          {/* Theme Toggle */}
-          <ThemeToggle />
-
-          {/* Wallet Connect */}
-          <WalletConnectButton showAddress={false} />
-
-          {/* Profile */}
-          {auth.isAuthenticated && (
-            <Button
-              variant="ghost"
-              onClick={() => router.push("/profile")}
-              className="p-1"
-            >
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={auth.user?.picture} />
-                <AvatarFallback className="bg-primary/20 text-primary text-sm">
-                  {auth.user?.name?.charAt(0) || "U"}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
-          )}
-        </div>
-      </div>
+      </header>
 
       {/* Circles Modal */}
       <CirclesModal
@@ -200,6 +366,6 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
         isOpen={isNotificationsPanelOpen}
         onClose={() => setIsNotificationsPanelOpen(false)}
       />
-    </header>
+    </>
   );
 }

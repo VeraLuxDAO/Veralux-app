@@ -181,7 +181,7 @@ export function SocialFeed() {
     const observer = new IntersectionObserver(
       (entries) => {
         const target = entries[0];
-        if (target.isIntersecting && hasMore && !isLoading) {
+        if (target?.isIntersecting && hasMore && !isLoading) {
           loadMorePosts();
         }
       },
@@ -204,7 +204,7 @@ export function SocialFeed() {
   }, [loadMorePosts, hasMore, isLoading]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full max-w-full">
       {posts.map((post) => (
         <PostCard
           key={post.id}

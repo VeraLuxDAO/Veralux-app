@@ -210,7 +210,7 @@ async function createNFTListing() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="bg-[#0A1128] rounded-lg p-4 font-mono text-sm">
+                    <div className="bg-[#080E1199] rounded-lg p-4 font-mono text-sm">
                       <Textarea
                         value={code}
                         onChange={(e) => setCode(e.target.value)}
@@ -231,7 +231,7 @@ async function createNFTListing() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="bg-[#0A1128] rounded p-3 font-mono text-xs text-green-400 min-h-[120px]">
+                    <div className="bg-[#080E1199] rounded p-3 font-mono text-xs text-green-400 min-h-[120px]">
                       <div>$ veralux init</div>
                       <div className="text-gray-400">✓ Project initialized</div>
                       <div className="text-gray-400">✓ SDK connected</div>
@@ -380,7 +380,7 @@ async function createNFTListing() {
                         {module.methods.map((method, methodIndex) => (
                           <div
                             key={methodIndex}
-                            className="flex items-center justify-between bg-[#0A1128] rounded p-2"
+                            className="flex items-center justify-between bg-[#080E1199] rounded p-2"
                           >
                             <code className="text-[#4361EE] text-sm">
                               {method}
@@ -491,14 +491,14 @@ async function createNFTListing() {
                     </label>
                     <Input
                       placeholder="my-veralux-dapp"
-                      className="bg-[#0A1128] border-gray-600 text-white"
+                      className="bg-[#080E1199] border-gray-600 text-white"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Network
                     </label>
-                    <select className="w-full p-2 bg-[#0A1128] border border-gray-600 rounded text-white">
+                    <select className="w-full p-2 bg-[#080E1199] border border-gray-600 rounded text-white">
                       <option>Sui Mainnet</option>
                       <option>Sui Testnet</option>
                       <option>Sui Devnet</option>

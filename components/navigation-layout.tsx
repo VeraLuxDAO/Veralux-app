@@ -13,11 +13,13 @@ import { cn } from "@/lib/utils";
 interface NavigationLayoutProps {
   children: React.ReactNode;
   className?: string;
+  header?: React.ReactNode;
 }
 
 export function NavigationLayout({
   children,
   className,
+  header,
 }: NavigationLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -52,17 +54,37 @@ export function NavigationLayout({
         <AIChat />
       </div>
 
+      {/* Page Header Section (Between Top Nav and Main Content) */}
+      {header && (
+        <div
+          className={cn(
+            "transition-all duration-300",
+            // Mobile spacing
+            "pt-0 md:pt-[135px]"
+            // No left/right margins - spans full width
+          )}
+        >
+          {header}
+        </div>
+      )}
+
       {/* Main Content */}
       <main
         className={cn(
           "transition-all duration-300",
           // Mobile spacing
-          "pt-0 pb-20 md:pb-0",
-          // Desktop spacing
-          "md:pt-20 md:pl-64"
+          "pb-20 md:pb-0",
+          // Responsive left margins: 14px edge + Sidebar width + 70px gap
+          "md:ml-[264px]", // md: 14 + 180 + 70
+          "lg:ml-[284px]", // lg: 14 + 200 + 70
+          "xl:ml-[314px]", // xl: 14 + 230 + 70
+          // Desktop: Right margin = 70px (equal to left gap)
+          "md:mr-[70px]",
+          // Gap between header and main content - FIXED
+          "mt-0 md:mt-[131px]"
         )}
       >
-        <div className="container mx-auto px-2 py-4 sm:px-4 sm:py-6 md:px-6 md:py-8">
+        <div className="w-full px-4 py-4 sm:px-6 sm:py-6 md:px-0 md:py-8">
           {children}
         </div>
       </main>
