@@ -79,7 +79,7 @@ export default function GoogleAuthTestPostMessage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="text-center max-w-2xl mx-auto p-8">
         <h1 className="text-2xl font-bold mb-4">
           Google Auth Test (PostMessage)

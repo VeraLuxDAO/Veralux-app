@@ -1,25 +1,44 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export function GameFilters() {
-  const genres = ["RPG", "Strategy", "Racing", "Card Game", "Simulation", "Action"]
-  const statuses = ["Live", "Beta", "Coming Soon"]
+  const genres = [
+    "RPG",
+    "Strategy",
+    "Racing",
+    "Card Game",
+    "Simulation",
+    "Action",
+  ];
+  const statuses = ["Live", "Beta", "Coming Soon"];
 
   return (
-    <Card className="bg-card border-border">
+    <Card
+      className="border-none"
+      style={{
+        background:
+          "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
+        border: "1px solid rgba(255, 255, 255, 0.08)",
+      }}
+    >
       <CardHeader>
         <CardTitle className="text-card-foreground text-sm">Filters</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Genre Filter */}
         <div>
-          <h4 className="text-sm font-medium text-card-foreground mb-2">Genre</h4>
+          <h4 className="text-sm font-medium text-card-foreground mb-2">
+            Genre
+          </h4>
           <div className="space-y-2">
             {genres.map((genre) => (
               <div key={genre} className="flex items-center space-x-2">
                 <Checkbox id={genre} />
-                <label htmlFor={genre} className="text-sm text-muted-foreground cursor-pointer">
+                <label
+                  htmlFor={genre}
+                  className="text-sm text-muted-foreground cursor-pointer"
+                >
                   {genre}
                 </label>
               </div>
@@ -29,12 +48,17 @@ export function GameFilters() {
 
         {/* Status Filter */}
         <div>
-          <h4 className="text-sm font-medium text-card-foreground mb-2">Status</h4>
+          <h4 className="text-sm font-medium text-card-foreground mb-2">
+            Status
+          </h4>
           <div className="space-y-2">
             {statuses.map((status) => (
               <div key={status} className="flex items-center space-x-2">
                 <Checkbox id={status} />
-                <label htmlFor={status} className="text-sm text-muted-foreground cursor-pointer">
+                <label
+                  htmlFor={status}
+                  className="text-sm text-muted-foreground cursor-pointer"
+                >
                   {status}
                 </label>
               </div>
@@ -44,23 +68,34 @@ export function GameFilters() {
 
         {/* Earnings Filter */}
         <div>
-          <h4 className="text-sm font-medium text-card-foreground mb-2">Min. Earnings</h4>
+          <h4 className="text-sm font-medium text-card-foreground mb-2">
+            Min. Earnings
+          </h4>
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <Checkbox id="1eth" />
-              <label htmlFor="1eth" className="text-sm text-muted-foreground cursor-pointer">
+              <label
+                htmlFor="1eth"
+                className="text-sm text-muted-foreground cursor-pointer"
+              >
                 1+ ETH
               </label>
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox id="2eth" />
-              <label htmlFor="2eth" className="text-sm text-muted-foreground cursor-pointer">
+              <label
+                htmlFor="2eth"
+                className="text-sm text-muted-foreground cursor-pointer"
+              >
                 2+ ETH
               </label>
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox id="5eth" />
-              <label htmlFor="5eth" className="text-sm text-muted-foreground cursor-pointer">
+              <label
+                htmlFor="5eth"
+                className="text-sm text-muted-foreground cursor-pointer"
+              >
                 5+ ETH
               </label>
             </div>
@@ -75,5 +110,5 @@ export function GameFilters() {
         </Button>
       </CardContent>
     </Card>
-  )
+  );
 }

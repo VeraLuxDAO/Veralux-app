@@ -10,11 +10,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Users, Lock, Globe, Crown, Shield, Hash } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
 interface Circle {
@@ -163,7 +161,12 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
 
   const CircleCard = ({ circle }: { circle: Circle }) => (
     <Card
-      className="group bg-card border-border/60 hover:border-primary/30 hover:bg-muted/30 transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-primary/5 active:scale-[0.98] rounded-xl overflow-hidden"
+      className="group border-none transition-all duration-300 cursor-pointer hover:shadow-lg active:scale-[0.98] rounded-xl overflow-hidden"
+      style={{
+        background:
+          "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
+        border: "1px solid rgba(255, 255, 255, 0.08)",
+      }}
       onClick={() => handleCircleClick(circle)}
     >
       <CardContent className="p-4">
@@ -285,10 +288,10 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent
-        className="w-[95vw] max-w-2xl h-[85vh] max-h-[600px] p-0 gap-0"
+        className="w-[95vw] max-w-2xl h-[85vh] max-h-[600px] p-0 gap-0 bg-[rgba(11,15,17,0.94)] border-[0.4px] border-[rgba(255,255,255,0.12)] rounded-[15px]"
         showCloseButton={false}
       >
-        <DialogHeader className="p-3 sm:p-5 pb-3 border-b border-border/50">
+        <DialogHeader className="p-3 sm:p-5 pb-3">
           <div className="flex items-center justify-between gap-3">
             {/* Left: Icon + Title (Mobile: Left-aligned) */}
             <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
@@ -319,18 +322,18 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
 
         <div className="flex flex-col h-full overflow-hidden">
           {/* Search Bar */}
-          <div className="px-3 sm:px-5 py-3 sm:py-4 bg-muted/20">
-            <div className="relative">
+          <div className="px-3 sm:px-5 py-3 sm:py-4">
+            <div className="relative flex flex-row items-center py-1 px-1.5 w-full h-[29px] bg-[rgba(229,247,253,0.06)] rounded-[16px] flex-none order-1 self-stretch grow-0">
               <Input
                 placeholder="Search circles..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus={false}
-                className="pl-4 pr-10 h-10 sm:h-11 text-sm placeholder:text-muted-foreground/60 border border-border/60 focus:border-primary/50 focus:ring-2 focus:ring-primary/10 rounded-xl bg-background transition-all"
+                className="w-full h-full border-0 bg-transparent font-medium text-[11px] leading-[26px] text-left text-[rgba(77,243,255,0.36)] placeholder:text-[rgba(77,243,255,0.36)] focus-visible:ring-0 focus-visible:ring-offset-0 p-0 pl-2 pr-6"
               />
-              {/* Search Icon - Right Side */}
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                <Search className="h-4 w-4 text-muted-foreground/50" />
+              {/* Search Icon - Inside Right */}
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+                <Search className="w-3.5 h-3.5 text-[rgba(77,243,255,0.36)]" />
               </div>
               {/* Clear Button (if searching) */}
               {searchQuery && (
@@ -352,7 +355,7 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
             onValueChange={setActiveTab}
             className="flex-1 flex flex-col overflow-hidden"
           >
-            <TabsList className="mx-3 sm:mx-5 mt-3 sm:mt-4 grid w-auto grid-cols-2 bg-muted/50 h-10 sm:h-11 rounded-xl p-1">
+            <TabsList className="mx-3 sm:mx-5 mt-3 sm:mt-4 grid w-auto grid-cols-2 bg-[rgba(229,247,253,0.04)] h-[46px] rounded-[20px] p-1">
               <TabsTrigger
                 value="joined"
                 className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm text-xs sm:text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5"

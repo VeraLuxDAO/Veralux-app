@@ -354,7 +354,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
         className={cn(
           "rooms-sliding-panel",
           "fixed right-0 h-[calc(100vh-5rem)] z-[60]",
-          "bg-[#0e1621] border-l border-[#17212b] shadow-2xl",
+          "bg-[#080E1199] border-l border-[#17212b] shadow-2xl",
           "transform transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
           "hidden md:block",
           // Responsive widths
@@ -368,7 +368,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
           {/* Rooms List - Left Side */}
           <div
             className={cn(
-              "flex-shrink-0 border-r-0 flex flex-col bg-[#0e1621] relative overflow-hidden transition-none",
+              "flex-shrink-0 border-r-0 flex flex-col bg-[#080E1199] relative overflow-hidden transition-none",
               // Hide rooms list when chat is selected on medium screens
               selectedRoom ? "hidden lg:flex" : "flex"
             )}
@@ -402,7 +402,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                   placeholder="Search rooms..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8 md:pl-9 pr-2.5 md:pr-3 h-8 md:h-9 bg-[#0e1621] border border-[#2b3642]/30 text-white text-[12px] md:text-[13px] placeholder:text-gray-500 focus:ring-0 focus:border-[#5c6bc0]/50 rounded-lg transition-all"
+                  className="pl-8 md:pl-9 pr-2.5 md:pr-3 h-8 md:h-9 bg-[#080E1199] border border-[#2b3642]/30 text-white text-[12px] md:text-[13px] placeholder:text-gray-500 focus:ring-0 focus:border-[#5c6bc0]/50 rounded-lg transition-all"
                 />
               </div>
             </div>
@@ -528,7 +528,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
 
           {/* Chat Area - Right Side */}
           {selectedRoom ? (
-            <div className="flex-1 flex flex-col min-w-0 bg-[#0e1621] relative z-0">
+            <div className="flex-1 flex flex-col min-w-0 bg-[#080E1199] relative z-0">
               {/* Chat Header */}
               <div className="flex-shrink-0 px-2 md:px-3 lg:px-4 py-2 md:py-2.5 border-b border-[#2b3642]/50 bg-[#17212b]">
                 <div className="flex items-center justify-between">
@@ -712,7 +712,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
 
                   {/* Input Field Container */}
                   <div className="flex-1 relative z-0">
-                    <div className="flex items-center gap-1.5 md:gap-2 bg-[#0e1621] rounded-lg px-2 md:px-2.5 lg:px-3 py-1.5 md:py-2 border border-[#2b3642]/30 hover:border-[#2b3642]/60 focus-within:border-[#5c6bc0]/50 transition-all">
+                    <div className="flex items-center gap-1.5 md:gap-2 bg-[#080E1199] rounded-lg px-2 md:px-2.5 lg:px-3 py-1.5 md:py-2 border border-[#2b3642]/30 hover:border-[#2b3642]/60 focus-within:border-[#5c6bc0]/50 transition-all">
                       <Input
                         ref={inputRef}
                         placeholder="Write a message..."
@@ -770,7 +770,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center bg-[#0e1621] px-4 relative z-0">
+            <div className="flex-1 flex items-center justify-center bg-[#080E1199] px-4 relative z-0">
               <div className="text-center relative">
                 <MessageCircle className="h-14 w-14 md:h-16 md:w-16 lg:h-20 lg:w-20 mx-auto mb-3 md:mb-4 lg:mb-5 opacity-10 text-gray-500" />
                 <p className="text-[14px] md:text-[15px] lg:text-[17px] font-medium mb-1 md:mb-1.5 text-white">

@@ -1,26 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import {
-  MessageSquare,
-  User,
-  Gamepad2,
-  Wrench,
-  ShoppingCart,
-  Wallet,
-  Crown,
-  Settings,
-  UserPlus,
-  Users,
-  MoreHorizontal,
-} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Users, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { CirclesModal } from "@/components/circles-modal";
 
 interface DesktopLeftSidebarProps {
@@ -29,272 +14,195 @@ interface DesktopLeftSidebarProps {
 
 export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
   const router = useRouter();
-  const pathname = usePathname();
   const [isCirclesModalOpen, setIsCirclesModalOpen] = useState(false);
 
   const handleNavigation = (path: string) => {
     router.push(path);
   };
 
-  const modules = [
+  const connections = [
     {
-      icon: MessageSquare,
-      label: "Social Hub",
-      path: "/",
-      badge: "5",
+      name: "Vitalik Buterin",
+      avatar: "/diverse-user-avatars.png",
+      isOnline: true,
     },
     {
-      icon: Gamepad2,
-      label: "Gaming",
-      path: "/gaming",
-      badge: "New",
+      name: "Sarah Miller",
+      avatar: "/diverse-female-avatar.png",
+      isOnline: true,
     },
     {
-      icon: Wrench,
-      label: "Build",
-      path: "/dev",
-      badge: null,
+      name: "Mike Chen",
+      avatar: "/developer-avatar.png",
+      isOnline: false,
     },
     {
-      icon: ShoppingCart,
-      label: "Marketplace",
-      path: "/marketplace",
-      badge: null,
+      name: "Sarah Miller",
+      avatar: "/diverse-female-avatar.png",
+      isOnline: true,
+    },
+    {
+      name: "Mike Chen",
+      avatar: "/developer-avatar.png",
+      isOnline: false,
+    },
+    {
+      name: "Mike Chen",
+      avatar: "/developer-avatar.png",
+      isOnline: false,
+    },
+    {
+      name: "Vitalik Buterin",
+      avatar: "/diverse-user-avatars.png",
+      isOnline: true,
+    },
+    {
+      name: "Sarah Miller",
+      avatar: "/diverse-female-avatar.png",
+      isOnline: true,
+    },
+    {
+      name: "Mike Chen",
+      avatar: "/developer-avatar.png",
+      isOnline: false,
     },
   ];
 
-  const connections = {
-    following: [
-      {
-        name: "Vitalik Buterin",
-        avatar: "/diverse-user-avatars.png",
-        isOnline: true,
-      },
-      {
-        name: "Sarah Miller",
-        avatar: "/diverse-female-avatar.png",
-        isOnline: true,
-      },
-      { name: "Mike Chen", avatar: "/developer-avatar.png", isOnline: false },
-    ],
-    circles: [
-      {
-        name: "DeFi Builders",
-        icon: "🏗️",
-        members: 47,
-        isActive: true,
-        routeId: "defi-builders",
-      },
-      {
-        name: "Gaming Alpha",
-        icon: "🎮",
-        members: 23,
-        isActive: true,
-        routeId: "gaming-alpha",
-      },
-      {
-        name: "NFT Collectors",
-        icon: "💎",
-        members: 31,
-        isActive: false,
-        routeId: "nft-collectors",
-      },
-    ],
-  };
+  const circles = [
+    {
+      name: "DeFi Builders",
+      members: 47,
+      icon: "🏗️",
+      color: "bg-blue-500/10 text-blue-400",
+      routeId: "defi-builders",
+    },
+    {
+      name: "Gaming Alpha",
+      members: 23,
+      icon: "🎮",
+      color: "bg-purple-500/10 text-purple-400",
+      routeId: "gaming-alpha",
+    },
+    {
+      name: "NFT Collectors",
+      members: 31,
+      icon: "💎",
+      color: "bg-green-500/10 text-green-400",
+      routeId: "nft-collectors",
+    },
+  ];
 
   return (
     <aside
       className={cn(
-        "desktop-left-sidebar fixed left-0 top-20 h-[calc(100vh-5rem)] w-64 z-40 hidden md:block",
-        "bg-card/95 backdrop-blur-md border-r border-border overflow-y-auto",
-        "transition-all duration-500 ease-out transform-gpu will-change-transform",
+        "desktop-left-sidebar fixed z-[60] hidden md:block",
+        // Responsive positioning and sizing
+        "left-[14px] top-[14px]",
+        "h-[calc(100vh-80px)]",
+        "w-[180px] lg:w-[200px] xl:w-[230px]", // Responsive width
+        "bg-[#080E11]/40 border border-white/[0.08] backdrop-blur-[20px]",
+        "rounded-[24px]",
+        "transition-all duration-300 ease-out",
+        "overflow-y-auto",
         className
       )}
-      style={{
-        willChange: "transform, opacity",
-      }}
     >
-      <div className="p-6 space-y-6">
-        {/* Main Navigation */}
-        <nav className="space-y-2">
-          <Link href="/profile">
-            <Button
-              variant="ghost"
-              className={`w-full justify-start ${
-                pathname === "/profile"
-                  ? "bg-primary/10 text-primary hover:bg-primary/20"
-                  : "text-foreground hover:text-primary hover:bg-accent"
-              }`}
-            >
-              <User className="mr-3 h-5 w-5" />
-              My Profile
-            </Button>
-          </Link>
-        </nav>
-
-        <Separator />
-
-        {/* Modules */}
-        <div>
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            Modules
-          </h3>
-          <nav className="space-y-1">
-            {modules.map((module) => (
-              <Button
-                key={module.path}
-                variant="ghost"
-                onClick={() => handleNavigation(module.path)}
-                className={`w-full justify-start ${
-                  pathname === module.path
-                    ? "bg-primary/10 text-primary hover:bg-primary/20"
-                    : "text-foreground hover:text-primary hover:bg-accent"
-                }`}
-              >
-                <module.icon className="mr-3 h-5 w-5" />
-                {module.label}
-                {module.badge && (
-                  <Badge className="ml-auto bg-primary/20 text-primary border-primary/30 text-xs">
-                    {module.badge}
-                  </Badge>
-                )}
-              </Button>
-            ))}
-          </nav>
+      <div className="flex flex-col h-full py-6 px-4 gap-8">
+        {/* Logo Section */}
+        <div className="flex items-center justify-start">
+          <img src="/Mark.png" alt="YNX" className="w-[87px] object-contain" />
         </div>
 
-        <Separator />
-
-        {/* Connections */}
-        <div>
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+        {/* Connections Section */}
+        <div className="flex flex-col gap-3 flex-1 overflow-y-auto">
+          <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
             Connections
           </h3>
-
-          {/* Following */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-medium text-card-foreground">
-                Following
-              </h4>
-              <UserPlus className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div className="space-y-2">
-              {connections.following.slice(0, 3).map((user, index) => (
-                <button
-                  key={index}
-                  className="w-full flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <div className="relative">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.avatar} />
-                      <AvatarFallback className="text-xs">
-                        {user.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    {user.isOnline && (
-                      <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-veralux-green border-2 border-card rounded-full" />
-                    )}
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="text-sm font-medium text-card-foreground truncate">
-                      {user.name}
-                    </p>
-                  </div>
-                </button>
-              ))}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleNavigation("/following")}
-                className="w-full text-xs text-muted-foreground hover:text-foreground"
+          <div className="flex flex-col gap-2">
+            {connections.slice(0, 9).map((user, index) => (
+              <button
+                key={index}
+                className="w-full flex items-center gap-2 p-1 rounded-lg hover:bg-white/5 transition-colors group"
               >
-                <MoreHorizontal className="mr-2 h-4 w-4" />
-                See more
-              </Button>
-            </div>
-          </div>
-
-          {/* Circles */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-medium text-card-foreground">
-                Circles
-              </h4>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div className="space-y-2">
-              {connections.circles.slice(0, 3).map((circle, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleNavigation(`/chat/${circle.routeId}`)}
-                  className="w-full flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                >
-                  <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-                    <span className="text-sm">{circle.icon}</span>
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="text-sm font-medium text-card-foreground truncate">
-                      {circle.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {circle.members} members
-                    </p>
-                  </div>
-                  {circle.isActive && (
-                    <div className="w-2 h-2 bg-veralux-green rounded-full" />
+                <div className="relative flex-shrink-0">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.avatar} />
+                    <AvatarFallback className="text-xs bg-primary/20 text-primary">
+                      {user.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  {user.isOnline && (
+                    <div className="absolute bottom-0 right-0 w-2 h-2 bg-green-500 border border-[#080E11] rounded-full" />
                   )}
-                </button>
-              ))}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsCirclesModalOpen(true)}
-                className="w-full text-xs text-muted-foreground hover:text-foreground"
+                </div>
+                <div className="flex-1 text-left min-w-0">
+                  <p className="text-xs font-medium text-white truncate">
+                    {user.name}
+                  </p>
+                </div>
+              </button>
+            ))}
+            <div className="flex gap-2 justify-between">
+              <button
+                onClick={() => handleNavigation("/connections")}
+                className="flex items-center px-2.5 py-1.5 gap-2 w-[95.89px] h-[28px] bg-[rgba(229,247,253,0.06)] rounded-[10px]"
               >
-                <MoreHorizontal className="mr-2 h-4 w-4" />
-                See more
-              </Button>
+                <MoreHorizontal className="h-3.5 w-3.5" />
+                <span className="text-xs">See more</span>
+              </button>
+              <button className="flex justify-center items-center p-1 gap-[10px] w-[28px] h-[28px] bg-[rgba(229,247,253,0.08)] rounded-full">
+                <Users className="h-3.5 w-3.5" />
+              </button>
             </div>
           </div>
         </div>
 
-        <Separator />
-
-        {/* Quick Actions */}
-        <div className="space-y-1">
-          <Button
-            variant="ghost"
-            onClick={() => handleNavigation("/wallet")}
-            className="w-full justify-start"
-          >
-            <Wallet className="mr-3 h-5 w-5" />
-            Wallet & Staking
-          </Button>
-
-          <Button
-            variant="ghost"
-            onClick={() => handleNavigation("/upgrade")}
-            className="w-full justify-start"
-          >
-            <Crown className="mr-3 h-5 w-5 text-veralux-yellow" />
-            Upgrade
-            <Badge className="ml-auto bg-veralux-yellow/20 text-veralux-yellow border-veralux-yellow/30 text-xs">
-              Pro
-            </Badge>
-          </Button>
-
-          <Button
-            variant="ghost"
-            onClick={() => handleNavigation("/settings")}
-            className="w-full justify-start"
-          >
-            <Settings className="mr-3 h-5 w-5" />
-            Settings
-          </Button>
+        {/* Circles Section */}
+        <div className="flex flex-col gap-3">
+          <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+            Circles
+          </h3>
+          <div className="flex flex-col gap-2">
+            {circles.map((circle, index) => (
+              <button
+                key={index}
+                onClick={() => handleNavigation(`/chat/${circle.routeId}`)}
+                className="w-full flex items-center gap-2 p-1 rounded-lg hover:bg-white/5 transition-colors group"
+              >
+                <div
+                  className={cn(
+                    "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
+                    circle.color
+                  )}
+                >
+                  <span className="text-base">{circle.icon}</span>
+                </div>
+                <div className="flex-1 text-left min-w-0">
+                  <p className="text-xs font-medium text-white truncate">
+                    {circle.name}
+                  </p>
+                  <p className="text-[10px] text-gray-400">
+                    {circle.members} members
+                  </p>
+                </div>
+              </button>
+            ))}
+            <div className="flex gap-2 justify-between">
+              <button
+                onClick={() => setIsCirclesModalOpen(true)}
+                className="flex items-center px-2.5 py-1.5 gap-2 w-[95.89px] h-[28px] bg-[rgba(229,247,253,0.06)] rounded-[10px]"
+              >
+                <MoreHorizontal className="h-3.5 w-3.5" />
+                <span className="text-xs">See more</span>
+              </button>
+              <button className="flex justify-center items-center p-1 gap-[10px] w-[28px] h-[28px] bg-[rgba(229,247,253,0.08)] rounded-full">
+                <Users className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

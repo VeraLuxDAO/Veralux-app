@@ -39,7 +39,14 @@ export function TrustedSellers() {
   ];
 
   return (
-    <Card className="bg-card border-border">
+    <Card
+      className="border-none"
+      style={{
+        background:
+          "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
+        border: "1px solid rgba(255, 255, 255, 0.08)",
+      }}
+    >
       <CardHeader className="pb-3">
         <CardTitle className="text-card-foreground text-sm sm:text-base">
           Trusted Sellers

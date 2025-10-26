@@ -46,51 +46,50 @@
   --veralux-yellow: oklch(0.8 0.15 80); /* Yellow/orange for highlights */
 
   /* Font variables */
-  --font-sans: "__GeistSans_fb8f2c", "__GeistSans_Fallback_fb8f2c", system-ui,
-    -apple-system, sans-serif;
-  --font-mono: "__GeistMono_f910ec", "__GeistMono_Fallback_f910ec",
-    "Courier New", monospace;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Courier New", Courier, monospace;
 }
 
 .dark {
-  /* VeraLux Dark Mode Colors - Futuristic Dark Blue/Purple Theme */
-  --background: oklch(0.08 0.02 240); /* Deep dark blue */
-  --foreground: oklch(0.95 0.01 240); /* Very light blue-white */
-  --card: oklch(0.12 0.03 240); /* Dark blue card */
-  --card-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
-  --popover: oklch(0.12 0.03 240); /* Dark blue popover */
-  --popover-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
-  --primary: oklch(0.55 0.15 240); /* Electric blue */
-  --primary-foreground: oklch(0.08 0.02 240); /* Deep dark blue */
-  --secondary: oklch(0.18 0.05 240); /* Medium dark blue */
-  --secondary-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
-  --muted: oklch(0.18 0.05 240); /* Medium dark blue */
-  --muted-foreground: oklch(0.6 0.08 240); /* Medium blue-gray */
-  --accent: oklch(0.25 0.08 240); /* Dark blue accent */
-  --accent-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
-  --destructive: oklch(0.5 0.2 15); /* Dark red-orange */
-  --destructive-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
-  --border: oklch(0.25 0.05 240); /* Dark blue border */
-  --input: oklch(0.18 0.05 240); /* Medium dark blue input */
-  --ring: oklch(0.55 0.15 240); /* Electric blue ring */
-  --chart-1: oklch(0.55 0.15 240); /* Electric blue */
-  --chart-2: oklch(0.6 0.15 200); /* Light blue */
-  --chart-3: oklch(0.5 0.12 280); /* Purple-blue */
-  --chart-4: oklch(0.65 0.15 180); /* Cyan-blue */
-  --chart-5: oklch(0.55 0.15 220); /* Blue-purple */
-  --sidebar: oklch(0.1 0.03 240); /* Very dark blue */
-  --sidebar-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
-  --sidebar-primary: oklch(0.55 0.15 240); /* Electric blue */
-  --sidebar-primary-foreground: oklch(0.08 0.02 240); /* Deep dark blue */
-  --sidebar-accent: oklch(0.18 0.05 240); /* Medium dark blue */
-  --sidebar-accent-foreground: oklch(0.95 0.01 240); /* Very light blue-white */
-  --sidebar-border: oklch(0.25 0.05 240); /* Dark blue border */
-  --sidebar-ring: oklch(0.55 0.15 240); /* Electric blue ring */
+  /* YNX Dark Mode - Neutral Black & White Palette */
+  --background: #080e1199; /* Dark semi-transparent base */
+  --foreground: oklch(0.98 0 0); /* Pure white text #FAFAFA */
+  --card: oklch(0.14 0 0); /* Transparent black card #1E1E1E */
+  --card-foreground: oklch(0.98 0 0); /* Pure white */
+  --popover: oklch(0.14 0 0); /* Transparent black */
+  --popover-foreground: oklch(0.98 0 0); /* Pure white */
+  --primary: oklch(0.6 0.2 264); /* Accent blue for CTAs #6366F1 */
+  --primary-foreground: oklch(0.98 0 0); /* White on primary */
+  --secondary: oklch(0.22 0 0); /* Dark gray #333333 */
+  --secondary-foreground: oklch(0.92 0 0); /* Light gray text */
+  --muted: oklch(0.22 0 0); /* Dark gray for muted areas */
+  --muted-foreground: oklch(0.62 0 0); /* Medium gray text #999999 */
+  --accent: oklch(0.28 0 0); /* Slightly lighter gray #404040 */
+  --accent-foreground: oklch(0.98 0 0); /* White text */
+  --destructive: oklch(0.55 0.22 25); /* Red for destructive actions */
+  --destructive-foreground: oklch(0.98 0 0); /* White text */
+  --border: oklch(0.28 0 0); /* Neutral gray border #3F3F3F */
+  --input: oklch(0.18 0 0); /* Dark input background #262626 */
+  --ring: oklch(0.6 0.2 264); /* Blue focus ring */
+  --chart-1: oklch(0.6 0.2 264); /* Charts - Blue */
+  --chart-2: oklch(0.65 0.18 142); /* Charts - Green */
+  --chart-3: oklch(0.62 0.2 328); /* Charts - Purple */
+  --chart-4: oklch(0.7 0.18 195); /* Charts - Cyan */
+  --chart-5: oklch(0.68 0.2 60); /* Charts - Yellow */
+  --sidebar: oklch(0.11 0 0); /* Sidebar transparent black #1A1A1A */
+  --sidebar-foreground: oklch(0.98 0 0); /* White text */
+  --sidebar-primary: oklch(0.6 0.2 264); /* Blue accent */
+  --sidebar-primary-foreground: oklch(0.98 0 0); /* White */
+  --sidebar-accent: oklch(0.22 0 0); /* Gray accent */
+  --sidebar-accent-foreground: oklch(0.98 0 0); /* White */
+  --sidebar-border: oklch(0.25 0 0); /* Neutral border */
+  --sidebar-ring: oklch(0.6 0.2 264); /* Blue ring */
 
-  /* Custom brand colors for dark mode */
-  --electric-blue: oklch(0.55 0.15 240);
-  --veralux-green: oklch(0.6 0.15 160);
-  --veralux-yellow: oklch(0.8 0.15 80);
+  /* Custom brand colors - Neutral with accent pops */
+  --electric-blue: oklch(0.6 0.2 264); /* #6366F1 */
+  --veralux-green: oklch(0.65 0.18 142); /* #22C55E */
+  --veralux-yellow: oklch(0.8 0.16 85); /* #FBBF24 */
 }
 
 /* Font family application */
@@ -107,31 +106,30 @@ body {
 :root {
   --bg-gradient-light: linear-gradient(
     135deg,
-    oklch(0.99 0.005 240) 0%,
-    oklch(0.95 0.01 240) 100%
+    oklch(0.99 0 0) 0%,
+    oklch(0.95 0 0) 100%
   );
   --bg-circles-light: radial-gradient(
       circle at 20% 20%,
-      oklch(0.9 0.05 240) 0%,
+      oklch(0.9 0.02 0) 0%,
       transparent 50%
     ),
-    radial-gradient(circle at 80% 80%, oklch(0.9 0.05 240) 0%, transparent 50%);
+    radial-gradient(circle at 80% 80%, oklch(0.9 0.02 0) 0%, transparent 50%);
 }
 
-/* Dark mode background effects */
+/* Dark mode background effects - Neutral with subtle gradients */
 .dark {
   --bg-gradient-dark: linear-gradient(
     135deg,
-    oklch(0.08 0.02 240) 0%,
-    oklch(0.12 0.03 240) 100%
+    oklch(0.08 0 0) 0%,
+    oklch(0.11 0 0) 100%
   );
   --bg-circles-dark: radial-gradient(
       circle at 20% 20%,
-      oklch(0.7 0.2 240) 0%,
-      transparent 50%
+      oklch(0.18 0.05 264) 0%,
+      transparent 60%
     ),
-    radial-gradient(circle at 80% 80%, oklch(0.5 0.15 280) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, oklch(0.6 0.15 200) 0%, transparent 30%);
+    radial-gradient(circle at 80% 80%, oklch(0.15 0.03 264) 0%, transparent 60%);
 }
 
 /* Background with gradient and glowing circles */
@@ -163,31 +161,28 @@ body::-webkit-scrollbar {
   background-image: var(--bg-circles-dark);
 }
 
-/* Glowing effects for dark mode */
+/* Subtle shadow effects for dark mode */
 .dark .card {
-  box-shadow: 0 0 20px oklch(0.7 0.2 240 / 0.1),
-    0 0 40px oklch(0.7 0.2 240 / 0.05);
-  border: 1px solid oklch(0.7 0.2 240 / 0.2);
+  box-shadow: 0 4px 16px oklch(0 0 0 / 0.3), 0 2px 8px oklch(0 0 0 / 0.2);
+  border: 1px solid oklch(0.25 0 0 / 0.5);
 }
 
 .dark .primary {
-  box-shadow: 0 0 20px oklch(0.7 0.2 240 / 0.3);
+  box-shadow: 0 4px 16px oklch(0.6 0.2 264 / 0.4);
 }
 
-/* Enhanced dark mode effects */
+/* Enhanced dark mode effects with neutral shadows */
 .dark .wallet-connect-button {
-  box-shadow: 0 0 30px oklch(0.7 0.2 240 / 0.4),
-    0 0 60px oklch(0.7 0.2 240 / 0.2);
+  box-shadow: 0 4px 20px oklch(0.6 0.2 264 / 0.3), 0 2px 10px oklch(0 0 0 / 0.2);
 }
 
 .dark .wallet-account-modal {
-  box-shadow: 0 0 40px oklch(0.7 0.2 240 / 0.3),
-    0 0 80px oklch(0.7 0.2 240 / 0.1);
-  border: 1px solid oklch(0.7 0.2 240 / 0.3);
+  box-shadow: 0 8px 32px oklch(0 0 0 / 0.5), 0 4px 16px oklch(0 0 0 / 0.3);
+  border: 1px solid oklch(0.28 0 0 / 0.8);
 }
 
 .dark .theme-toggle-button:hover {
-  box-shadow: 0 0 20px oklch(0.7 0.2 240 / 0.3);
+  box-shadow: 0 4px 16px oklch(0.6 0.2 264 / 0.3);
 }
 
 /* Light mode subtle effects */
@@ -307,17 +302,16 @@ body::-webkit-scrollbar {
   animation: bounce 0.6s ease-out;
 }
 
-/* AI Chat Components Styling */
+/* AI Chat Components Styling - Neutral Theme */
 .ai-chat-icon {
   background: linear-gradient(
     135deg,
-    oklch(0.55 0.15 240) 0%,
-    oklch(0.5 0.15 280) 100%
+    oklch(0.6 0.2 264) 0%,
+    oklch(0.55 0.18 264) 100%
   );
   border: none;
   color: white;
-  box-shadow: 0 12px 40px oklch(0.55 0.15 240 / 0.4),
-    0 0 20px oklch(0.55 0.15 240 / 0.2);
+  box-shadow: 0 8px 24px oklch(0 0 0 / 0.4), 0 4px 12px oklch(0.6 0.2 264 / 0.3);
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
@@ -327,39 +321,37 @@ body::-webkit-scrollbar {
 .ai-chat-icon:hover {
   background: linear-gradient(
     135deg,
-    oklch(0.6 0.18 240) 0%,
-    oklch(0.55 0.18 280) 100%
+    oklch(0.65 0.22 264) 0%,
+    oklch(0.6 0.2 264) 100%
   );
-  box-shadow: 0 16px 50px oklch(0.55 0.15 240 / 0.5),
-    0 0 30px oklch(0.55 0.15 240 / 0.3);
+  box-shadow: 0 12px 32px oklch(0 0 0 / 0.5),
+    0 6px 16px oklch(0.6 0.2 264 / 0.4);
 }
 
 .dark .ai-chat-icon {
   background: linear-gradient(
     135deg,
-    oklch(0.7 0.2 240) 0%,
-    oklch(0.6 0.2 280) 100%
+    oklch(0.6 0.2 264) 0%,
+    oklch(0.55 0.18 264) 100%
   );
-  box-shadow: 0 12px 40px oklch(0.7 0.2 240 / 0.5),
-    0 0 25px oklch(0.7 0.2 240 / 0.3);
+  box-shadow: 0 8px 24px oklch(0 0 0 / 0.6), 0 4px 12px oklch(0.6 0.2 264 / 0.4);
 }
 
 .dark .ai-chat-icon:hover {
   background: linear-gradient(
     135deg,
-    oklch(0.75 0.22 240) 0%,
-    oklch(0.65 0.22 280) 100%
+    oklch(0.65 0.22 264) 0%,
+    oklch(0.6 0.2 264) 100%
   );
-  box-shadow: 0 16px 50px oklch(0.7 0.2 240 / 0.6),
-    0 0 35px oklch(0.7 0.2 240 / 0.4);
+  box-shadow: 0 12px 32px oklch(0 0 0 / 0.7),
+    0 6px 16px oklch(0.6 0.2 264 / 0.5);
 }
 
 .ai-chat-bar {
   background: var(--card);
   border: 1px solid var(--border);
   backdrop-filter: blur(16px);
-  box-shadow: 0 25px 80px oklch(0.15 0.02 240 / 0.1),
-    0 0 40px oklch(0.15 0.02 240 / 0.05);
+  box-shadow: 0 16px 48px oklch(0 0 0 / 0.2), 0 8px 24px oklch(0 0 0 / 0.1);
   position: fixed;
   bottom: 8rem;
   right: 1.5rem;
@@ -377,14 +369,13 @@ body::-webkit-scrollbar {
 }
 
 .dark .ai-chat-bar {
-  background: oklch(0.12 0.03 240);
-  border: 1px solid oklch(0.7 0.2 240 / 0.3);
-  box-shadow: 0 25px 80px oklch(0.08 0.02 240 / 0.8),
-    0 0 50px oklch(0.7 0.2 240 / 0.15);
+  background: oklch(0.14 0 0);
+  border: 1px solid oklch(0.28 0 0 / 0.8);
+  box-shadow: 0 16px 48px oklch(0 0 0 / 0.8), 0 8px 24px oklch(0 0 0 / 0.4);
 }
 
 .dark .ai-chat-bar::before {
-  background: linear-gradient(90deg, oklch(0.7 0.2 240), oklch(0.6 0.2 280));
+  background: linear-gradient(90deg, oklch(0.6 0.2 264), oklch(0.55 0.18 264));
 }
 
 .ai-chat-header {
@@ -393,8 +384,8 @@ body::-webkit-scrollbar {
 }
 
 .dark .ai-chat-header {
-  background: oklch(0.18 0.05 240);
-  border-bottom: 1px solid oklch(0.7 0.2 240 / 0.2);
+  background: oklch(0.18 0 0);
+  border-bottom: 1px solid oklch(0.28 0 0 / 0.6);
 }
 
 .ai-chat-input {
@@ -403,24 +394,24 @@ body::-webkit-scrollbar {
 }
 
 .dark .ai-chat-input {
-  background: oklch(0.18 0.05 240);
-  border-top: 1px solid oklch(0.7 0.2 240 / 0.2);
+  background: oklch(0.18 0 0);
+  border-top: 1px solid oklch(0.28 0 0 / 0.6);
 }
 
-/* AI Chat Message Bubbles */
+/* AI Chat Message Bubbles - Neutral */
 .ai-chat-bar .bg-primary {
   background: linear-gradient(
     135deg,
-    oklch(0.55 0.15 240) 0%,
-    oklch(0.5 0.15 280) 100%
+    oklch(0.6 0.2 264) 0%,
+    oklch(0.55 0.18 264) 100%
   );
 }
 
 .dark .ai-chat-bar .bg-primary {
   background: linear-gradient(
     135deg,
-    oklch(0.7 0.2 240) 0%,
-    oklch(0.6 0.2 280) 100%
+    oklch(0.6 0.2 264) 0%,
+    oklch(0.55 0.18 264) 100%
   );
 }
 
@@ -430,8 +421,8 @@ body::-webkit-scrollbar {
 }
 
 .dark .ai-chat-bar .bg-muted {
-  background: oklch(0.18 0.05 240);
-  border: 1px solid oklch(0.7 0.2 240 / 0.2);
+  background: oklch(0.22 0 0);
+  border: 1px solid oklch(0.28 0 0 / 0.6);
 }
 
 /* AI Chat Animations */
@@ -570,15 +561,12 @@ body::-webkit-scrollbar {
   box-shadow: 0 4px 12px oklch(0.7 0.2 240 / 0.3);
 }
 
-/* Profile Page Theme Support - Enhanced Responsive Design */
+/* Profile Page Theme Support - Neutral Design */
 .profile-header-card {
-  background: linear-gradient(
-    135deg,
-    oklch(0.55 0.15 240) 0%,
-    oklch(0.5 0.15 280) 100%
-  );
+  background: linear-gradient(135deg, oklch(0.22 0 0) 0%, oklch(0.18 0 0) 100%);
   color: white;
-  box-shadow: 0 8px 32px oklch(0.55 0.15 240 / 0.2);
+  box-shadow: 0 8px 32px oklch(0 0 0 / 0.4);
+  border: 1px solid oklch(0.28 0 0 / 0.6);
   /* Enhanced responsiveness */
   min-height: 200px;
 }
@@ -605,13 +593,9 @@ body::-webkit-scrollbar {
 }
 
 .dark .profile-header-card {
-  background: linear-gradient(
-    135deg,
-    oklch(0.7 0.2 240) 0%,
-    oklch(0.6 0.2 280) 100%
-  );
-  box-shadow: 0 8px 32px oklch(0.7 0.2 240 / 0.3),
-    0 0 20px oklch(0.7 0.2 240 / 0.2);
+  background: linear-gradient(135deg, oklch(0.22 0 0) 0%, oklch(0.18 0 0) 100%);
+  box-shadow: 0 8px 32px oklch(0 0 0 / 0.5), 0 4px 16px oklch(0 0 0 / 0.3);
+  border: 1px solid oklch(0.28 0 0 / 0.6);
 }
 
 .profile-avatar-border {
@@ -657,23 +641,23 @@ body::-webkit-scrollbar {
 }
 
 .profile-edit-button {
-  background: white;
-  color: oklch(0.55 0.15 240);
+  background: oklch(0.98 0 0);
+  color: oklch(0.18 0 0);
 }
 
 .profile-edit-button:hover {
-  background: rgba(255, 255, 255, 0.9);
+  background: oklch(0.92 0 0);
 }
 
 .profile-share-button {
-  border-color: white;
-  color: white;
+  border-color: oklch(0.98 0 0);
+  color: oklch(0.98 0 0);
   background: transparent;
 }
 
 .profile-share-button:hover {
-  background: white;
-  color: oklch(0.55 0.15 240);
+  background: oklch(0.98 0 0);
+  color: oklch(0.18 0 0);
 }
 
 /* Enhanced Profile Page Responsive Design */
@@ -1351,24 +1335,17 @@ button[data-radix-dialog-close] {
   }
 }
 
-/* NFT Customizer Theme Support */
+/* NFT Customizer Theme Support - Neutral */
 .nft-preview-card {
-  background: linear-gradient(
-    135deg,
-    oklch(0.55 0.15 240) 0%,
-    oklch(0.5 0.15 280) 100%
-  );
-  box-shadow: 0 4px 16px oklch(0.55 0.15 240 / 0.2);
+  background: linear-gradient(135deg, oklch(0.22 0 0) 0%, oklch(0.18 0 0) 100%);
+  box-shadow: 0 4px 16px oklch(0 0 0 / 0.3);
+  border: 1px solid oklch(0.28 0 0 / 0.6);
 }
 
 .dark .nft-preview-card {
-  background: linear-gradient(
-    135deg,
-    oklch(0.7 0.2 240) 0%,
-    oklch(0.6 0.2 280) 100%
-  );
-  box-shadow: 0 4px 16px oklch(0.7 0.2 240 / 0.3),
-    0 0 12px oklch(0.7 0.2 240 / 0.2);
+  background: linear-gradient(135deg, oklch(0.22 0 0) 0%, oklch(0.18 0 0) 100%);
+  box-shadow: 0 4px 16px oklch(0 0 0 / 0.5), 0 2px 8px oklch(0 0 0 / 0.3);
+  border: 1px solid oklch(0.28 0 0 / 0.6);
 }
 
 .nft-preview-content {
@@ -1399,58 +1376,38 @@ button[data-radix-dialog-close] {
   border-color: oklch(0.8 0.15 80 / 0.3);
 }
 
-/* NFT Background Options */
+/* NFT Background Options - Neutral */
 .nft-bg-option-primary {
-  background: linear-gradient(
-    135deg,
-    oklch(0.55 0.15 240) 0%,
-    oklch(0.5 0.15 280) 100%
-  );
+  background: linear-gradient(135deg, oklch(0.22 0 0) 0%, oklch(0.18 0 0) 100%);
 }
 
 .dark .nft-bg-option-primary {
-  background: linear-gradient(
-    135deg,
-    oklch(0.7 0.2 240) 0%,
-    oklch(0.6 0.2 280) 100%
-  );
+  background: linear-gradient(135deg, oklch(0.22 0 0) 0%, oklch(0.18 0 0) 100%);
 }
 
 .nft-bg-option-secondary {
-  background: linear-gradient(
-    135deg,
-    oklch(0.8 0.15 80) 0%,
-    oklch(0.6 0.15 160) 100%
-  );
+  background: linear-gradient(135deg, oklch(0.28 0 0) 0%, oklch(0.22 0 0) 100%);
 }
 
 .nft-bg-option-tertiary {
-  background: linear-gradient(
-    135deg,
-    oklch(0.55 0.15 240) 0%,
-    oklch(0.5 0.15 280) 100%
-  );
+  background: linear-gradient(135deg, oklch(0.18 0 0) 0%, oklch(0.14 0 0) 100%);
 }
 
 .dark .nft-bg-option-tertiary {
-  background: linear-gradient(
-    135deg,
-    oklch(0.7 0.2 240) 0%,
-    oklch(0.6 0.2 280) 100%
-  );
+  background: linear-gradient(135deg, oklch(0.18 0 0) 0%, oklch(0.14 0 0) 100%);
 }
 
-/* Profile Tabs Styling */
+/* Profile Tabs Styling - Neutral */
 .profile-tabs-list {
   background: var(--card);
   border: 1px solid var(--border);
-  box-shadow: 0 2px 8px oklch(0.15 0.02 240 / 0.1);
+  box-shadow: 0 2px 8px oklch(0 0 0 / 0.2);
 }
 
 .dark .profile-tabs-list {
-  background: oklch(0.12 0.03 240);
-  border: 1px solid oklch(0.7 0.2 240 / 0.2);
-  box-shadow: 0 2px 8px oklch(0.7 0.2 240 / 0.1);
+  background: oklch(0.14 0 0);
+  border: 1px solid oklch(0.28 0 0 / 0.6);
+  box-shadow: 0 2px 8px oklch(0 0 0 / 0.4);
 }
 
 .profile-tab-trigger {
@@ -1463,26 +1420,18 @@ button[data-radix-dialog-close] {
 }
 
 .dark .profile-tab-trigger:hover {
-  background: oklch(0.18 0.05 240);
+  background: oklch(0.22 0 0);
 }
 
 .profile-tab-active {
-  background: linear-gradient(
-    135deg,
-    oklch(0.55 0.15 240) 0%,
-    oklch(0.5 0.15 280) 100%
-  );
+  background: oklch(0.6 0.2 264);
   color: white;
-  box-shadow: 0 2px 8px oklch(0.55 0.15 240 / 0.2);
+  box-shadow: 0 2px 8px oklch(0.6 0.2 264 / 0.3);
 }
 
 .dark .profile-tab-active {
-  background: linear-gradient(
-    135deg,
-    oklch(0.7 0.2 240) 0%,
-    oklch(0.6 0.2 280) 100%
-  );
-  box-shadow: 0 2px 8px oklch(0.7 0.2 240 / 0.3);
+  background: oklch(0.6 0.2 264);
+  box-shadow: 0 2px 8px oklch(0.6 0.2 264 / 0.4);
 }
 
 /* Theme toggle button styling */
@@ -1554,13 +1503,13 @@ button[data-radix-dialog-close] {
   --color-veralux-yellow: var(--veralux-yellow);
 }
 
-/* Lighthouse Logo Styling */
+/* Lighthouse Logo Styling - Neutral */
 .lighthouse-logo .fill-primary {
-  fill: oklch(0.55 0.15 240);
+  fill: oklch(0.6 0.2 264);
 }
 
 .lighthouse-logo .fill-veralux-yellow {
-  fill: oklch(0.8 0.15 80);
+  fill: oklch(0.8 0.16 85);
 }
 
 .lighthouse-logo .fill-white {
@@ -1572,11 +1521,11 @@ button[data-radix-dialog-close] {
 }
 
 .dark .lighthouse-logo .fill-primary {
-  fill: oklch(0.7 0.2 240);
+  fill: oklch(0.6 0.2 264);
 }
 
 .dark .lighthouse-logo .fill-veralux-yellow {
-  fill: oklch(0.85 0.18 80);
+  fill: oklch(0.8 0.16 85);
 }
 
 @layer base {
@@ -1588,41 +1537,37 @@ button[data-radix-dialog-close] {
   }
 }
 
-/* VeraLux Custom Utilities */
+/* YNX Custom Utilities - Neutral */
 .text-electric-blue {
-  color: oklch(0.59 0.08 250.12);
+  color: oklch(0.6 0.2 264);
 }
 
 .text-veralux-yellow {
-  color: oklch(0.6 0.118 184.704);
+  color: oklch(0.8 0.16 85);
 }
 
 .text-veralux-green {
-  color: oklch(0.646 0.222 41.116);
+  color: oklch(0.65 0.18 142);
 }
 
 .bg-electric-blue {
-  background-color: oklch(0.205 0 0);
+  background-color: oklch(0.6 0.2 264);
 }
 
 .bg-veralux-yellow {
-  background-color: oklch(0.6 0.118 184.704);
+  background-color: oklch(0.8 0.16 85);
 }
 
 .bg-veralux-green {
-  background-color: oklch(0.646 0.222 41.116);
+  background-color: oklch(0.65 0.18 142);
 }
 
 .border-electric-blue {
-  border-color: oklch(0.205 0 0);
+  border-color: oklch(0.6 0.2 264);
 }
 
 .gradient-veralux {
-  background: linear-gradient(
-    135deg,
-    oklch(0.205 0 0) 0%,
-    oklch(0.646 0.222 41.116) 100%
-  );
+  background: linear-gradient(135deg, oklch(0.22 0 0) 0%, oklch(0.18 0 0) 100%);
 }
 
 /* Custom wallet modal styles inspired by Suiet Kit */

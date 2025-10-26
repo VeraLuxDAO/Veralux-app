@@ -1,7 +1,5 @@
 import type React from "react";
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import { WalletProviderWrapper } from "@/components/wallet-provider-wrapper";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -21,25 +19,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`dark ${GeistSans.variable} ${GeistMono.variable}`}
-      suppressHydrationWarning
-    >
-      <body className={GeistSans.className} suppressHydrationWarning>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange={false}
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body suppressHydrationWarning>
+        {/* Background Image - Fixed positioned at top */}
+
+        <div
+          style={{ position: "relative", zIndex: 10 }}
+          className="bg-background"
         >
-          <AuthProvider>
-            <WalletProviderWrapper>
-              <WalletConnectionManager />
-              {children}
-            </WalletProviderWrapper>
-          </AuthProvider>
-        </ThemeProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange={false}
+          >
+            <AuthProvider>
+              <WalletProviderWrapper>
+                <WalletConnectionManager />
+
+                {children}
+              </WalletProviderWrapper>
+            </AuthProvider>
+          </ThemeProvider>
+        </div>
       </body>
     </html>
   );

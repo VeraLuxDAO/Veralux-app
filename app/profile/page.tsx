@@ -25,7 +25,13 @@ export default function ProfilePage() {
         {/* Main Profile Tabs */}
         <Tabs defaultValue="dashboard" className="space-y-6">
           <div className="flex justify-center px-2">
-            <TabsList className="inline-flex h-10 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground profile-tabs-list w-full max-w-md">
+            <TabsList
+              className="inline-flex h-10 items-center justify-center rounded-lg p-1 text-muted-foreground profile-tabs-list w-full max-w-md"
+              style={{
+                background: "rgba(229, 247, 253, 0.04)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+              }}
+            >
               <TabsTrigger
                 value="dashboard"
                 className="profile-tab-trigger inline-flex items-center justify-center whitespace-nowrap rounded-md px-2 py-1.5 text-xs font-medium transition-colors data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm flex-1"

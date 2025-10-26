@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ArrowLeft,
@@ -21,11 +20,6 @@ import {
   Tag,
   Clock,
   Check,
-  CheckCheck,
-  Trash2,
-  Settings,
-  Filter,
-  MoreVertical,
   X as XIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -60,7 +54,6 @@ interface Notification {
   };
 }
 
-// Mock notifications data (same as popover)
 const mockNotifications: Notification[] = [
   {
     id: "1",
@@ -275,9 +268,17 @@ export default function NotificationsPage() {
   return (
     <>
       {/* Mobile Full-Page View */}
-      <div className="md:hidden min-h-screen bg-background">
+      <div className="md:hidden min-h-screen">
         {/* Fixed Mobile Header - Matches Screenshot */}
-        <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
+        <div
+          className="fixed top-0 left-0 right-0 z-50 shadow-sm"
+          style={{
+            background: "rgba(8, 14, 17, 0.4)",
+            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+          }}
+        >
           <div className="px-4 pt-3 pb-2">
             {/* Top Row: Back Button, Title, Mark All */}
             <div className="flex items-center justify-between mb-3">
@@ -491,9 +492,15 @@ export default function NotificationsPage() {
       {/* Desktop View with NavigationLayout */}
       <div className="hidden md:block">
         <NavigationLayout>
-          <div className="min-h-screen bg-background">
+          <div className="min-h-screen">
             {/* Desktop Header */}
-            <div className="border-b border-border bg-card">
+            <div
+              className="border-b"
+              style={{
+                borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                background: "rgba(8, 14, 17, 0.2)",
+              }}
+            >
               <div className="max-w-4xl mx-auto px-6 py-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">

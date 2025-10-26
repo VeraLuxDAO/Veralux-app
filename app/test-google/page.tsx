@@ -37,7 +37,10 @@ export default function GoogleAuthTest() {
 
         // Test the client initialization
         const redirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI;
-        console.log("Redirect URI:", redirectUri || "http://localhost:3000/auth/callback");
+        console.log(
+          "Redirect URI:",
+          redirectUri || "http://localhost:3000/auth/callback"
+        );
         console.log("Client ID:", process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
         const client = window.google.accounts.oauth2.initCodeClient({
           client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
@@ -45,7 +48,10 @@ export default function GoogleAuthTest() {
           ux_mode: "popup",
           redirect_uri: redirectUri || "http://localhost:3000/auth/callback",
           callback: (response: any) => {
-            console.log("Redirect URI:", redirectUri || "http://localhost:3000/auth/callback");
+            console.log(
+              "Redirect URI:",
+              redirectUri || "http://localhost:3000/auth/callback"
+            );
             console.log("Client ID:", process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
             console.log("Callback received:", response);
             setStatus("Callback received: " + JSON.stringify(response));
@@ -82,7 +88,7 @@ export default function GoogleAuthTest() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="text-center max-w-2xl mx-auto p-8">
         <h1 className="text-2xl font-bold mb-4">Google Auth Test</h1>
 

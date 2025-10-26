@@ -264,7 +264,7 @@ export default function MessagesPage() {
   // Rooms List View - Telegram Style
   if (!selectedRoom) {
     return (
-      <div className="flex flex-col h-screen bg-[#0e1621]">
+      <div className="flex flex-col h-screen bg-[#080E1199]">
         {/* Header - Telegram Style */}
         <div className="flex-shrink-0 bg-[#17212b] border-b border-[#2b3642]/50 shadow-sm">
           <div className="flex items-center justify-between h-[56px] px-3">
@@ -320,7 +320,7 @@ export default function MessagesPage() {
                   placeholder="Search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-3 h-9 bg-[#0e1621] border border-[#2b3642]/30 rounded-lg text-white text-[14px] placeholder:text-gray-500 focus:border-[#5c6bc0]/50 focus:ring-0"
+                  className="pl-10 pr-3 h-9 bg-[#080E1199] border border-[#2b3642]/30 rounded-lg text-white text-[14px] placeholder:text-gray-500 focus:border-[#5c6bc0]/50 focus:ring-0"
                   autoFocus
                 />
               </div>
@@ -329,7 +329,7 @@ export default function MessagesPage() {
         </div>
 
         {/* Rooms List - Telegram Style */}
-        <div className="flex-1 overflow-y-auto bg-[#0e1621]">
+        <div className="flex-1 overflow-y-auto bg-[#080E1199]">
           {filteredRooms.map((room, index) => (
             <button
               key={room.id}
@@ -407,7 +407,7 @@ export default function MessagesPage() {
 
   // Chat View - Telegram Style
   return (
-    <div className="flex flex-col h-screen bg-[#0e1621]">
+    <div className="flex flex-col h-screen bg-[#080E1199]">
       {/* Chat Header - Telegram Style */}
       <div className="flex-shrink-0 bg-[#1c2733] border-b border-[#2b3642]">
         <div className="flex items-center justify-between px-2 h-14">
@@ -565,7 +565,7 @@ export default function MessagesPage() {
 
           {/* Input Field Container */}
           <div className="flex-1">
-            <div className="flex items-center gap-2 bg-[#0e1621] rounded-xl px-3 py-2.5 border border-[#2b3642]/30 active:border-[#5c6bc0]/50 transition-all">
+            <div className="flex items-center gap-2 bg-[#080E1199] rounded-xl px-3 py-2.5 border border-[#2b3642]/30 active:border-[#5c6bc0]/50 transition-all">
               <Input
                 ref={inputRef}
                 placeholder="Message"

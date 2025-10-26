@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function LeaderboardCard() {
   const leaderboard = [
@@ -31,12 +31,21 @@ export function LeaderboardCard() {
       score: "12,834",
       avatar: "/user-profile-illustration.png",
     },
-  ]
+  ];
 
   return (
-    <Card className="bg-card border-border">
+    <Card
+      className="border-none"
+      style={{
+        background:
+          "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
+        border: "1px solid rgba(255, 255, 255, 0.08)",
+      }}
+    >
       <CardHeader>
-        <CardTitle className="text-card-foreground text-sm">Weekly Leaderboard</CardTitle>
+        <CardTitle className="text-card-foreground text-sm">
+          Weekly Leaderboard
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {leaderboard.map((player) => (
@@ -46,10 +55,10 @@ export function LeaderboardCard() {
                 player.rank === 1
                   ? "bg-veralux-yellow text-black"
                   : player.rank === 2
-                    ? "bg-muted text-muted-foreground"
-                    : player.rank === 3
-                      ? "bg-veralux-green/20 text-veralux-green"
-                      : "bg-electric-blue/20 text-electric-blue"
+                  ? "bg-muted text-muted-foreground"
+                  : player.rank === 3
+                  ? "bg-veralux-green/20 text-veralux-green"
+                  : "bg-electric-blue/20 text-electric-blue"
               }`}
             >
               {player.rank}
@@ -59,15 +68,21 @@ export function LeaderboardCard() {
               <AvatarFallback>{player.name.slice(0, 2)}</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-card-foreground truncate">{player.name}</p>
-              <p className="text-xs text-muted-foreground truncate">{player.guild}</p>
+              <p className="text-sm font-medium text-card-foreground truncate">
+                {player.name}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">
+                {player.guild}
+              </p>
             </div>
             <div className="text-right">
-              <p className="text-xs font-semibold text-veralux-yellow">{player.score}</p>
+              <p className="text-xs font-semibold text-veralux-yellow">
+                {player.score}
+              </p>
             </div>
           </div>
         ))}
       </CardContent>
     </Card>
-  )
+  );
 }

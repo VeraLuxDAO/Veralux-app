@@ -111,7 +111,12 @@ export function GameDiscoveryGrid() {
             .map((game) => (
               <Card
                 key={game.id}
-                className="bg-card border-border hover:border-veralux-yellow/50 transition-colors"
+                className="border-none hover:shadow-xl transition-all duration-300"
+                style={{
+                  background:
+                    "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                }}
               >
                 <CardContent className="p-0">
                   <div className="aspect-video bg-gradient-to-br from-veralux-yellow/20 to-veralux-green/20 rounded-t-lg flex items-center justify-center">
@@ -186,7 +191,12 @@ export function GameDiscoveryGrid() {
           {games.map((game) => (
             <Card
               key={game.id}
-              className="bg-card border-border hover:border-electric-blue/50 transition-colors"
+              className="border-none hover:shadow-xl transition-all duration-300"
+              style={{
+                background:
+                  "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+              }}
             >
               <CardContent className="p-0">
                 <div className="aspect-video bg-gradient-to-br from-electric-blue/20 to-veralux-green/20 rounded-t-lg flex items-center justify-center">
