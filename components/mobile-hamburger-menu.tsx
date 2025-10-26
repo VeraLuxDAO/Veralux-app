@@ -105,7 +105,7 @@ export function MobileHamburgerMenu({
       <div
         className={cn(
           "mobile-hamburger-menu fixed w-80 max-w-[90vw] z-40 md:hidden",
-          "bg-card border-r border-border shadow-2xl",
+          "shadow-2xl",
           "transition-all duration-500 ease-out transform-gpu",
           "will-change-transform backface-visibility-hidden",
           className
@@ -114,13 +114,22 @@ export function MobileHamburgerMenu({
           top: "64px", // Exact height of top bar
           bottom: "80px", // Exact height of bottom bar
           left: "0px",
+          background: "rgba(8, 14, 17, 0.6)",
+          borderRight: "1px solid rgba(255, 255, 255, 0.08)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
           transform: isOpen ? "translateX(0)" : "translateX(-100%)",
           willChange: "transform",
         }}
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border">
+          <div
+            className="flex items-center justify-between p-4"
+            style={{
+              borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+            }}
+          >
             <h2 className="text-lg font-semibold text-card-foreground">Menu</h2>
             <Button variant="ghost" size="sm" onClick={onClose} className="p-2">
               <X className="h-5 w-5" />

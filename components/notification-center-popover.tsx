@@ -300,7 +300,7 @@ export function NotificationCenterPopover({
         className={cn(
           "notification-center-dropdown",
           "fixed z-[60]",
-          "bg-card border border-border shadow-2xl rounded-xl",
+          "shadow-2xl",
           "transform transition-all duration-200 ease-out",
           "hidden md:block",
           "w-[420px]",
@@ -312,6 +312,11 @@ export function NotificationCenterPopover({
           top: "4.5rem",
           right: "1.5rem",
           maxHeight: "calc(100vh - 6rem)",
+          background: "rgba(8, 14, 17, 0.6)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          borderRadius: "16px",
         }}
       >
         <div className="flex flex-col h-full max-h-[calc(100vh-6rem)]">
@@ -350,45 +355,52 @@ export function NotificationCenterPopover({
               onValueChange={(v) => setActiveTab(v as any)}
               className="w-full"
             >
-              <TabsList className="w-full bg-muted/50 p-1 rounded-lg grid grid-cols-3 gap-1">
+              <TabsList
+                className="w-full grid grid-cols-3 gap-1"
+                style={{
+                  background: "rgba(229, 247, 253, 0.04)",
+                  borderRadius: "22px",
+                  padding: "4px",
+                }}
+              >
                 <TabsTrigger
                   value="personal"
-                  className="text-[11px] font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground rounded-md relative transition-all py-1.5"
+                  className="text-[13px] font-medium text-muted-foreground relative transition-all py-1.5"
+                  style={{
+                    ...(activeTab === "personal" && {
+                      background: "rgba(229, 247, 253, 0.2)",
+                      borderRadius: "18px",
+                      color: "white",
+                    }),
+                  }}
                 >
-                  <div className="flex items-center justify-center gap-1">
-                    <span>Personal</span>
-                    {unreadCountByCategory.personal > 0 && (
-                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">
-                        {unreadCountByCategory.personal}
-                      </span>
-                    )}
-                  </div>
+                  Personal
                 </TabsTrigger>
                 <TabsTrigger
                   value="social"
-                  className="text-[11px] font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground rounded-md relative transition-all py-1.5"
+                  className="text-[13px] font-medium text-muted-foreground relative transition-all py-1.5"
+                  style={{
+                    ...(activeTab === "social" && {
+                      background: "rgba(229, 247, 253, 0.2)",
+                      borderRadius: "18px",
+                      color: "white",
+                    }),
+                  }}
                 >
-                  <div className="flex items-center justify-center gap-1">
-                    <span>Social</span>
-                    {unreadCountByCategory.social > 0 && (
-                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">
-                        {unreadCountByCategory.social}
-                      </span>
-                    )}
-                  </div>
+                  Social
                 </TabsTrigger>
                 <TabsTrigger
                   value="system"
-                  className="text-[11px] font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground rounded-md relative transition-all py-1.5"
+                  className="text-[13px] font-medium text-muted-foreground relative transition-all py-1.5"
+                  style={{
+                    ...(activeTab === "system" && {
+                      background: "rgba(229, 247, 253, 0.2)",
+                      borderRadius: "18px",
+                      color: "white",
+                    }),
+                  }}
                 >
-                  <div className="flex items-center justify-center gap-1">
-                    <span>System</span>
-                    {unreadCountByCategory.system > 0 && (
-                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">
-                        {unreadCountByCategory.system}
-                      </span>
-                    )}
-                  </div>
+                  System
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -396,7 +408,7 @@ export function NotificationCenterPopover({
 
           {/* Notifications List */}
           <ScrollArea className="flex-1 overflow-hidden">
-            <div className="p-2">
+            <div className="pt-6 px-6 pb-4">
               {filteredNotifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 px-4">
                   <div className="h-12 w-12 rounded-full bg-muted/30 flex items-center justify-center mb-2">
@@ -410,7 +422,7 @@ export function NotificationCenterPopover({
                   </p>
                 </div>
               ) : (
-                <div className="space-y-0.5">
+                <div>
                   {filteredNotifications.map((notification) => {
                     const Icon = getNotificationIcon(notification.type);
                     const colorClass = getNotificationColor(notification.type);
@@ -420,11 +432,13 @@ export function NotificationCenterPopover({
                         key={notification.id}
                         onClick={() => handleNotificationClick(notification)}
                         className={cn(
-                          "w-full flex gap-2.5 px-2.5 py-2.5 rounded-lg transition-all duration-150",
-                          "hover:bg-muted/50 cursor-pointer",
-                          "group relative",
-                          !notification.isRead && "bg-muted/30"
+                          "w-full flex gap-2.5 px-2.5 py-3.5 transition-all duration-150",
+                          "hover:opacity-80 cursor-pointer",
+                          "group relative"
                         )}
+                        style={{
+                          borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+                        }}
                       >
                         {/* Avatar or Icon */}
                         <div className="flex-shrink-0 relative">
@@ -452,41 +466,31 @@ export function NotificationCenterPopover({
 
                         {/* Content */}
                         <div className="flex-1 min-w-0 text-left">
-                          <p className="text-[12px] font-medium text-foreground mb-0.5 line-clamp-1">
+                          <p
+                            className="text-[15px] font-semibold mb-1 line-clamp-1"
+                            style={{ color: "white" }}
+                          >
                             {notification.title}
                           </p>
-                          <p className="text-[11px] text-muted-foreground line-clamp-2 mb-1 leading-relaxed">
+                          <p
+                            className="text-[14px] line-clamp-2 leading-relaxed"
+                            style={{ color: "#9BB6CC" }}
+                          >
                             {notification.message}
                           </p>
-                          <span className="text-[10px] text-muted-foreground/70">
-                            {formatTime(notification.timestamp)}
-                          </span>
                         </div>
 
-                        {/* Actions (visible on hover) */}
-                        <div className="flex-shrink-0 flex items-start gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                          {!notification.isRead && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) =>
-                                handleMarkAsRead(notification.id, e)
-                              }
-                              className="h-6 w-6 p-0 hover:bg-primary/20 text-muted-foreground hover:text-primary rounded-md"
-                              title="Mark as read"
-                            >
-                              <Check className="h-3 w-3" />
-                            </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => handleDelete(notification.id, e)}
-                            className="h-6 w-6 p-0 hover:bg-destructive/20 text-muted-foreground hover:text-destructive rounded-md"
-                            title="Delete"
+                        {/* Time Badge */}
+                        <div className="flex-shrink-0 flex items-start">
+                          <span
+                            className="px-3 py-1 rounded-md text-[13px] font-medium"
+                            style={{
+                              background: "rgba(155, 182, 204, 0.1)",
+                              color: "#9BB6CC",
+                            }}
                           >
-                            <X className="h-3 w-3" />
-                          </Button>
+                            {formatTime(notification.timestamp)}
+                          </span>
                         </div>
                       </button>
                     );
@@ -498,18 +502,22 @@ export function NotificationCenterPopover({
 
           {/* Footer */}
           {filteredNotifications.length > 0 && (
-            <div className="px-3 py-2.5 border-t border-border/50 flex-shrink-0">
-              <Button
-                variant="ghost"
-                size="sm"
+            <div className="px-6 py-4 border-t border-border/50 flex-shrink-0 flex justify-center">
+              <button
                 onClick={() => {
                   router.push("/notifications");
                   onClose();
                 }}
-                className="w-full h-8 text-[11px] text-primary hover:text-primary-foreground hover:bg-primary/20 font-medium transition-all"
+                className="py-2.5 px-4 text-[13px] font-medium transition-all hover:opacity-80 flex items-center justify-center gap-2"
+                style={{
+                  background: "rgba(229, 247, 253, 0.06)",
+                  borderRadius: "10px",
+                  color: "#9BB6CC",
+                }}
               >
-                View all notifications
-              </Button>
+                <span>•••</span>
+                <span>View all Notifications</span>
+              </button>
             </div>
           )}
         </div>

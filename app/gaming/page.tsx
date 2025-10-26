@@ -44,7 +44,14 @@ export default function GamingHubPage() {
 
         {/* Gaming Stats Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          <Card className="bg-card border-border">
+          <Card
+            className="border-none"
+            style={{
+              background:
+                "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+            }}
+          >
             <CardHeader className="pb-2">
               <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                 Guild Rank
@@ -72,7 +79,14 @@ export default function GamingHubPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-border">
+          <Card
+            className="border-none"
+            style={{
+              background:
+                "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+            }}
+          >
             <CardHeader className="pb-2">
               <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                 Achievements
@@ -86,7 +100,14 @@ export default function GamingHubPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-border">
+          <Card
+            className="border-none"
+            style={{
+              background:
+                "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+            }}
+          >
             <CardHeader className="pb-2">
               <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                 Earnings
@@ -105,7 +126,13 @@ export default function GamingHubPage() {
 
         {/* Gaming Hub Tabs */}
         <Tabs defaultValue="discover" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-card border border-border max-w-full sm:max-w-lg">
+          <TabsList
+            className="grid w-full grid-cols-2 sm:grid-cols-4 max-w-full sm:max-w-lg"
+            style={{
+              background: "rgba(229, 247, 253, 0.04)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+            }}
+          >
             <TabsTrigger
               value="discover"
               className="data-[state=active]:bg-veralux-yellow data-[state=active]:text-black text-xs sm:text-sm"

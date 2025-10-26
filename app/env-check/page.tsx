@@ -24,7 +24,7 @@ export default function EnvironmentCheck() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen p-8">
       <h1 className="text-2xl font-bold mb-6">Environment Variables Check</h1>
 
       <div className="space-y-6">

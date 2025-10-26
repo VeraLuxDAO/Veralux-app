@@ -79,7 +79,7 @@ export function SuggestedConnections() {
                     <Badge
                       key={badgeIndex}
                       variant="secondary"
-                      className="px-2 py-1"
+                      className="px-2 py-1 bg-[rgba(155,182,204,0.08)] rounded-[10px]"
                       style={{ fontSize: "15px" }}
                     >
                       {badge}

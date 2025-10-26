@@ -114,7 +114,6 @@ export function MobileBottomBar({
     <nav
       className={cn(
         "mobile-bottom-bar fixed bottom-0 left-0 right-0 z-50 md:hidden",
-        "bg-card/95 backdrop-blur-md border-t border-border",
         "transition-all duration-400 ease-out transform-gpu",
         "will-change-transform backface-visibility-hidden",
         isVisible
@@ -123,6 +122,10 @@ export function MobileBottomBar({
         className
       )}
       style={{
+        background: "rgba(8, 14, 17, 0.4)",
+        borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
         willChange: "transform, opacity",
         transform: isVisible
           ? "translateY(0) translateZ(0)"

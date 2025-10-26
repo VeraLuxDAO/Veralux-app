@@ -143,7 +143,12 @@ async function createNFTListing() {
           </div>
         </div>
         <Tabs defaultValue="editor" className="space-y-6">
-          <TabsList className="bg-[#131F40] border border-gray-700">
+          <TabsList
+            style={{
+              background: "rgba(229, 247, 253, 0.04)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+            }}
+          >
             <TabsTrigger
               value="editor"
               className="data-[state=active]:bg-[#4361EE]"

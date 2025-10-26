@@ -45,10 +45,27 @@ export function TrendingTopics() {
               className={`text-xs px-2 lg:px-2.5 py-0.5 lg:py-1 flex-shrink-0 ${
                 topic.trend === "Hot"
                   ? "bg-veralux-yellow/20 text-veralux-yellow border-veralux-yellow/30"
-                  : topic.trend === "Rising"
-                  ? "bg-veralux-green/20 text-veralux-green border-veralux-green/30"
-                  : "bg-electric-blue/20 text-electric-blue border-electric-blue/30"
+                  : ""
               }`}
+              style={
+                topic.trend === "Rising"
+                  ? {
+                      color: "rgba(245, 73, 0, 1)",
+                      backgroundColor: "rgba(245, 73, 0, 0.2)",
+                      borderColor: "rgba(245, 73, 0, 0.2)",
+                      borderWidth: "1px",
+                      borderStyle: "solid",
+                    }
+                  : topic.trend === "Hot"
+                  ? undefined
+                  : {
+                      color: "rgba(0, 20, 34, 1)",
+                      backgroundColor: "rgba(155, 182, 204, 1)",
+                      borderColor: "rgba(155, 182, 204, 1)",
+                      borderWidth: "1px",
+                      borderStyle: "solid",
+                    }
+              }
             >
               {topic.trend}
             </Badge>

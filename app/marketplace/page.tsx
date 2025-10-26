@@ -46,7 +46,13 @@ export default function MarketplaceHubPage() {
 
         {/* Marketplace Tabs */}
         <Tabs defaultValue="browse" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-card border border-border max-w-full sm:max-w-lg">
+          <TabsList
+            className="grid w-full grid-cols-2 sm:grid-cols-4 max-w-full sm:max-w-lg"
+            style={{
+              background: "rgba(229, 247, 253, 0.04)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+            }}
+          >
             <TabsTrigger
               value="browse"
               className="data-[state=active]:bg-veralux-green data-[state=active]:text-white text-xs sm:text-sm"

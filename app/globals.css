@@ -46,10 +46,9 @@
   --veralux-yellow: oklch(0.8 0.15 80); /* Yellow/orange for highlights */
 
   /* Font variables */
-  --font-sans: "__GeistSans_fb8f2c", "__GeistSans_Fallback_fb8f2c", system-ui,
-    -apple-system, sans-serif;
-  --font-mono: "__GeistMono_f910ec", "__GeistMono_Fallback_f910ec",
-    "Courier New", monospace;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Courier New", Courier, monospace;
 }
 
 .dark {

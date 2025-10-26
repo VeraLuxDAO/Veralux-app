@@ -45,7 +45,7 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
           "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
       }}
     >
-      <CardContent className="p-4 sm:p-5 md:py-0.5 md:px-3">
+      <CardContent className="p-4 sm:p-5 md:py-0.5 md:px-6 md:pt-6">
         {/* Post Header */}
         <div className="flex items-start space-x-3 mb-6">
           <Avatar className="w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0">
@@ -117,7 +117,7 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
                 className="px-3 py-1 rounded-md text-sm font-medium cursor-pointer transition-colors"
                 style={{
                   backgroundColor: "rgba(31, 43, 49, 0.56)",
-                  color: "rgb(137, 167, 193)",
+                  color: "rgb(184 205 223);",
                 }}
               >
                 #{tag}

@@ -1,8 +1,6 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NavigationLayout } from "@/components/navigation-layout";
@@ -16,71 +14,33 @@ export default function HomePage() {
       className="bg-background"
       header={
         /* Social Hub Header - Between Top Nav and Main Content */
-        <div className="w-full  py-6 md:py-8">
+        <div className="w-full py-6 md:py-8 z-[60]">
           <div className="flex flex-col items-center justify-center text-center">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-3 md:mb-4">
+            <div className="fixed pointer-events-none w-full h-[919px] top-0 left-0 bg-[url(/app-background.png)] bg-cover bg-[center_top] bg-no-repeat z-[1] overflow-hidden" />
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-[rgba(233, 240, 245, 1)] mb-3 md:mb-4 z-[1]">
               Social Hub
             </h1>
             {/* Activity Stats Inline - Compact Design */}
-            <div
-              className="flex items-center justify-center flex-wrap"
-              style={{ gap: "10px" }}
-            >
-              <div
-                className="flex items-center gap-1.5 rounded-md"
-                style={{
-                  paddingTop: "2px",
-                  paddingBottom: "2px",
-                  paddingLeft: "8px",
-                  paddingRight: "8px",
-                  backgroundColor: "rgba(155, 182, 204, 0.08)",
-                }}
-              >
+            <div className="flex items-center justify-center flex-wrap gap-[10px] z-[1]">
+              <div className="flex items-center gap-1.5 rounded-md py-0.5 px-2 bg-[rgba(155,182,204,0.08)]">
                 <span className="text-base md:text-lg font-bold text-white">
                   23
                 </span>
                 <span className="text-xs md:text-sm text-gray-400">Flows</span>
               </div>
-              <div
-                className="flex items-center gap-1.5 rounded-md"
-                style={{
-                  paddingTop: "2px",
-                  paddingBottom: "2px",
-                  paddingLeft: "8px",
-                  paddingRight: "8px",
-                  backgroundColor: "rgba(155, 182, 204, 0.08)",
-                }}
-              >
+              <div className="flex items-center gap-1.5 rounded-md py-0.5 px-2 bg-[rgba(155,182,204,0.08)]">
                 <span className="text-base md:text-lg font-bold text-orange-700">
                   156
                 </span>
                 <span className="text-xs md:text-sm text-gray-400">Glows</span>
               </div>
-              <div
-                className="flex items-center gap-1.5 rounded-md"
-                style={{
-                  paddingTop: "2px",
-                  paddingBottom: "2px",
-                  paddingLeft: "8px",
-                  paddingRight: "8px",
-                  backgroundColor: "rgba(155, 182, 204, 0.08)",
-                }}
-              >
+              <div className="flex items-center gap-1.5 rounded-md py-0.5 px-2 bg-[rgba(155,182,204,0.08)]">
                 <span className="text-base md:text-lg font-bold text-teal-700">
                   0.12
                 </span>
                 <span className="text-xs md:text-sm text-gray-400">ETH</span>
               </div>
-              <div
-                className="flex items-center gap-1.5 rounded-md"
-                style={{
-                  paddingTop: "2px",
-                  paddingBottom: "2px",
-                  paddingLeft: "8px",
-                  paddingRight: "8px",
-                  backgroundColor: "rgba(155, 182, 204, 0.08)",
-                }}
-              >
+              <div className="flex items-center gap-1.5 rounded-md py-0.5 px-2 bg-[rgba(155,182,204,0.08)]">
                 <span className="text-base md:text-lg font-bold text-slate-300">
                   892
                 </span>
@@ -94,7 +54,7 @@ export default function HomePage() {
       }
     >
       {/* Content Container - Constrained width with proper margins */}
-      <div className="w-full max-w-[1600px] mx-auto">
+      <div className="w-full max-w-[1600px] mx-auto z-[1]">
         {/* Mobile: Tabs Layout */}
         <div className="block lg:hidden">
           <Tabs defaultValue="feed" className="space-y-4 sm:space-y-6">
@@ -132,13 +92,7 @@ export default function HomePage() {
                     {/* Trending Creators */}
                     <Card className="bg-transparent border-none">
                       <CardHeader className="pb-4">
-                        <CardTitle
-                          className="font-semibold"
-                          style={{
-                            color: "rgba(229, 247, 253, 0.4)",
-                            fontSize: "12px",
-                          }}
-                        >
+                        <CardTitle className="font-semibold text-[rgba(229,247,253,0.4)] text-xs">
                           Trending Creators
                         </CardTitle>
                       </CardHeader>
@@ -149,16 +103,10 @@ export default function HomePage() {
                             <AvatarFallback>VB</AvatarFallback>
                           </Avatar>
                           <div className="flex-1">
-                            <p
-                              className="font-medium text-card-foreground"
-                              style={{ fontSize: "15px" }}
-                            >
+                            <p className="font-medium text-card-foreground text-[15px]">
                               Vitalik Buterin
                             </p>
-                            <p
-                              className="text-muted-foreground mt-1"
-                              style={{ fontSize: "15px" }}
-                            >
+                            <p className="text-muted-foreground mt-1 text-[15px]">
                               Ethereum Foundation
                             </p>
                           </div>
@@ -172,16 +120,10 @@ export default function HomePage() {
                             <AvatarFallback>SM</AvatarFallback>
                           </Avatar>
                           <div className="flex-1">
-                            <p
-                              className="font-medium text-card-foreground"
-                              style={{ fontSize: "15px" }}
-                            >
+                            <p className="font-medium text-card-foreground text-[15px]">
                               Sarah Miller
                             </p>
-                            <p
-                              className="text-muted-foreground mt-1"
-                              style={{ fontSize: "15px" }}
-                            >
+                            <p className="text-muted-foreground mt-1 text-[15px]">
                               DeFi Researcher
                             </p>
                           </div>
@@ -195,16 +137,10 @@ export default function HomePage() {
                             <AvatarFallback>MC</AvatarFallback>
                           </Avatar>
                           <div className="flex-1">
-                            <p
-                              className="font-medium text-card-foreground"
-                              style={{ fontSize: "15px" }}
-                            >
+                            <p className="font-medium text-card-foreground text-[15px]">
                               Mike Chen
                             </p>
-                            <p
-                              className="text-muted-foreground mt-1"
-                              style={{ fontSize: "15px" }}
-                            >
+                            <p className="text-muted-foreground mt-1 text-[15px]">
                               Smart Contract Dev
                             </p>
                           </div>
@@ -224,13 +160,7 @@ export default function HomePage() {
                     {/* Active Rooms */}
                     <Card className="bg-transparent border-none">
                       <CardHeader className="pb-4">
-                        <CardTitle
-                          className="font-semibold"
-                          style={{
-                            color: "rgba(229, 247, 253, 0.4)",
-                            fontSize: "12px",
-                          }}
-                        >
+                        <CardTitle className="font-semibold text-[rgba(229,247,253,0.4)] text-xs">
                           Active Rooms
                         </CardTitle>
                       </CardHeader>
@@ -242,16 +172,10 @@ export default function HomePage() {
                             </span>
                           </div>
                           <div className="flex-1">
-                            <p
-                              className="font-medium text-card-foreground"
-                              style={{ fontSize: "15px" }}
-                            >
+                            <p className="font-medium text-card-foreground text-[15px]">
                               DeFi Builders
                             </p>
-                            <p
-                              className="text-muted-foreground mt-1"
-                              style={{ fontSize: "15px" }}
-                            >
+                            <p className="text-muted-foreground mt-1 text-[15px]">
                               47 online
                             </p>
                           </div>
@@ -264,16 +188,10 @@ export default function HomePage() {
                             </span>
                           </div>
                           <div className="flex-1">
-                            <p
-                              className="font-medium text-card-foreground"
-                              style={{ fontSize: "15px" }}
-                            >
+                            <p className="font-medium text-card-foreground text-[15px]">
                               Gaming Alpha
                             </p>
-                            <p
-                              className="text-muted-foreground mt-1"
-                              style={{ fontSize: "15px" }}
-                            >
+                            <p className="text-muted-foreground mt-1 text-[15px]">
                               23 online
                             </p>
                           </div>
@@ -286,16 +204,10 @@ export default function HomePage() {
                             </span>
                           </div>
                           <div className="flex-1">
-                            <p
-                              className="font-medium text-card-foreground"
-                              style={{ fontSize: "15px" }}
-                            >
+                            <p className="font-medium text-card-foreground text-[15px]">
                               NFT Collectors
                             </p>
-                            <p
-                              className="text-muted-foreground mt-1"
-                              style={{ fontSize: "15px" }}
-                            >
+                            <p className="text-muted-foreground mt-1 text-[15px]">
                               31 online
                             </p>
                           </div>
@@ -307,13 +219,7 @@ export default function HomePage() {
                     {/* Popular Communities */}
                     <Card className="bg-transparent border-none">
                       <CardHeader className="pb-4">
-                        <CardTitle
-                          className="font-semibold"
-                          style={{
-                            color: "rgba(229, 247, 253, 0.4)",
-                            fontSize: "12px",
-                          }}
-                        >
+                        <CardTitle className="font-semibold text-[rgba(229,247,253,0.4)] text-xs">
                           Popular Communities
                         </CardTitle>
                       </CardHeader>
@@ -325,31 +231,14 @@ export default function HomePage() {
                             </span>
                           </div>
                           <div className="flex-1">
-                            <p
-                              className="font-medium text-card-foreground"
-                              style={{ fontSize: "15px" }}
-                            >
+                            <p className="font-medium text-card-foreground text-[15px]">
                               DeFi Builders
                             </p>
-                            <p
-                              className="text-muted-foreground mt-1"
-                              style={{ fontSize: "15px" }}
-                            >
+                            <p className="text-muted-foreground mt-1 text-[15px]">
                               1.2k members
                             </p>
                           </div>
-                          <button
-                            className="flex items-center justify-center rounded-[10px] transition-all"
-                            style={{
-                              width: "63.88px",
-                              height: "32px",
-                              backgroundColor: "rgba(250, 222, 253, 1)",
-                              border: "1px solid rgba(0, 20, 37, 1)",
-                              fontSize: "12px",
-                              fontWeight: 500,
-                              color: "#000",
-                            }}
-                          >
+                          <button className="flex items-center justify-center rounded-[10px] transition-all w-[63.88px] h-8 bg-[#fadefe] border border-[#001425] text-xs font-medium text-black">
                             Join
                           </button>
                         </div>
@@ -360,31 +249,14 @@ export default function HomePage() {
                             </span>
                           </div>
                           <div className="flex-1">
-                            <p
-                              className="font-medium text-card-foreground"
-                              style={{ fontSize: "15px" }}
-                            >
+                            <p className="font-medium text-card-foreground text-[15px]">
                               NFT Gaming
                             </p>
-                            <p
-                              className="text-muted-foreground mt-1"
-                              style={{ fontSize: "15px" }}
-                            >
+                            <p className="text-muted-foreground mt-1 text-[15px]">
                               856 members
                             </p>
                           </div>
-                          <button
-                            className="flex items-center justify-center rounded-[10px] transition-all"
-                            style={{
-                              width: "63.88px",
-                              height: "32px",
-                              backgroundColor: "rgba(250, 222, 253, 1)",
-                              border: "1px solid rgba(0, 20, 37, 1)",
-                              fontSize: "12px",
-                              fontWeight: 500,
-                              color: "#000",
-                            }}
-                          >
+                          <button className="flex items-center justify-center rounded-[10px] transition-all w-[63.88px] h-8 bg-[#fadefe] border border-[#001425] text-xs font-medium text-black">
                             Join
                           </button>
                         </div>
@@ -397,29 +269,23 @@ export default function HomePage() {
           </Tabs>
         </div>
 
-        {/* Desktop: Equal 70px gaps on left and right */}
+        {/* Desktop: Equal 24px gaps on left and right */}
         <div className="hidden lg:block">
-          <div className="flex gap-[70px] w-full">
+          <div className="flex gap-[24px] w-full">
             {/* Left Column: Feed - Grows to fill available space */}
-            <div className="flex-1 min-w-0 max-w-full">
+            <div className="flex-1 min-w-0 max-w-full z-[1]">
               <SocialFeed />
             </div>
 
             {/* Right Column: Sidebar - Responsive width */}
-            <div className="space-y-6 w-[300px] xl:w-[340px] 2xl:w-[380px] flex-shrink-0">
+            <div className="space-y-6 w-[300px] xl:w-[340px] 2xl:w-[380px] flex-shrink-0 z-[1]">
               {/* Trending Topics */}
               <TrendingTopics />
 
               {/* Trending Creators */}
               <Card className="bg-transparent border-none">
                 <CardHeader className="pb-4">
-                  <CardTitle
-                    className="font-semibold"
-                    style={{
-                      color: "rgba(229, 247, 253, 0.4)",
-                      fontSize: "12px",
-                    }}
-                  >
+                  <CardTitle className="font-semibold text-[rgba(229,247,253,0.4)] text-xs">
                     Trending Creators
                   </CardTitle>
                 </CardHeader>
@@ -430,16 +296,10 @@ export default function HomePage() {
                       <AvatarFallback>VB</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <p
-                        className="font-medium text-card-foreground truncate"
-                        style={{ fontSize: "15px" }}
-                      >
+                      <p className="font-medium text-card-foreground truncate text-[15px]">
                         Vitalik Buterin
                       </p>
-                      <p
-                        className="text-muted-foreground truncate mt-1"
-                        style={{ fontSize: "15px" }}
-                      >
+                      <p className="text-muted-foreground truncate mt-1 text-[15px]">
                         Ethereum Foundation
                       </p>
                     </div>
@@ -453,16 +313,10 @@ export default function HomePage() {
                       <AvatarFallback>SM</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <p
-                        className="font-medium text-card-foreground truncate"
-                        style={{ fontSize: "15px" }}
-                      >
+                      <p className="font-medium text-card-foreground truncate text-[15px]">
                         Sarah Miller
                       </p>
-                      <p
-                        className="text-muted-foreground truncate mt-1"
-                        style={{ fontSize: "15px" }}
-                      >
+                      <p className="text-muted-foreground truncate mt-1 text-[15px]">
                         DeFi Researcher
                       </p>
                     </div>
@@ -479,13 +333,7 @@ export default function HomePage() {
               {/* Active Rooms */}
               <Card className="bg-transparent border-none">
                 <CardHeader className="pb-4">
-                  <CardTitle
-                    className="font-semibold"
-                    style={{
-                      color: "rgba(229, 247, 253, 0.4)",
-                      fontSize: "12px",
-                    }}
-                  >
+                  <CardTitle className="font-semibold text-[rgba(229,247,253,0.4)] text-xs">
                     Active Rooms
                   </CardTitle>
                 </CardHeader>
@@ -495,16 +343,10 @@ export default function HomePage() {
                       <span className="text-electric-blue text-sm">🔒</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p
-                        className="font-medium text-card-foreground truncate"
-                        style={{ fontSize: "15px" }}
-                      >
+                      <p className="font-medium text-card-foreground truncate text-[15px]">
                         DeFi Builders
                       </p>
-                      <p
-                        className="text-muted-foreground mt-1"
-                        style={{ fontSize: "15px" }}
-                      >
+                      <p className="text-muted-foreground mt-1 text-[15px]">
                         47 online
                       </p>
                     </div>
@@ -515,16 +357,10 @@ export default function HomePage() {
                       <span className="text-veralux-yellow text-sm">🎮</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p
-                        className="font-medium text-card-foreground truncate"
-                        style={{ fontSize: "15px" }}
-                      >
+                      <p className="font-medium text-card-foreground truncate text-[15px]">
                         Gaming Alpha
                       </p>
-                      <p
-                        className="text-muted-foreground mt-1"
-                        style={{ fontSize: "15px" }}
-                      >
+                      <p className="text-muted-foreground mt-1 text-[15px]">
                         23 online
                       </p>
                     </div>
@@ -535,16 +371,10 @@ export default function HomePage() {
                       <span className="text-veralux-green text-sm">💎</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p
-                        className="font-medium text-card-foreground truncate"
-                        style={{ fontSize: "15px" }}
-                      >
+                      <p className="font-medium text-card-foreground truncate text-[15px]">
                         NFT Collectors
                       </p>
-                      <p
-                        className="text-muted-foreground mt-1"
-                        style={{ fontSize: "15px" }}
-                      >
+                      <p className="text-muted-foreground mt-1 text-[15px]">
                         31 online
                       </p>
                     </div>
@@ -556,13 +386,7 @@ export default function HomePage() {
               {/* Popular Communities */}
               <Card className="bg-transparent border-none">
                 <CardHeader className="pb-4">
-                  <CardTitle
-                    className="font-semibold"
-                    style={{
-                      color: "rgba(229, 247, 253, 0.4)",
-                      fontSize: "12px",
-                    }}
-                  >
+                  <CardTitle className="font-semibold text-[rgba(229,247,253,0.4)] text-xs">
                     Popular Communities
                   </CardTitle>
                 </CardHeader>
@@ -572,31 +396,14 @@ export default function HomePage() {
                       <span className="text-electric-blue text-sm">🏗️</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p
-                        className="font-medium text-card-foreground truncate"
-                        style={{ fontSize: "15px" }}
-                      >
+                      <p className="font-medium text-card-foreground truncate text-[15px]">
                         DeFi Builders
                       </p>
-                      <p
-                        className="text-muted-foreground mt-1"
-                        style={{ fontSize: "15px" }}
-                      >
+                      <p className="text-muted-foreground mt-1 text-[15px]">
                         1.2k members
                       </p>
                     </div>
-                    <button
-                      className="flex items-center justify-center rounded-[10px] transition-all flex-shrink-0"
-                      style={{
-                        width: "63.88px",
-                        height: "32px",
-                        backgroundColor: "rgba(250, 222, 253, 1)",
-                        border: "1px solid rgba(0, 20, 37, 1)",
-                        fontSize: "12px",
-                        fontWeight: 500,
-                        color: "#000",
-                      }}
-                    >
+                    <button className="flex items-center justify-center rounded-[10px] transition-all flex-shrink-0 w-[63.88px] h-8 bg-[#fadefe] border border-[#001425] text-xs font-medium text-black">
                       Join
                     </button>
                   </div>
@@ -605,31 +412,14 @@ export default function HomePage() {
                       <span className="text-veralux-yellow text-sm">🎮</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p
-                        className="font-medium text-card-foreground truncate"
-                        style={{ fontSize: "15px" }}
-                      >
+                      <p className="font-medium text-card-foreground truncate text-[15px]">
                         NFT Gaming
                       </p>
-                      <p
-                        className="text-muted-foreground mt-1"
-                        style={{ fontSize: "15px" }}
-                      >
+                      <p className="text-muted-foreground mt-1 text-[15px]">
                         856 members
                       </p>
                     </div>
-                    <button
-                      className="flex items-center justify-center rounded-[10px] transition-all flex-shrink-0"
-                      style={{
-                        width: "63.88px",
-                        height: "32px",
-                        backgroundColor: "rgba(250, 222, 253, 1)",
-                        border: "1px solid rgba(0, 20, 37, 1)",
-                        fontSize: "12px",
-                        fontWeight: 500,
-                        color: "#000",
-                      }}
-                    >
+                    <button className="flex items-center justify-center rounded-[10px] transition-all flex-shrink-0 w-[63.88px] h-8 bg-[#fadefe] border border-[#001425] text-xs font-medium text-black">
                       Join
                     </button>
                   </div>

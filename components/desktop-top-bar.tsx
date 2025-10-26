@@ -10,7 +10,8 @@ import {
   Search,
   Bell,
   MessageCircle,
-  UserCircle,
+  Users,
+  Headphones,
   Gamepad2,
   Wrench,
   ShoppingCart,
@@ -32,6 +33,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
   const [isRoomsPanelOpen, setIsRoomsPanelOpen] = useState(false);
   const [isNotificationsPanelOpen, setIsNotificationsPanelOpen] =
     useState(false);
+  const [isConnectionsPanelOpen, setIsConnectionsPanelOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -93,7 +95,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
   }, [isSearchExpanded]);
 
   const navItems = [
-    { icon: UserCircle, label: "Connect", path: "/" },
+    { icon: Headphones, label: "Connect", path: "/" },
     { icon: Gamepad2, label: "Play", path: "/gaming" },
     { icon: Wrench, label: "Build", path: "/dev" },
     { icon: ShoppingCart, label: "Trade", path: "/marketplace" },
@@ -111,7 +113,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
       >
         <div className="flex items-center justify-center px-8 pt-4 pb-3.5 relative">
           {/* Center - Navigation Pills with Icons - Centered ignoring sidebar */}
-          <nav className="flex items-center gap-8 bg-[#080E11]/40 border border-white/[0.08] rounded-full p-3 backdrop-blur-[20px] h-[60px]">
+          <nav className="flex items-center gap-8 bg-[#080E11]/40 border border-white/[0.08] rounded-[24px] p-3 backdrop-blur-[40px] h-[60px]">
             {navItems.map((item) => {
               const isActive = pathname === item.path;
               return (
@@ -121,11 +123,16 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                   size="sm"
                   onClick={() => router.push(item.path)}
                   className={cn(
-                    "flex items-center gap-2 rounded-full px-4 py-2 transition-all duration-200 font-medium text-sm h-9",
+                    "flex items-center gap-2 rounded-[12px] px-4 py-2 transition-all duration-200 font-medium text-sm h-9",
                     isActive
                       ? "bg-white/10 text-foreground"
-                      : "hover:bg-white/10 text-muted-foreground hover:text-foreground"
+                      : "hover:bg-white/10 hover:text-foreground"
                   )}
+                  style={
+                    !isActive
+                      ? { color: "rgba(230, 253, 229, 0.6)" }
+                      : undefined
+                  }
                 >
                   <item.icon className="h-4 w-4" />
                   <span>{item.label}</span>
@@ -134,13 +141,13 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
             })}
           </nav>
 
-          {/* Right Side - Actions Container - Aligned with sidebar at 70px from edge */}
-          <div className="fixed right-[70px]" id="search-container">
+          {/* Right Side - Actions Container - Aligned with sidebar at 24px from edge */}
+          <div className="fixed right-[24px]" id="search-container">
             {auth.isAuthenticated ? (
               /* Authenticated State */
               isSearchExpanded ? (
                 /* Search Expanded - Full width container */
-                <div className="flex items-center p-3 gap-6 w-[502px] h-[60px] bg-[#080E11]/90 border border-[#E5F7FD]/20 backdrop-blur-[20px] rounded-[20px] transition-all duration-300 ease-in-out animate-in fade-in zoom-in-95">
+                <div className="flex items-center p-3 gap-6 w-[502px] h-[60px] bg-[rgba(8,14,17,0.4)] border border-[#E5F7FD]/20 backdrop-blur-[20px] rounded-[20px] transition-all duration-300 ease-in-out animate-in fade-in zoom-in-95">
                   {/* Search Input */}
                   <div className="relative flex-1 animate-in fade-in slide-in-from-left-4 duration-300">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
@@ -184,6 +191,16 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     </Badge>
                   </button>
 
+                  {/* Connections Button */}
+                  <button
+                    onClick={() =>
+                      setIsConnectionsPanelOpen(!isConnectionsPanelOpen)
+                    }
+                    className="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/5 transition-colors"
+                  >
+                    <Users className="h-5 w-5 text-white" />
+                  </button>
+
                   {/* Messages Button */}
                   <button
                     onClick={() => setIsRoomsPanelOpen(!isRoomsPanelOpen)}
@@ -221,7 +238,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                 </div>
               ) : (
                 /* Search Collapsed - Compact container */
-                <div className="flex items-center p-3 gap-6 w-[246px] h-[60px] bg-[#080E11]/90 border border-[#E5F7FD]/20 backdrop-blur-[20px] rounded-[20px] transition-all duration-300 ease-in-out animate-in fade-in zoom-in-95">
+                <div className="flex flex-row justify-center items-center p-3 gap-5 h-[60px] bg-[rgba(8,14,17,0.4)] border border-[rgba(255,255,255,0.08)] rounded-[24px] backdrop-blur-[20px] flex-none">
                   {/* Search Icon Button */}
                   <button
                     id="search-button"
@@ -259,6 +276,16 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     >
                       3
                     </Badge>
+                  </button>
+
+                  {/* Connections Button */}
+                  <button
+                    onClick={() =>
+                      setIsConnectionsPanelOpen(!isConnectionsPanelOpen)
+                    }
+                    className="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/5 transition-colors"
+                  >
+                    <Users className="h-5 w-5 text-white" />
                   </button>
 
                   {/* Messages Button */}
@@ -325,21 +352,42 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
               </div>
             ) : (
               /* Search Collapsed - Compact container */
-              <div className="flex items-center justify-evenly p-3 gap-6 w-[186px] h-[60px] bg-[#080E11]/90 border border-[#E5F7FD]/20 backdrop-blur-[20px] rounded-[20px] transition-all duration-300 ease-in-out animate-in fade-in zoom-in-95">
+              <div
+                className="flex items-center px-4 py-3 h-[60px] transition-all duration-300 ease-in-out"
+                style={{
+                  background: "rgba(8, 14, 17, 0.4)",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
+                  borderRadius: "18px",
+                }}
+              >
                 {/* Search Icon Button */}
                 <button
                   id="search-button"
                   onClick={handleSearchIconClick}
-                  className="flex items-center justify-center w-6 h-6 text-gray-400 hover:text-white transition-colors"
+                  className="flex items-center justify-center w-10 h-10 rounded-xl text-gray-400 hover:text-white hover:bg-[rgba(255,255,255,0.05)] transition-all"
                 >
                   <Search className="h-5 w-5" />
                 </button>
+
+                {/* Space: 26px */}
+                <div style={{ width: "26px" }} />
+
+                {/* Vertical Divider */}
+                <div className="h-8 w-px bg-[rgba(255,255,255,0.2)]" />
+
+                {/* Space: 24px */}
+                <div style={{ width: "24px" }} />
 
                 {/* Sign In Button */}
                 <button
                   onClick={auth.signInWithGoogle}
                   disabled={auth.isLoading}
-                  className="flex items-center justify-center px-[18px] py-2.5 gap-2.5 w-[82px] h-8 bg-white text-black font-medium text-sm rounded-2xl shadow-[0px_12px_5px_rgba(255,255,255,0.01),0px_7px_4px_rgba(255,255,255,0.05),0px_3px_3px_rgba(255,255,255,0.09),0px_1px_2px_rgba(255,255,255,0.1)] hover:bg-white/90 transition-all disabled:opacity-50"
+                  className="flex items-center justify-center px-6 py-2.5 h-10 bg-white text-black font-semibold text-[15px] rounded-[20px] transition-all disabled:opacity-50 hover:shadow-lg"
+                  style={{
+                    boxShadow: "0px 4px 12px rgba(255, 255, 255, 0.25)",
+                  }}
                 >
                   {auth.isLoading ? "..." : "Sign In"}
                 </button>

@@ -109,21 +109,8 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
     >
       <div className="flex flex-col h-full py-6 px-4 gap-8">
         {/* Logo Section */}
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
-            <svg
-              className="w-6 h-6 text-white"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M8 4L4 8L8 12L12 8L8 4Z" />
-              <path d="M16 4L12 8L16 12L20 8L16 4Z" />
-              <path d="M12 10L8 14L12 18L16 14L12 10Z" />
-            </svg>
-          </div>
-          <span className="text-base font-bold text-white tracking-tight">
-            YNX
-          </span>
+        <div className="flex items-center justify-start">
+          <img src="/Mark.png" alt="YNX" className="w-[87px] object-contain" />
         </div>
 
         {/* Connections Section */}
@@ -158,14 +145,18 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
                 </div>
               </button>
             ))}
-            <button
-              onClick={() => handleNavigation("/connections")}
-              className="w-full flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white/5 transition-colors text-gray-400 hover:text-white"
-            >
-              <MoreHorizontal className="h-3.5 w-3.5" />
-              <span className="text-xs">See more</span>
-              <Users className="h-3.5 w-3.5" />
-            </button>
+            <div className="flex gap-2 justify-between">
+              <button
+                onClick={() => handleNavigation("/connections")}
+                className="flex items-center px-2.5 py-1.5 gap-2 w-[95.89px] h-[28px] bg-[rgba(229,247,253,0.06)] rounded-[10px]"
+              >
+                <MoreHorizontal className="h-3.5 w-3.5" />
+                <span className="text-xs">See more</span>
+              </button>
+              <button className="flex justify-center items-center p-1 gap-[10px] w-[28px] h-[28px] bg-[rgba(229,247,253,0.08)] rounded-full">
+                <Users className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -199,14 +190,18 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
                 </div>
               </button>
             ))}
-            <button
-              onClick={() => setIsCirclesModalOpen(true)}
-              className="w-full flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-white/5 transition-colors text-gray-400 hover:text-white"
-            >
-              <MoreHorizontal className="h-3.5 w-3.5" />
-              <span className="text-xs">See more</span>
-              <Users className="h-3.5 w-3.5" />
-            </button>
+            <div className="flex gap-2 justify-between">
+              <button
+                onClick={() => setIsCirclesModalOpen(true)}
+                className="flex items-center px-2.5 py-1.5 gap-2 w-[95.89px] h-[28px] bg-[rgba(229,247,253,0.06)] rounded-[10px]"
+              >
+                <MoreHorizontal className="h-3.5 w-3.5" />
+                <span className="text-xs">See more</span>
+              </button>
+              <button className="flex justify-center items-center p-1 gap-[10px] w-[28px] h-[28px] bg-[rgba(229,247,253,0.08)] rounded-full">
+                <Users className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
