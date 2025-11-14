@@ -14,14 +14,14 @@ export default function HomePage() {
       className="bg-background"
       header={
         /* Social Hub Header - Between Top Nav and Main Content */
-        <div className="w-full py-6 md:py-8 z-[60]">
-          <div className="flex flex-col items-center justify-center text-center">
-            <div className="fixed pointer-events-none w-full h-[919px] top-0 left-0 bg-[url(/app-background.png)] bg-cover bg-[center_top] bg-no-repeat z-[1] overflow-hidden" />
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-[rgba(233, 240, 245, 1)] mb-3 md:mb-4 z-[1]">
+        <div className="relative w-full py-6 md:py-8 z-[60]">
+          <div className="relative flex flex-col items-center justify-center text-center">
+            <div className="absolute pointer-events-none w-full h-[919px] top-0 left-0 bg-[url(/app-background.png)] bg-cover bg-[center_top] bg-no-repeat z-0 overflow-hidden" />
+            <h1 className="relative text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-[rgba(233, 240, 245, 1)] mb-3 md:mb-4 z-10">
               Social Hub
             </h1>
             {/* Activity Stats Inline - Compact Design */}
-            <div className="flex items-center justify-center flex-wrap gap-[10px] z-[1]">
+            <div className="relative flex items-center justify-center flex-wrap gap-[10px] z-10">
               <div className="flex items-center gap-1.5 rounded-md py-0.5 px-2 bg-[rgba(155,182,204,0.08)]">
                 <span className="text-base md:text-lg font-bold text-white">
                   23

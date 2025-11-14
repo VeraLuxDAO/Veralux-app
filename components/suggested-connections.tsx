@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { CirclePlus } from "lucide-react";
 
 export function SuggestedConnections() {
   const suggestions = [
@@ -93,13 +94,14 @@ export function SuggestedConnections() {
                   {person.mutualConnections} mutual connections
                 </p>
                 <button
-                  className="w-full h-8 flex items-center justify-center gap-2 px-4 py-1 rounded-xl transition-colors"
+                  className="w-full h-8 flex items-center justify-center gap-2 px-4 py-1 rounded-full transition-colors hover:bg-opacity-80"
                   style={{
                     fontSize: "15px",
                     backgroundColor: "rgba(155, 182, 204, 0.06)",
                     border: "1px solid rgba(155, 182, 204, 0.1)",
                   }}
                 >
+                  <CirclePlus className="w-4 h-4" />
                   Connect
                 </button>
               </div>

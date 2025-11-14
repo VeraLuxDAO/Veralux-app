@@ -58,7 +58,7 @@ export function NavigationLayout({
       {header && (
         <div
           className={cn(
-            "transition-all duration-300",
+            "relative transition-all duration-300",
             // Mobile spacing
             "pt-0 md:pt-[135px]"
             // No left/right margins - spans full width
