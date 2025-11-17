@@ -35,35 +35,41 @@ export default function HomePage() {
               >
                 Social Hub
               </h1>
-              {/* Activity Stats Inline - Compact Design */}
-              <div className="relative flex items-center justify-center flex-wrap gap-[10px] z-10 mt-0">
-              <div className="flex items-center gap-1.5 rounded-md py-0.5 px-2 bg-[rgba(155,182,204,0.08)]">
-                <span className="text-base md:text-lg font-bold text-white">
-                  23
-                </span>
-                <span className="text-xs md:text-sm text-gray-400">Flows</span>
+              {/* Activity Stats Inline - single row, responsive sizing */}
+              <div className="relative flex items-center justify-center flex-nowrap gap-[10px] max-[420px]:gap-2 z-10 mt-0 px-3">
+                <div className="flex items-center gap-1.5 rounded-md py-0.5 px-2 max-[390px]:px-1.5 bg-[rgba(155,182,204,0.08)]">
+                  <span className="text-[13px] max-[390px]:text-[12px] md:text-lg font-bold text-white">
+                    23
+                  </span>
+                  <span className="text-[11px] max-[390px]:text-[10px] md:text-sm text-gray-400">
+                    Flows
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 rounded-md py-0.5 px-2 max-[390px]:px-1.5 bg-[rgba(155,182,204,0.08)]">
+                  <span className="text-[13px] max-[390px]:text-[12px] md:text-lg font-bold text-orange-700">
+                    156
+                  </span>
+                  <span className="text-[11px] max-[390px]:text-[10px] md:text-sm text-gray-400">
+                    Glows
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 rounded-md py-0.5 px-2 max-[390px]:px-1.5 bg-[rgba(155,182,204,0.08)]">
+                  <span className="text-[13px] max-[390px]:text-[12px] md:text-lg font-bold text-teal-700">
+                    0.12
+                  </span>
+                  <span className="text-[11px] max-[390px]:text-[10px] md:text-sm text-gray-400">
+                    ETH
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 rounded-md py-0.5 px-2 max-[390px]:px-1.5 bg-[rgba(155,182,204,0.08)]">
+                  <span className="text-[13px] max-[390px]:text-[12px] md:text-lg font-bold text-slate-300">
+                    892
+                  </span>
+                  <span className="text-[11px] max-[390px]:text-[10px] md:text-sm text-gray-400">
+                    Connect
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5 rounded-md py-0.5 px-2 bg-[rgba(155,182,204,0.08)]">
-                <span className="text-base md:text-lg font-bold text-orange-700">
-                  156
-                </span>
-                <span className="text-xs md:text-sm text-gray-400">Glows</span>
-              </div>
-              <div className="flex items-center gap-1.5 rounded-md py-0.5 px-2 bg-[rgba(155,182,204,0.08)]">
-                <span className="text-base md:text-lg font-bold text-teal-700">
-                  0.12
-                </span>
-                <span className="text-xs md:text-sm text-gray-400">ETH</span>
-              </div>
-              <div className="flex items-center gap-1.5 rounded-md py-0.5 px-2 bg-[rgba(155,182,204,0.08)]">
-                <span className="text-base md:text-lg font-bold text-slate-300">
-                  892
-                </span>
-                <span className="text-xs md:text-sm text-gray-400">
-                  Connect
-                </span>
-              </div>
-            </div>
           </div>
         </div>
       }

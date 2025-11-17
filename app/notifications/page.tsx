@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import {
   ArrowLeft,
   Bell,
@@ -269,50 +270,21 @@ export default function NotificationsPage() {
     <>
       {/* Mobile Full-Page View */}
       <div className="md:hidden min-h-screen">
-        {/* Fixed Mobile Header - Matches Screenshot */}
+        {/* Fixed Mobile Header */}
         <div
           className="fixed top-0 left-0 right-0 z-50 shadow-sm"
           style={{
             background: "rgba(8, 14, 17, 0.4)",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
           }}
         >
-          <div className="px-4 pt-3 pb-2">
-            {/* Top Row: Back Button, Title, Mark All */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => router.back()}
-                  className="h-9 w-9 p-0 -ml-2 hover:bg-muted transition-colors"
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
-                <div>
-                  <h1 className="text-base font-semibold text-foreground">
-                    Notifications
-                  </h1>
-                  {unreadCount > 0 && (
-                    <p className="text-[11px] text-muted-foreground">
-                      ● {unreadCount} new notification
-                      {unreadCount !== 1 ? "s" : ""}
-                    </p>
-                  )}
-                </div>
-              </div>
-              {unreadCount > 0 && (
-                <Button
-                  variant="link"
-                  size="sm"
-                  onClick={handleMarkAllAsRead}
-                  className="text-sm text-primary hover:text-primary/80 h-auto p-0 font-normal"
-                >
-                  Mark all
-                </Button>
-              )}
+          <div className="px-4 pt-4 pb-2">
+            {/* Top Row: Title only (no back arrow on mobile) */}
+            <div className="flex items-center mb-3">
+              <h1 className="text-base font-semibold text-foreground">
+                Notifications
+              </h1>
             </div>
 
             {/* Tabs Row - Three-section pill, matching sample design */}
@@ -377,7 +349,7 @@ export default function NotificationsPage() {
         <div className="h-[108px]" />
 
         {/* Mobile Notifications List - Match compact card design */}
-        <div className="px-3 py-4">
+        <div>
           {filteredNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20">
               <div className="relative mb-6">
@@ -397,7 +369,7 @@ export default function NotificationsPage() {
               </p>
             </div>
           ) : (
-            <div className="space-y-1.5">
+            <div>
               {filteredNotifications.map((notification) => {
                 const Icon = getNotificationIcon(notification.type);
                 const colorClass = getNotificationColor(notification.type);
@@ -407,23 +379,40 @@ export default function NotificationsPage() {
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
                     className={cn(
-                      "w-full flex items-start gap-3 px-3 py-3 rounded-2xl transition-all duration-150",
+                      // 12px top & bottom margin (mt-3, mb-3) => 24px space between notifications
+                      "w-full flex items-start gap-3 px-6 py-2 rounded-2xl transition-all duration-150 my-3",
                       "hover:bg-white/5 cursor-pointer active:scale-[0.98]",
-                      "group relative",
-                      !notification.isRead
-                        ? "bg-[rgba(8,14,17,0.9)] border border-white/10"
-                        : "bg-[rgba(8,14,17,0.7)] border border-white/5"
+                      "group relative"
                     )}
+                    style={{
+                      borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                    }}
                   >
                     {/* Avatar or Icon */}
                     <div className="flex-shrink-0 relative mt-0.5">
                       {notification.avatar ? (
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={notification.avatar} />
-                          <AvatarFallback className="bg-gradient-to-br from-muted to-muted/50 text-foreground text-xs">
-                            {notification.metadata?.userName?.[0] || "U"}
-                          </AvatarFallback>
-                        </Avatar>
+                        <>
+                          <Avatar className="h-9 w-9">
+                            <AvatarImage src={notification.avatar} />
+                            <AvatarFallback className="bg-gradient-to-br from-muted to-muted/50 text-foreground text-xs">
+                              {notification.metadata?.userName?.[0] || "U"}
+                            </AvatarFallback>
+                          </Avatar>
+
+                          {/* Small badge overlay at bottom-left of avatar */}
+                          <div
+                            className="absolute left-0 bottom-0 flex items-center justify-center"
+                            style={{
+                              width: "17px",
+                              height: "17px",
+                              background: "#101117",
+                              borderRadius: "100px",
+                              color: "#FADEFD",
+                            }}
+                          >
+                            <Icon className="h-3 w-3" />
+                          </div>
+                        </>
                       ) : (
                         <div
                           className={cn(
@@ -441,10 +430,10 @@ export default function NotificationsPage() {
 
                     {/* Content */}
                     <div className="flex-1 min-w-0 text-left flex flex-col gap-1">
-                      <p className="text-[13px] font-semibold text-white line-clamp-1 leading-tight">
+                      <p className="text-[13px] font-semibold text-white leading-tight truncate max-w-full whitespace-nowrap">
                         {notification.title}
                       </p>
-                      <p className="text-[12px] text-[#9BB6CC] line-clamp-2 leading-relaxed">
+                      <p className="text-[12px] text-[#9BB6CC] leading-relaxed truncate max-w-full whitespace-nowrap">
                         {notification.message}
                       </p>
                     </div>
@@ -468,8 +457,11 @@ export default function NotificationsPage() {
           )}
         </div>
 
-        {/* Mobile Bottom Spacing */}
-        <div className="h-8" />
+        {/* Mobile Bottom Spacing so content doesn't sit under bottom bar */}
+        <div className="h-[120px]" />
+
+        {/* Mobile Bottom Navigation - same as Social Hub */}
+        <MobileBottomBar />
       </div>
 
       {/* Desktop View with NavigationLayout */}

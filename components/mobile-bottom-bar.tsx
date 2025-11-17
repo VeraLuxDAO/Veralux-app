@@ -119,10 +119,8 @@ export function MobileBottomBar({
               size="sm"
               onClick={() => handleNavigation(item.path, item.action || undefined)}
               className={cn(
-                // Layout: flex column, centered, fixed size 56x53 on wider mobiles
-                "flex flex-col items-center justify-center gap-1 p-0 w-14 h-[53px] flex-none order-0 grow-0",
-                // Below 440px, let buttons flex so all 5 fit responsively
-                "max-[440px]:w-auto max-[440px]:flex-1 max-[440px]:grow",
+                // Layout: flex column, centered; flex-1 so buttons redistribute on any width
+                "flex flex-col items-center justify-center gap-1 p-0 h-[53px] flex-1 order-0 grow min-w-[48px] max-w-[72px]",
                 "transition-all duration-300 cursor-pointer",
                 isActive
                   ? "text-white"
