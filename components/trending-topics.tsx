@@ -11,8 +11,8 @@ export function TrendingTopics() {
   ];
 
   return (
-    <Card className="bg-transparent border-none">
-      <CardHeader className="pb-4">
+    <Card className="bg-transparent border-none py-0 md:py-6">
+      <CardHeader className="pb-2 md:pb-4 px-0 md:px-3">
         <CardTitle
           className="font-semibold"
           style={{ color: "rgba(229, 247, 253, 0.4)", fontSize: "12px" }}
@@ -20,11 +20,11 @@ export function TrendingTopics() {
           Trending Topics
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-[10px] md:space-y-4 px-0 pt-0">
         {trendingTopics.map((topic, index) => (
           <div
             key={index}
-            className="flex items-center justify-between hover:bg-muted/50 p-3 rounded cursor-pointer transition-colors"
+            className="flex items-center justify-between hover:bg-muted/50 md:px-3 rounded cursor-pointer transition-colors mb-[18px]"
           >
             <div className="flex-1 min-w-0">
               <p
@@ -34,8 +34,8 @@ export function TrendingTopics() {
                 {topic.tag}
               </p>
               <p
-                className="text-muted-foreground mt-1"
-                style={{ fontSize: "15px" }}
+                className="mt-1"
+                style={{ fontSize: "15px", color: "#9BB6CC" }}
               >
                 {topic.posts} flows
               </p>

@@ -58,7 +58,7 @@ export function NavigationLayout({
       {header && (
         <div
           className={cn(
-            "transition-all duration-300",
+            "relative transition-all duration-300",
             // Mobile spacing
             "pt-0 md:pt-[135px]"
             // No left/right margins - spans full width
@@ -73,11 +73,13 @@ export function NavigationLayout({
         className={cn(
           "transition-all duration-300",
           // Mobile spacing
-          "pb-20 md:pb-0",
+          // No extra bottom padding so content can slide fully under the mobile
+          // bottom bar, making the glass/blur effect clearly visible.
+          "pb-0 md:pb-0",
           // Responsive left margins: 14px edge + Sidebar width + 24px gap
-          "md:ml-[218px]", // md: 14 + 180 + 24
-          "lg:ml-[238px]", // lg: 14 + 200 + 24
-          "xl:ml-[268px]", // xl: 14 + 230 + 24
+          "md:ml-[238px]", // md: 14 + 200 + 24
+          "lg:ml-[258px]", // lg: 14 + 220 + 24
+          "xl:ml-[288px]", // xl: 14 + 250 + 24
           // Desktop: Right margin = 24px (equal to left gap)
           "md:mr-[24px]",
           // Gap between header and main content - FIXED

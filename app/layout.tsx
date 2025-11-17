@@ -11,6 +11,14 @@ export const metadata: Metadata = {
   description:
     "The integrated dApp for authentic digital identity, reputation, and community engagement in Web3",
   generator: "v0.app",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+  },
+  other: {
+    "font-geist": "https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&display=swap",
+  },
 };
 
 export default function RootLayout({
@@ -20,12 +28,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <body suppressHydrationWarning>
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&display=swap"
+          rel="stylesheet"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body suppressHydrationWarning style={{ backgroundColor: "#080E11" }}>
         {/* Background Image - Fixed positioned at top */}
 
         <div
-          style={{ position: "relative", zIndex: 10 }}
-          className="bg-background"
+          style={{ position: "relative" }}
+          className="bg-transparent min-h-screen"
         >
           <ThemeProvider
             attribute="class"

@@ -408,7 +408,7 @@ export function NotificationCenterPopover({
 
           {/* Notifications List */}
           <ScrollArea className="flex-1 overflow-hidden">
-            <div className="pt-6 px-6 pb-4">
+            <div className="pt-4 px-5 pb-4">
               {filteredNotifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 px-4">
                   <div className="h-12 w-12 rounded-full bg-muted/30 flex items-center justify-center mb-2">
@@ -432,18 +432,18 @@ export function NotificationCenterPopover({
                         key={notification.id}
                         onClick={() => handleNotificationClick(notification)}
                         className={cn(
-                          "w-full flex gap-2.5 px-2.5 py-3.5 transition-all duration-150",
-                          "hover:opacity-80 cursor-pointer",
+                          "w-full flex items-start gap-3 px-0 py-4 transition-all duration-150",
+                          "hover:opacity-90 cursor-pointer",
                           "group relative"
                         )}
                         style={{
-                          borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+                          borderBottom: "1px solid rgba(255, 255, 255, 0.06)",
                         }}
                       >
                         {/* Avatar or Icon */}
-                        <div className="flex-shrink-0 relative">
+                        <div className="flex-shrink-0 relative mt-0.5">
                           {notification.avatar ? (
-                            <Avatar className="h-9 w-9">
+                            <Avatar className="h-10 w-10">
                               <AvatarImage src={notification.avatar} />
                               <AvatarFallback className="bg-gradient-to-br from-muted to-muted/50 text-foreground text-xs">
                                 {notification.metadata?.userName?.[0] || "U"}
@@ -452,41 +452,49 @@ export function NotificationCenterPopover({
                           ) : (
                             <div
                               className={cn(
-                                "h-9 w-9 rounded-full flex items-center justify-center",
+                                "h-10 w-10 rounded-full flex items-center justify-center",
                                 colorClass
                               )}
                             >
-                              <Icon className="h-4 w-4" />
+                              <Icon className="h-5 w-5" />
                             </div>
                           )}
                           {!notification.isRead && (
-                            <div className="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full border border-card" />
+                            <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-blue-500 rounded-full border-2 border-[#080E11]" />
                           )}
                         </div>
 
-                        {/* Content */}
-                        <div className="flex-1 min-w-0 text-left">
+                        {/* Content - Middle Section */}
+                        <div className="flex-1 min-w-0 text-left flex flex-col gap-1">
                           <p
-                            className="text-[15px] font-semibold mb-1 line-clamp-1"
-                            style={{ color: "white" }}
+                            className="text-[15px] font-semibold line-clamp-1"
+                            style={{ 
+                              color: "#FFFFFF",
+                              fontFamily: "'Geist'",
+                              fontWeight: 600,
+                            }}
                           >
                             {notification.title}
                           </p>
                           <p
                             className="text-[14px] line-clamp-2 leading-relaxed"
-                            style={{ color: "#9BB6CC" }}
+                            style={{ 
+                              color: "#9BB6CC",
+                              fontFamily: "'Geist'",
+                            }}
                           >
                             {notification.message}
                           </p>
                         </div>
 
-                        {/* Time Badge */}
-                        <div className="flex-shrink-0 flex items-start">
+                        {/* Time Badge - Far Right, Top Aligned */}
+                        <div className="flex-shrink-0 flex items-start pt-0.5">
                           <span
-                            className="px-3 py-1 rounded-md text-[13px] font-medium"
+                            className="px-2.5 py-1 rounded-lg text-[12px] font-medium whitespace-nowrap"
                             style={{
-                              background: "rgba(155, 182, 204, 0.1)",
-                              color: "#9BB6CC",
+                              background: "rgba(31, 41, 55, 0.8)",
+                              color: "#FFFFFF",
+                              fontFamily: "'Geist'",
                             }}
                           >
                             {formatTime(notification.timestamp)}

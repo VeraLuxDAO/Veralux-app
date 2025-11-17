@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { CirclePlus } from "lucide-react";
 
 export function SuggestedConnections() {
   const suggestions = [
@@ -31,8 +32,8 @@ export function SuggestedConnections() {
   ];
 
   return (
-    <Card className="bg-transparent border-none">
-      <CardHeader className="pb-4">
+    <Card className="bg-transparent border-none py-0 md:py-4">
+      <CardHeader className="md:px-3">
         <CardTitle
           className="font-semibold"
           style={{ color: "rgba(229, 247, 253, 0.4)", fontSize: "12px" }}
@@ -40,7 +41,7 @@ export function SuggestedConnections() {
           Suggested Connections
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-5">
+      <CardContent className="space-y-[10px] md:space-y-5 px-0 md:px-3 pt-0 md:pt-6">
         {suggestions.map((person, index) => (
           <div key={index} className="space-y-3">
             <div className="flex items-start gap-3">
@@ -62,15 +63,15 @@ export function SuggestedConnections() {
                     {person.name}
                   </p>
                   <p
-                    className="text-muted-foreground truncate"
-                    style={{ fontSize: "15px" }}
+                    className="truncate"
+                    style={{ fontSize: "15px", color: "#9BB6CC" }}
                   >
                     {person.username}
                   </p>
                 </div>
                 <p
-                  className="text-muted-foreground mb-3 line-clamp-2"
-                  style={{ fontSize: "15px" }}
+                  className="mb-3 line-clamp-2"
+                  style={{ fontSize: "15px", color: "#9BB6CC" }}
                 >
                   {person.bio}
                 </p>
@@ -87,19 +88,20 @@ export function SuggestedConnections() {
                   ))}
                 </div>
                 <p
-                  className="text-muted-foreground mb-3"
-                  style={{ fontSize: "15px" }}
+                  className="mb-3"
+                  style={{ fontSize: "15px", color: "#9BB6CC" }}
                 >
                   {person.mutualConnections} mutual connections
                 </p>
                 <button
-                  className="w-full h-8 flex items-center justify-center gap-2 px-4 py-1 rounded-xl transition-colors"
+                  className="w-full h-8 flex items-center justify-center gap-2 px-4 py-1 rounded-full transition-colors hover:bg-opacity-80"
                   style={{
                     fontSize: "15px",
                     backgroundColor: "rgba(155, 182, 204, 0.06)",
                     border: "1px solid rgba(155, 182, 204, 0.1)",
                   }}
                 >
+                  <CirclePlus className="w-4 h-4" />
                   Connect
                 </button>
               </div>

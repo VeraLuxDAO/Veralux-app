@@ -99,7 +99,7 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
         // Responsive positioning and sizing
         "left-[14px] top-[14px]",
         "h-[calc(100vh-80px)]",
-        "w-[180px] lg:w-[200px] xl:w-[230px]", // Responsive width
+        "w-[200px] lg:w-[220px] xl:w-[250px]", // Responsive width
         "bg-[#080E11]/40 border border-white/[0.08] backdrop-blur-[20px]",
         "rounded-[24px]",
         "transition-all duration-300 ease-out",
@@ -139,7 +139,16 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
                   )}
                 </div>
                 <div className="flex-1 text-left min-w-0">
-                  <p className="text-xs font-medium text-white truncate">
+                  <p
+                    className="truncate"
+                    style={{
+                      fontFamily: "'Geist'",
+                      fontStyle: "normal",
+                      fontWeight: 400,
+                      color: "#9BB6CC",
+                      fontSize: "16px",
+                    }}
+                  >
                     {user.name}
                   </p>
                 </div>
@@ -150,8 +159,8 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
                 onClick={() => handleNavigation("/connections")}
                 className="flex items-center px-2.5 py-1.5 gap-2 w-[95.89px] h-[28px] bg-[rgba(229,247,253,0.06)] rounded-[10px]"
               >
-                <MoreHorizontal className="h-3.5 w-3.5" />
-                <span className="text-xs">See more</span>
+                <MoreHorizontal className="h-3.5 w-3.5" style={{ color: "#9BB6CC" }} />
+                <span className="text-xs" style={{ color: "#9BB6CC" }}>See more</span>
               </button>
               <button className="flex justify-center items-center p-1 gap-[10px] w-[28px] h-[28px] bg-[rgba(229,247,253,0.08)] rounded-full">
                 <Users className="h-3.5 w-3.5" />
@@ -181,10 +190,25 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
                   <span className="text-base">{circle.icon}</span>
                 </div>
                 <div className="flex-1 text-left min-w-0">
-                  <p className="text-xs font-medium text-white truncate">
+                  <p
+                    className="truncate"
+                    style={{
+                      fontFamily: "'Geist'",
+                      fontStyle: "normal",
+                      fontWeight: 500,
+                      fontSize: "14px",
+                      color: "#FFFFFF",
+                    }}
+                  >
                     {circle.name}
                   </p>
-                  <p className="text-[10px] text-gray-400">
+                  <p
+                    className="truncate"
+                    style={{
+                      color: "#FADEFD",
+                      fontSize: "12px",
+                    }}
+                  >
                     {circle.members} members
                   </p>
                 </div>
@@ -195,8 +219,8 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
                 onClick={() => setIsCirclesModalOpen(true)}
                 className="flex items-center px-2.5 py-1.5 gap-2 w-[95.89px] h-[28px] bg-[rgba(229,247,253,0.06)] rounded-[10px]"
               >
-                <MoreHorizontal className="h-3.5 w-3.5" />
-                <span className="text-xs">See more</span>
+                <MoreHorizontal className="h-3.5 w-3.5" style={{ color: "#9BB6CC" }} />
+                <span className="text-xs" style={{ color: "#9BB6CC" }}>See more</span>
               </button>
               <button className="flex justify-center items-center p-1 gap-[10px] w-[28px] h-[28px] bg-[rgba(229,247,253,0.08)] rounded-full">
                 <Users className="h-3.5 w-3.5" />

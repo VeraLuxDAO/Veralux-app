@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import {
   ArrowLeft,
   Bell,
@@ -269,100 +270,75 @@ export default function NotificationsPage() {
     <>
       {/* Mobile Full-Page View */}
       <div className="md:hidden min-h-screen">
-        {/* Fixed Mobile Header - Matches Screenshot */}
+        {/* Fixed Mobile Header */}
         <div
           className="fixed top-0 left-0 right-0 z-50 shadow-sm"
           style={{
             background: "rgba(8, 14, 17, 0.4)",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
           }}
         >
-          <div className="px-4 pt-3 pb-2">
-            {/* Top Row: Back Button, Title, Mark All */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => router.back()}
-                  className="h-9 w-9 p-0 -ml-2 hover:bg-muted transition-colors"
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
-                <div>
-                  <h1 className="text-base font-semibold text-foreground">
-                    Notifications
-                  </h1>
-                  {unreadCount > 0 && (
-                    <p className="text-[11px] text-muted-foreground">
-                      ● {unreadCount} new notification
-                      {unreadCount !== 1 ? "s" : ""}
-                    </p>
-                  )}
-                </div>
-              </div>
-              {unreadCount > 0 && (
-                <Button
-                  variant="link"
-                  size="sm"
-                  onClick={handleMarkAllAsRead}
-                  className="text-sm text-primary hover:text-primary/80 h-auto p-0 font-normal"
-                >
-                  Mark all
-                </Button>
-              )}
+          <div className="px-4 pt-4 pb-2">
+            {/* Top Row: Title only (no back arrow on mobile) */}
+            <div className="flex items-center mb-3">
+              <h1 className="text-base font-semibold text-foreground">
+                Notifications
+              </h1>
             </div>
 
-            {/* Tabs Row - Ultra Responsive (Icon-only on ultra-small, text+icon on 360px+) */}
+            {/* Tabs Row - Three-section pill, matching sample design */}
             <Tabs
               value={activeTab}
               onValueChange={(v) => setActiveTab(v as any)}
               className="w-full"
             >
-              <TabsList className="w-full h-auto bg-transparent p-0 gap-0 border-0">
+              <TabsList
+                className="w-full grid grid-cols-3 gap-1"
+                style={{
+                  background: "rgba(229, 247, 253, 0.04)",
+                  borderRadius: "22px",
+                  padding: "4px",
+                }}
+              >
                 <TabsTrigger
                   value="personal"
-                  className="flex-1 min-w-0 h-9 [@media(min-width:360px)]:h-10 [@media(min-width:390px)]:h-11 text-[10px] [@media(min-width:360px)]:text-xs [@media(min-width:390px)]:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground bg-muted/50 data-[state=active]:shadow-sm relative transition-all rounded-l-lg border-r border-border/50 px-1 [@media(min-width:360px)]:px-2 [@media(min-width:390px)]:px-3 flex items-center justify-center gap-0.5 [@media(min-width:360px)]:gap-1"
+                  className="text-[13px] font-medium text-muted-foreground relative transition-all py-1.5"
+                  style={{
+                    ...(activeTab === "personal" && {
+                      background: "rgba(229, 247, 253, 0.2)",
+                      borderRadius: "18px",
+                      color: "white",
+                    }),
+                  }}
                 >
-                  <Heart className="h-3.5 w-3.5 [@media(min-width:390px)]:h-4 [@media(min-width:390px)]:w-4 flex-shrink-0" />
-                  <span className="hidden [@media(min-width:360px)]:inline truncate">
-                    Personal
-                  </span>
-                  {unreadCountByCategory.personal > 0 && (
-                    <span className="flex h-3.5 w-3.5 [@media(min-width:360px)]:h-4 [@media(min-width:360px)]:w-4 [@media(min-width:390px)]:h-5 [@media(min-width:390px)]:w-5 items-center justify-center rounded-full bg-red-500 text-[8px] [@media(min-width:360px)]:text-[9px] [@media(min-width:390px)]:text-[10px] font-bold text-white flex-shrink-0">
-                      {unreadCountByCategory.personal}
-                    </span>
-                  )}
+                  Personal
                 </TabsTrigger>
                 <TabsTrigger
                   value="social"
-                  className="flex-1 min-w-0 h-9 [@media(min-width:360px)]:h-10 [@media(min-width:390px)]:h-11 text-[10px] [@media(min-width:360px)]:text-xs [@media(min-width:390px)]:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground bg-muted/50 data-[state=active]:shadow-sm relative transition-all border-r border-border/50 px-1 [@media(min-width:360px)]:px-2 [@media(min-width:390px)]:px-3 flex items-center justify-center gap-0.5 [@media(min-width:360px)]:gap-1"
+                  className="text-[13px] font-medium text-muted-foreground relative transition-all py-1.5"
+                  style={{
+                    ...(activeTab === "social" && {
+                      background: "rgba(229, 247, 253, 0.2)",
+                      borderRadius: "18px",
+                      color: "white",
+                    }),
+                  }}
                 >
-                  <Users className="h-3.5 w-3.5 [@media(min-width:390px)]:h-4 [@media(min-width:390px)]:w-4 flex-shrink-0" />
-                  <span className="hidden [@media(min-width:360px)]:inline truncate">
-                    Social
-                  </span>
-                  {unreadCountByCategory.social > 0 && (
-                    <span className="flex h-3.5 w-3.5 [@media(min-width:360px)]:h-4 [@media(min-width:360px)]:w-4 [@media(min-width:390px)]:h-5 [@media(min-width:390px)]:w-5 items-center justify-center rounded-full bg-red-500 text-[8px] [@media(min-width:360px)]:text-[9px] [@media(min-width:390px)]:text-[10px] font-bold text-white flex-shrink-0">
-                      {unreadCountByCategory.social}
-                    </span>
-                  )}
+                  Social
                 </TabsTrigger>
                 <TabsTrigger
                   value="system"
-                  className="flex-1 min-w-0 h-9 [@media(min-width:360px)]:h-10 [@media(min-width:390px)]:h-11 text-[10px] [@media(min-width:360px)]:text-xs [@media(min-width:390px)]:text-sm font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground bg-muted/50 data-[state=active]:shadow-sm relative transition-all rounded-r-lg px-1 [@media(min-width:360px)]:px-2 [@media(min-width:390px)]:px-3 flex items-center justify-center gap-0.5 [@media(min-width:360px)]:gap-1"
+                  className="text-[13px] font-medium text-muted-foreground relative transition-all py-1.5"
+                  style={{
+                    ...(activeTab === "system" && {
+                      background: "rgba(229, 247, 253, 0.2)",
+                      borderRadius: "18px",
+                      color: "white",
+                    }),
+                  }}
                 >
-                  <Bell className="h-3.5 w-3.5 [@media(min-width:390px)]:h-4 [@media(min-width:390px)]:w-4 flex-shrink-0" />
-                  <span className="hidden [@media(min-width:360px)]:inline truncate">
-                    System
-                  </span>
-                  {unreadCountByCategory.system > 0 && (
-                    <span className="flex h-3.5 w-3.5 [@media(min-width:360px)]:h-4 [@media(min-width:360px)]:w-4 [@media(min-width:390px)]:h-5 [@media(min-width:390px)]:w-5 items-center justify-center rounded-full bg-red-500 text-[8px] [@media(min-width:360px)]:text-[9px] [@media(min-width:390px)]:text-[10px] font-bold text-white flex-shrink-0">
-                      {unreadCountByCategory.system}
-                    </span>
-                  )}
+                  System
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -372,8 +348,8 @@ export default function NotificationsPage() {
         {/* Spacer for Fixed Header */}
         <div className="h-[108px]" />
 
-        {/* Mobile Notifications List */}
-        <div className="px-3 py-4">
+        {/* Mobile Notifications List - Match compact card design */}
+        <div>
           {filteredNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20">
               <div className="relative mb-6">
@@ -393,8 +369,8 @@ export default function NotificationsPage() {
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
-              {filteredNotifications.map((notification, index) => {
+            <div>
+              {filteredNotifications.map((notification) => {
                 const Icon = getNotificationIcon(notification.type);
                 const colorClass = getNotificationColor(notification.type);
 
@@ -402,81 +378,77 @@ export default function NotificationsPage() {
                   <button
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
-                    style={{
-                      animationDelay: `${index * 50}ms`,
-                    }}
                     className={cn(
-                      "w-full flex gap-3 px-3.5 py-3.5 rounded-2xl transition-all duration-200",
-                      "hover:scale-[1.01] cursor-pointer active:scale-[0.98]",
-                      "group relative border shadow-sm hover:shadow-md",
-                      "animate-in fade-in-0 slide-in-from-bottom-2",
-                      !notification.isRead
-                        ? "bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/30 shadow-primary/10"
-                        : "bg-card/80 backdrop-blur-sm border-border/60"
+                      // 12px top & bottom margin (mt-3, mb-3) => 24px space between notifications
+                      "w-full flex items-start gap-3 px-6 py-2 rounded-2xl transition-all duration-150 my-3",
+                      "hover:bg-white/5 cursor-pointer active:scale-[0.98]",
+                      "group relative"
                     )}
+                    style={{
+                      borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                    }}
                   >
                     {/* Avatar or Icon */}
-                    <div className="flex-shrink-0 relative">
+                    <div className="flex-shrink-0 relative mt-0.5">
                       {notification.avatar ? (
-                        <Avatar className="h-12 w-12 ring-2 ring-background shadow-sm">
-                          <AvatarImage src={notification.avatar} />
-                          <AvatarFallback className="bg-gradient-to-br from-primary/30 to-primary/10 text-foreground text-sm font-semibold">
-                            {notification.metadata?.userName?.[0] || "U"}
-                          </AvatarFallback>
-                        </Avatar>
+                        <>
+                          <Avatar className="h-9 w-9">
+                            <AvatarImage src={notification.avatar} />
+                            <AvatarFallback className="bg-gradient-to-br from-muted to-muted/50 text-foreground text-xs">
+                              {notification.metadata?.userName?.[0] || "U"}
+                            </AvatarFallback>
+                          </Avatar>
+
+                          {/* Small badge overlay at bottom-left of avatar */}
+                          <div
+                            className="absolute left-0 bottom-0 flex items-center justify-center"
+                            style={{
+                              width: "17px",
+                              height: "17px",
+                              background: "#101117",
+                              borderRadius: "100px",
+                              color: "#FADEFD",
+                            }}
+                          >
+                            <Icon className="h-3 w-3" />
+                          </div>
+                        </>
                       ) : (
                         <div
                           className={cn(
-                            "h-12 w-12 rounded-2xl flex items-center justify-center shadow-sm",
+                            "h-10 w-10 rounded-full flex items-center justify-center",
                             colorClass
                           )}
                         >
-                          <Icon className="h-6 w-6" />
+                          <Icon className="h-5 w-5" />
                         </div>
                       )}
                       {!notification.isRead && (
-                        <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-primary rounded-full border-2 border-background shadow-sm animate-pulse" />
+                        <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-blue-500 rounded-full border-2 border-[#080E11]" />
                       )}
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 min-w-0 text-left">
-                      <p className="text-[13px] font-semibold text-foreground mb-1 line-clamp-1 leading-tight">
+                    <div className="flex-1 min-w-0 text-left flex flex-col gap-1">
+                      <p className="text-[13px] font-semibold text-white leading-tight truncate max-w-full whitespace-nowrap">
                         {notification.title}
                       </p>
-                      <p className="text-[12px] text-muted-foreground line-clamp-2 mb-2 leading-relaxed">
+                      <p className="text-[12px] text-[#9BB6CC] leading-relaxed truncate max-w-full whitespace-nowrap">
                         {notification.message}
                       </p>
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="h-3 w-3 text-muted-foreground/70" />
-                        <span className="text-[11px] text-muted-foreground/90 font-medium">
-                          {formatTime(notification.timestamp)}
-                        </span>
-                      </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex-shrink-0 flex flex-col items-center gap-1.5">
-                      {!notification.isRead && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => handleMarkAsRead(notification.id, e)}
-                          className="h-8 w-8 p-0 hover:bg-primary/20 text-primary rounded-lg transition-all active:scale-90"
-                          title="Mark as read"
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => handleDelete(notification.id, e)}
-                        className="h-8 w-8 p-0 hover:bg-destructive/20 text-muted-foreground hover:text-destructive rounded-lg transition-all active:scale-90"
-                        title="Delete"
+                    {/* Time pill on the right */}
+                    <div className="flex-shrink-0 flex items-start pt-0.5">
+                      <span
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-medium whitespace-nowrap"
+                        style={{
+                          background: "rgba(31, 41, 55, 0.9)",
+                          color: "#FFFFFF",
+                        }}
                       >
-                        <XIcon className="h-3.5 w-3.5" />
-                      </Button>
+                        {formatTime(notification.timestamp)}
+                      </span>
                     </div>
                   </button>
                 );
@@ -485,8 +457,11 @@ export default function NotificationsPage() {
           )}
         </div>
 
-        {/* Mobile Bottom Spacing */}
-        <div className="h-8" />
+        {/* Mobile Bottom Spacing so content doesn't sit under bottom bar */}
+        <div className="h-[120px]" />
+
+        {/* Mobile Bottom Navigation - same as Social Hub */}
+        <MobileBottomBar />
       </div>
 
       {/* Desktop View with NavigationLayout */}

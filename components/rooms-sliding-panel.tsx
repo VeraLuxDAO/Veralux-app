@@ -338,10 +338,10 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop - Transparent, only for click handling */}
       <div
         className={cn(
-          "fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[55] transition-opacity duration-300",
+          "fixed inset-0 z-[65] transition-opacity duration-300",
           "hidden md:block",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
@@ -353,143 +353,198 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
       <div
         className={cn(
           "rooms-sliding-panel",
-          "fixed right-0 h-[calc(100vh-5rem)] z-[60]",
-          "bg-[#080E1199] border-l border-[#17212b] shadow-2xl",
+          "fixed h-[calc(100vh-5rem)] z-[70]",
+          "shadow-[0_20px_45px_rgba(0,0,0,0.45)]",
           "transform transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
           "hidden md:block",
-          // Responsive widths
-          "w-[90vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw] 2xl:w-[50vw]",
-          "max-w-[1200px] min-w-[600px]",
+          "overflow-hidden",
+          // Position from left sidebar edge to right edge
+          "md:left-[238px] lg:left-[258px] xl:left-[288px]",
+          "md:right-[24px]",
+          // Width auto to fill space between left and right
+          "w-[90vw] md:w-auto",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
-        style={{ top: "5rem" }}
+        style={{
+          top: "5rem",
+          background:
+            "linear-gradient(145deg, rgba(14,20,28,0.95) 0%, rgba(8,12,18,0.92) 100%)",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          borderRadius: "20px",
+        }}
       >
         <div className="flex h-full overflow-hidden">
           {/* Rooms List - Left Side */}
           <div
             className={cn(
-              "flex-shrink-0 border-r-0 flex flex-col bg-[#080E1199] relative overflow-hidden transition-none",
+              "flex-shrink-0 border-r-0 flex flex-col relative overflow-hidden transition-none bg-transparent",
               // Hide rooms list when chat is selected on medium screens
               selectedRoom ? "hidden lg:flex" : "flex"
             )}
             style={{ width: `${roomsListWidth}px` }}
           >
             {/* Header */}
-            <div className="px-2 md:px-3 py-2.5 md:py-3 border-b border-[#2b3642]/50 bg-[#17212b] flex-shrink-0 shadow-sm w-full max-w-full overflow-hidden">
-              <div className="flex items-center justify-between mb-2 md:mb-3 w-full">
-                <div className="flex items-center gap-1.5 md:gap-2">
-                  <div className="h-7 w-7 md:h-8 md:w-8 rounded-full bg-gradient-to-br from-[#4bd865] to-[#3ca854] flex items-center justify-center">
-                    <Lock className="h-3.5 w-3.5 md:h-4 md:w-4 text-white" />
+            <div className="px-6 py-5 border-b border-white/5 flex-shrink-0 w-full max-w-full overflow-hidden">
+              <div className="flex items-center justify-between gap-3 mb-5 w-full">
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onClose}
+                    className="h-9 w-9 p-0 rounded-full bg-white/5 hover:bg-white/10 text-white transition-all"
+                    title="Close rooms"
+                  >
+                    <ArrowLeft className="h-5 w-5" />
+                  </Button>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Lock className="h-4 w-4 text-white/70" />
+                      <h2
+                        className="text-[17px] font-semibold"
+                        style={{
+                          color: "#FFFFFF",
+                          fontFamily: "'Geist'",
+                        }}
+                      >
+                        {selectedRoom?.name ?? "Private Rooms"}
+                      </h2>
+                    </div>
+                    <p
+                      className="text-[13px] text-white/60 mt-1"
+                      style={{ fontFamily: "'Geist'" }}
+                    >
+                      Encrypted Messaging
+                    </p>
                   </div>
-                  <h2 className="text-[14px] md:text-[16px] font-bold text-white tracking-tight">
-                    Private Rooms
-                  </h2>
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={onClose}
-                  className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-[#2b3642]/60 active:bg-[#2b3642]/80 text-gray-400 hover:text-white rounded-full transition-all"
+                  className="h-9 w-9 p-0 rounded-full bg-white/5 hover:bg-white/10 text-white transition-all"
+                  onClick={() => setSelectedRoom(null)}
+                  title="Hide chat"
                 >
-                  <X className="h-[16px] w-[16px] md:h-[18px] md:w-[18px]" />
+                  <MessageCircle className="h-5 w-5" />
                 </Button>
               </div>
 
               {/* Search */}
               <div className="relative">
-                <Search className="absolute left-2.5 md:left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 md:h-4 md:w-4 text-gray-500 pointer-events-none" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none" />
                 <Input
                   placeholder="Search rooms..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8 md:pl-9 pr-2.5 md:pr-3 h-8 md:h-9 bg-[#080E1199] border border-[#2b3642]/30 text-white text-[12px] md:text-[13px] placeholder:text-gray-500 focus:ring-0 focus:border-[#5c6bc0]/50 rounded-lg transition-all"
+                  className="pl-11 pr-4 h-11 bg-white/5 border border-white/10 text-white text-[14px] placeholder:text-white/40 focus:ring-0 focus:border-white/30 rounded-full transition-all shadow-inner"
+                  style={{
+                    fontFamily: "'Geist'",
+                  }}
                 />
               </div>
             </div>
 
             {/* Rooms List */}
             <ScrollArea className="flex-1 overflow-hidden w-full">
-              <div className="w-full max-w-full overflow-hidden">
+              <div className="w-full max-w-full overflow-hidden pt-4 px-5">
                 {filteredRooms.map((room) => (
                   <button
                     key={room.id}
                     onClick={() => setSelectedRoom(room)}
                     className={cn(
-                      "w-full max-w-full flex items-center gap-3 px-3 md:px-4 py-3 transition-all duration-150",
-                      "hover:bg-[#17212b]/80 cursor-pointer active:bg-[#1c2733]",
-                      "relative z-0 overflow-hidden",
-                      selectedRoom?.id === room.id ? "bg-[#17212b]" : ""
+                      "w-full flex items-start gap-3 px-0 py-4 transition-all duration-150",
+                      "hover:opacity-90 cursor-pointer",
+                      "group relative",
+                      selectedRoom?.id === room.id ? "opacity-100" : ""
                     )}
+                    style={{
+                      borderBottom: "1px solid rgba(255, 255, 255, 0.06)",
+                    }}
                   >
                     {/* Avatar */}
-                    <div className="relative flex-shrink-0">
-                      <Avatar className="h-[50px] w-[50px] md:h-[52px] md:w-[52px]">
+                    <div className="relative flex-shrink-0 mt-0.5">
+                      <Avatar className="h-10 w-10">
                         <AvatarImage src={room.avatar} />
-                        <AvatarFallback className="bg-gradient-to-br from-[#2b3642] to-[#1c2733] text-white text-base font-medium">
+                        <AvatarFallback className="bg-gradient-to-br from-[#2b3642] to-[#1c2733] text-white text-sm font-medium">
                           {room.type === "group" ? "👥" : room.name[0]}
                         </AvatarFallback>
                       </Avatar>
                       {room.isOnline && room.type === "dm" && (
-                        <div className="absolute bottom-0 right-0 w-[12px] h-[12px] bg-[#4bd865] border-[2.5px] border-[#0e1621] rounded-full" />
+                        <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-blue-500 rounded-full border-2 border-[#080E11]" />
                       )}
                     </div>
 
-                    {/* Content - Telegram-style layout */}
-                    <div className="flex-1 min-w-0 overflow-hidden">
-                      {/* Row 1: Name and Timestamp */}
-                      <div className="flex items-baseline justify-start gap-2 mb-1.5">
-                        <h3 className="font-semibold text-[15px] text-white truncate">
+                    {/* Content - Middle Section */}
+                    <div className="flex-1 min-w-0 text-left flex flex-col gap-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <h3
+                          className="text-[15px] font-semibold line-clamp-1 flex-1"
+                          style={{
+                            color: "#FFFFFF",
+                            fontFamily: "'Geist'",
+                            fontWeight: 600,
+                          }}
+                        >
                           {room.name}
                         </h3>
+                        {/* Time Badge - Far Right, Top Aligned */}
                         {room.lastMessageTime && (
-                          <span className="text-[13px] text-[#aaaaaa] font-normal whitespace-nowrap flex-shrink-0">
-                            {formatTime(room.lastMessageTime)}
-                          </span>
+                          <div className="flex-shrink-0 flex items-start pt-0.5">
+                            <span
+                              className="px-2.5 py-1 rounded-lg text-[12px] font-medium whitespace-nowrap"
+                              style={{
+                                background: "rgba(31, 41, 55, 0.8)",
+                                color: "#FFFFFF",
+                                fontFamily: "'Geist'",
+                              }}
+                            >
+                              {formatTime(room.lastMessageTime)}
+                            </span>
+                          </div>
                         )}
                       </div>
-
-                      {/* Row 2: Message Preview and Unread Badge */}
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5 flex-1 min-w-0 overflow-hidden">
-                          {/* Status Icons */}
-                          {room.isMuted && (
-                            <VolumeX className="h-[14px] w-[14px] text-[#707579] flex-shrink-0" />
+                      {/* Message Preview */}
+                      <div className="flex items-center gap-1.5">
+                        {/* Status Icons */}
+                        {room.isMuted && (
+                          <VolumeX className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
+                        )}
+                        {room.isPinned && (
+                          <Pin className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
+                        )}
+                        {!room.unreadCount &&
+                          room.type === "dm" &&
+                          !room.isTyping && (
+                            <CheckCheck className="h-3.5 w-3.5 text-[#4bd865] flex-shrink-0" />
                           )}
-                          {room.isPinned && (
-                            <Pin className="h-[14px] w-[14px] text-[#707579] flex-shrink-0" />
+                        <p
+                          className="text-[14px] line-clamp-2 leading-relaxed flex-1"
+                          style={{
+                            color: "#9BB6CC",
+                            fontFamily: "'Geist'",
+                          }}
+                        >
+                          {room.isTyping ? (
+                            <span className="text-[#4bd865] italic">
+                              typing...
+                            </span>
+                          ) : (
+                            <span>
+                              {room.type === "group" && room.lastMessage && (
+                                <span style={{ color: "#9BB6CC" }}>
+                                  {room.lastMessage.split(":")[0]}:{" "}
+                                </span>
+                              )}
+                              {room.lastMessage
+                                ?.split(":")
+                                .slice(1)
+                                .join(":") || room.lastMessage}
+                            </span>
                           )}
-                          {!room.unreadCount &&
-                            room.type === "dm" &&
-                            !room.isTyping && (
-                              <CheckCheck className="h-[14px] w-[14px] text-[#4bd865] flex-shrink-0" />
-                            )}
-
-                          {/* Message Preview */}
-                          <p className="text-[14px] text-[#8b98a5] truncate">
-                            {room.isTyping ? (
-                              <span className="text-[#4bd865] italic">
-                                typing...
-                              </span>
-                            ) : (
-                              <span className="truncate">
-                                {room.type === "group" && room.lastMessage && (
-                                  <span className="text-[#8b98a5]">
-                                    {room.lastMessage.split(":")[0]}:{" "}
-                                  </span>
-                                )}
-                                {room.lastMessage
-                                  ?.split(":")
-                                  .slice(1)
-                                  .join(":") || room.lastMessage}
-                              </span>
-                            )}
-                          </p>
-                        </div>
-
-                        {/* Unread Badge - Telegram style */}
+                        </p>
+                        {/* Unread Badge */}
                         {room.unreadCount > 0 && (
-                          <div className="h-[22px] min-w-[22px] px-1.5 bg-[#4cd964] rounded-full flex items-center justify-center flex-shrink-0">
-                            <span className="text-[13px] text-white font-semibold">
+                          <div className="h-5 min-w-5 px-1.5 bg-[#4cd964] rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-[11px] text-white font-semibold">
                               {room.unreadCount > 99 ? "99+" : room.unreadCount}
                             </span>
                           </div>
@@ -528,90 +583,78 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
 
           {/* Chat Area - Right Side */}
           {selectedRoom ? (
-            <div className="flex-1 flex flex-col min-w-0 bg-[#080E1199] relative z-0">
+            <div className="flex-1 flex flex-col min-w-0 bg-[#05080d] relative z-0">
               {/* Chat Header */}
-              <div className="flex-shrink-0 px-2 md:px-3 lg:px-4 py-2 md:py-2.5 border-b border-[#2b3642]/50 bg-[#17212b]">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 md:gap-2 lg:gap-3 flex-1 min-w-0">
-                    {/* Back button - only visible on md-lg screens when room is selected */}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedRoom(null)}
-                      className="h-8 w-8 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full transition-all lg:hidden"
-                    >
-                      <ArrowLeft className="h-[18px] w-[18px]" />
-                    </Button>
+              <div className="flex-shrink-0 px-4 lg:px-6 py-4 border-b border-white/5 bg-black/20 backdrop-blur">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 lg:gap-3 flex-1 min-w-0">
+                      {/* Back button - mobile */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedRoom(null)}
+                        className="h-9 w-9 p-0 hover:bg-white/10 text-white rounded-full transition-all lg:hidden"
+                      >
+                        <ArrowLeft className="h-5 w-5" />
+                      </Button>
 
-                    <div className="relative flex-shrink-0">
-                      <Avatar className="h-[36px] w-[36px] md:h-[38px] md:w-[38px] lg:h-[42px] lg:w-[42px]">
-                        <AvatarImage src={selectedRoom.avatar} />
-                        <AvatarFallback className="bg-[#2b3642] text-white text-xs md:text-sm">
-                          {selectedRoom.type === "group"
-                            ? "👥"
-                            : selectedRoom.name[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      {selectedRoom.isOnline && selectedRoom.type === "dm" && (
-                        <div className="absolute bottom-0 right-0 w-[9px] h-[9px] md:w-[10px] md:h-[10px] lg:w-[11px] lg:h-[11px] bg-[#4bd865] border-[2px] md:border-[2.5px] border-[#17212b] rounded-full" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-white flex items-center gap-1 md:gap-1.5 truncate text-[13px] md:text-[14px] lg:text-[15px] leading-tight">
-                        {selectedRoom.name}
-                        {selectedRoom.isEncrypted && (
-                          <Lock className="h-2.5 w-2.5 md:h-3 md:w-3 text-[#4bd865] flex-shrink-0" />
+                      <div className="relative flex-shrink-0">
+                        <Avatar className="h-[42px] w-[42px]">
+                          <AvatarImage src={selectedRoom.avatar} />
+                          <AvatarFallback className="bg-[#2b3642] text-white text-sm">
+                            {selectedRoom.type === "group"
+                              ? "👥"
+                              : selectedRoom.name[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        {selectedRoom.isOnline && selectedRoom.type === "dm" && (
+                          <div className="absolute bottom-0 right-0 w-3 h-3 bg-[#4bd865] border-[2px] border-[#05080d] rounded-full" />
                         )}
-                      </h3>
-                      <p className="text-[10px] md:text-[11px] text-[#707579] truncate leading-tight mt-0.5">
-                        {selectedRoom.type === "dm"
-                          ? selectedRoom.isOnline
-                            ? "online"
-                            : "last seen recently"
-                          : `${selectedRoom.members} members`}
-                      </p>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-white flex items-center gap-1 md:gap-1.5 truncate text-[15px] md:text-[16px] leading-tight">
+                          {selectedRoom.name}
+                          {selectedRoom.isEncrypted && (
+                            <Lock className="h-3 w-3 text-[#4bd865] flex-shrink-0" />
+                          )}
+                        </h3>
+                        <p className="text-[12px] text-white/60 truncate leading-tight mt-0.5">
+                          {selectedRoom.type === "dm"
+                            ? selectedRoom.isOnline
+                              ? "Online"
+                              : "Last seen recently"
+                            : `${selectedRoom.members} members`}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <div className="hidden lg:block">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                          <Input
+                            placeholder={`Search ${selectedRoom.name}`}
+                            className="pl-10 pr-4 h-10 bg-white/5 border border-white/10 rounded-full text-white placeholder:text-white/40 focus:border-white/30 focus:ring-0"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-0.5 flex-shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full transition-all"
-                    >
-                      <Phone className="h-[16px] w-[16px] md:h-[18px] md:w-[18px]" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full transition-all"
-                    >
-                      <Video className="h-[16px] w-[16px] md:h-[18px] md:w-[18px]" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full transition-all"
-                    >
-                      <Search className="h-[16px] w-[16px] md:h-[18px] md:w-[18px]" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full transition-all"
-                    >
-                      <MoreVertical className="h-[16px] w-[16px] md:h-[18px] md:w-[18px]" />
-                    </Button>
-                  </div>
+                  <div className="h-px bg-white/5 w-full" />
                 </div>
               </div>
 
               {/* Messages Area */}
               <div
-                className="flex-1 overflow-y-auto px-2 md:px-3 lg:px-4 py-2 md:py-3"
+                className="flex-1 overflow-y-auto px-4 lg:px-6 py-6"
                 ref={messagesContainerRef}
+                style={{
+                  background:
+                    "radial-gradient(circle at top, rgba(61,80,120,0.25), transparent 45%), #05080d",
+                }}
               >
-                <div className="space-y-1.5 md:space-y-2 max-w-4xl mx-auto">
+                <div className="space-y-3 max-w-4xl mx-auto">
                   {messages.map((message, index) => {
                     const showAvatar =
                       index === 0 ||

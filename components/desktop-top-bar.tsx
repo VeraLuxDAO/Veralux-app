@@ -116,6 +116,8 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
           <nav className="flex items-center gap-8 bg-[#080E11]/40 border border-white/[0.08] rounded-[24px] p-3 backdrop-blur-[40px] h-[60px]">
             {navItems.map((item) => {
               const isActive = pathname === item.path;
+              // Play, Build, Trade buttons should use #E5F7FD99 when not active
+              const shouldUseHighlightColor = !isActive && (item.path === "/gaming" || item.path === "/dev" || item.path === "/marketplace");
               return (
                 <Button
                   key={item.path}
@@ -123,16 +125,19 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                   size="sm"
                   onClick={() => router.push(item.path)}
                   className={cn(
-                    "flex items-center gap-2 rounded-[12px] px-4 py-2 transition-all duration-200 font-medium text-sm h-9",
+                    "flex items-center gap-2 rounded-[12px] px-4 py-2 transition-all duration-200 text-sm h-9",
                     isActive
-                      ? "bg-white/10 text-foreground"
+                      ? "text-foreground"
                       : "hover:bg-white/10 hover:text-foreground"
                   )}
-                  style={
-                    !isActive
-                      ? { color: "rgba(230, 253, 229, 0.6)" }
-                      : undefined
-                  }
+                  style={{
+                    fontFamily: "Manrope, sans-serif",
+                    fontWeight: 500,
+                    fontStyle: "normal",
+                    ...(isActive
+                      ? { backgroundColor: "#E5F7FD33" }
+                      : { color: shouldUseHighlightColor ? "#E5F7FD99" : "rgba(230, 253, 229, 0.6)" })
+                  }}
                 >
                   <item.icon className="h-4 w-4" />
                   <span>{item.label}</span>
