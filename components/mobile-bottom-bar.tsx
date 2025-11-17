@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Home, Users, UserPlus, Bell, MessageCircle } from "lucide-react";
+import { Home, Users, Search, Bell, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter, usePathname } from "next/navigation";
 import { CirclesModal } from "@/components/circles-modal";
@@ -17,54 +17,12 @@ export function MobileBottomBar({
   isMenuOpen = false,
   className,
 }: MobileBottomBarProps) {
-  const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
   const [isCirclesModalOpen, setIsCirclesModalOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
-  // Hide/show on scroll with smooth animations (disabled when menu is open)
-  useEffect(() => {
-    if (isMenuOpen) {
-      setIsVisible(true);
-      return;
-    }
-
-    let ticking = false;
-
-    const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          const currentScrollY = window.scrollY;
-          const scrollDifference = Math.abs(currentScrollY - lastScrollY);
-
-          // Only trigger animation if scroll is significant enough
-          if (scrollDifference > 3) {
-            if (currentScrollY > lastScrollY && currentScrollY > 60) {
-              // Scrolling down - hide with animation
-              setIsVisible(false);
-            } else if (currentScrollY < lastScrollY || currentScrollY <= 60) {
-              // Scrolling up or near top - show with animation
-              setIsVisible(true);
-            }
-
-            setLastScrollY(currentScrollY);
-          }
-
-          ticking = false;
-        });
-
-        ticking = true;
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [lastScrollY, isMenuOpen]);
-
   const navItems = [
+    // 1. Home
     {
       icon: Home,
       label: "Home",
@@ -72,20 +30,15 @@ export function MobileBottomBar({
       badge: null,
       action: null,
     },
+    // 2. Search
     {
-      icon: Users,
-      label: "Circles",
-      path: "/circles",
-      badge: null,
-      action: () => setIsCirclesModalOpen(true),
-    },
-    {
-      icon: UserPlus,
-      label: "Following",
-      path: "/following",
+      icon: Search,
+      label: "Search",
+      path: "/search",
       badge: null,
       action: null,
     },
+    // 3. Notifications
     {
       icon: Bell,
       label: "Notifications",
@@ -93,9 +46,18 @@ export function MobileBottomBar({
       badge: "3",
       action: null,
     },
+    // 4. Circles (opens Circles modal)
+    {
+      icon: Users,
+      label: "Circles",
+      path: "/circles",
+      badge: null,
+      action: () => setIsCirclesModalOpen(true),
+    },
+    // 5. Rooms (previously Messages)
     {
       icon: MessageCircle,
-      label: "Messages",
+      label: "Rooms",
       path: "/messages",
       badge: "2",
       action: null,
@@ -111,28 +73,42 @@ export function MobileBottomBar({
   };
 
   return (
-    <nav
-      className={cn(
-        "mobile-bottom-bar fixed bottom-0 left-0 right-0 z-50 md:hidden",
-        "transition-all duration-400 ease-out transform-gpu",
-        "will-change-transform backface-visibility-hidden",
-        isVisible
-          ? "translate-y-0 opacity-100 visible"
-          : "translate-y-full opacity-0 invisible",
-        className
-      )}
-      style={{
-        background: "rgba(8, 14, 17, 0.4)",
-        borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        willChange: "transform, opacity",
-        transform: isVisible
-          ? "translateY(0) translateZ(0)"
-          : "translateY(100%) translateZ(0)",
-      }}
-    >
-      <div className="flex items-center justify-around px-2 py-2">
+    <>
+      {/* Backdrop blur layer - positioned independently to avoid transform context issues */}
+      <div
+        className="fixed inset-x-0 bottom-4 z-[99] flex justify-center md:hidden pointer-events-none"
+      >
+        <div
+          className="w-[calc(100%-32px)] max-w-[480px] h-[88px] rounded-[48px] pointer-events-none"
+          style={{
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            background: "rgba(8,14,17,0.3)",
+          }}
+        />
+      </div>
+      
+      <nav
+        className={cn(
+          // Outer container just positions the pill-style nav
+          "mobile-bottom-bar fixed inset-x-0 bottom-4 z-[100] flex justify-center md:hidden pointer-events-none",
+          className
+        )}
+      >
+        {/* Pill-style bottom nav, matching Figma sample, responsive */}
+        <div
+          className={cn(
+            "pointer-events-auto box-border flex items-center justify-between",
+            // Base: comfortable padding & gap on typical mobile widths
+            "px-8 py-3 gap-6 h-[88px] w-[calc(100%-32px)] max-w-[480px]",
+            // Tighten padding and gaps as the viewport shrinks
+            "max-[420px]:px-6 max-[420px]:gap-5",
+            "max-[380px]:px-5 max-[380px]:gap-4",
+            "max-[350px]:px-4 max-[350px]:gap-3",
+            "max-[330px]:px-3 max-[330px]:gap-2",
+            "border border-[rgba(255,255,255,0.08)] rounded-[48px] bg-transparent"
+          )}
+        >
         {navItems.map((item) => {
           const isActive = pathname === item.path;
 
@@ -141,25 +117,32 @@ export function MobileBottomBar({
               key={item.path}
               variant="ghost"
               size="sm"
-              onClick={() => handleNavigation(item.path, item.action)}
+              onClick={() => handleNavigation(item.path, item.action || undefined)}
               className={cn(
-                "flex flex-col items-center space-y-1 p-2 h-auto min-w-0 flex-1",
+                // Layout: flex column, centered, fixed size 56x53 on wider mobiles
+                "flex flex-col items-center justify-center gap-1 p-0 w-14 h-[53px] flex-none order-0 grow-0",
+                // Below 440px, let buttons flex so all 5 fit responsively
+                "max-[440px]:w-auto max-[440px]:flex-1 max-[440px]:grow",
                 "transition-all duration-300 cursor-pointer",
-                "hover:scale-110 active:scale-95",
                 isActive
-                  ? "text-primary bg-primary/10 scale-105"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  ? "text-white"
+                  : "text-[#9BB6CC99] hover:text-white"
               )}
             >
-              <div className="relative">
-                <item.icon className="h-5 w-5 transition-transform duration-200" />
+              <div
+                className={cn(
+                  "relative flex items-center justify-center rounded-full transition-all duration-300 w-9 h-9",
+                  isActive ? "bg-[rgba(255,255,255,0.08)]" : ""
+                )}
+              >
+                <item.icon className="h-5 w-5 max-[410px]:h-4 max-[410px]:w-4 transition-transform duration-200" />
                 {item.badge && (
                   <Badge className="absolute -top-2 -right-2 w-4 h-4 p-0 bg-primary text-primary-foreground text-xs flex items-center justify-center animate-pulse">
                     {item.badge}
                   </Badge>
                 )}
               </div>
-              <span className="text-xs font-medium truncate max-w-full">
+              <span className="text-[10px] max-[380px]:text-[9px] font-medium max-w-full whitespace-nowrap max-[390px]:truncate">
                 {item.label}
               </span>
             </Button>
@@ -173,5 +156,6 @@ export function MobileBottomBar({
         onClose={() => setIsCirclesModalOpen(false)}
       />
     </nav>
+    </>
   );
 }

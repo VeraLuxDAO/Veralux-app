@@ -117,7 +117,7 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
                 className="px-3 py-1 rounded-md text-sm font-medium cursor-pointer transition-colors"
                 style={{
                   backgroundColor: "rgba(31, 43, 49, 0.56)",
-                  color: "rgb(184 205 223);",
+                  color: "#E9F0F5",
                 }}
               >
                 #{tag}

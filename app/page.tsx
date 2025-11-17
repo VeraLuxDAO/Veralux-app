@@ -10,18 +10,33 @@ import { SuggestedConnections } from "@/components/suggested-connections";
 
 export default function HomePage() {
   return (
-    <NavigationLayout
-      className="bg-background"
-      header={
-        /* Social Hub Header - Between Top Nav and Main Content */
-        <div className="relative w-full py-6 md:py-8 z-[60]">
-          <div className="relative flex flex-col items-center justify-center text-center">
-            <div className="absolute pointer-events-none w-full h-[919px] top-0 left-0 bg-[url(/app-background.png)] bg-cover bg-[center_top] bg-no-repeat z-0 overflow-hidden" />
-            <h1 className="relative text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-[rgba(233, 240, 245, 1)] mb-3 md:mb-4 z-10">
-              Social Hub
-            </h1>
-            {/* Activity Stats Inline - Compact Design */}
-            <div className="relative flex items-center justify-center flex-wrap gap-[10px] z-10">
+    <>
+      {/* Background - Absolute from page top, scrolls with content */}
+      {/* Mobile: Height to top of Social Hub title (~140px), Desktop: Full height */}
+      <div className="absolute pointer-events-none w-full h-[140px] md:h-[919px] top-0 left-0 bg-[url(/app-background.png)] bg-cover bg-[center_top] bg-no-repeat z-[1]" />
+      
+      <NavigationLayout
+        className="bg-transparent relative z-[2]"
+        header={
+          /* Social Hub Header - Between Top Nav and Main Content */
+          <div className="relative w-full pt-4 pb-4 md:py-6 lg:py-8 z-[10]">
+            <div className="relative flex flex-col items-center justify-center text-center">
+              <h1 
+                className="relative mb-2 md:mb-3 lg:mb-4 z-10 flex items-center justify-center text-center flex-none grow-0 w-[123px] md:w-auto h-[31px] md:h-auto social-hub-title"
+                style={{
+                  fontFamily: "'Geist'",
+                  fontStyle: "normal",
+                  fontWeight: 600,
+                  color: "#E9F0F5",
+                  fontSize: "42px",
+                  // Mobile font size handled by CSS class
+                  // Desktop sizes handled by media queries in globals.css
+                }}
+              >
+                Social Hub
+              </h1>
+              {/* Activity Stats Inline - Compact Design */}
+              <div className="relative flex items-center justify-center flex-wrap gap-[10px] z-10 mt-0">
               <div className="flex items-center gap-1.5 rounded-md py-0.5 px-2 bg-[rgba(155,182,204,0.08)]">
                 <span className="text-base md:text-lg font-bold text-white">
                   23
@@ -58,16 +73,30 @@ export default function HomePage() {
         {/* Mobile: Tabs Layout */}
         <div className="block lg:hidden">
           <Tabs defaultValue="feed" className="space-y-4 sm:space-y-6">
-            <TabsList className="grid w-full grid-cols-2 bg-card border border-border">
+            <TabsList className="feed-discover-tabs flex flex-row items-center p-0 gap-6 w-[152px] h-6 mx-auto bg-transparent border-0">
               <TabsTrigger
                 value="feed"
-                className="data-[state=active]:bg-electric-blue data-[state=active]:text-white text-xs sm:text-sm"
+                className="data-[state=active]:text-white data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-transparent text-[#9BB6CC99] h-6 bg-transparent hover:bg-transparent focus-visible:ring-0 border-0 flex items-center font-medium relative"
+                style={{
+                  fontFamily: "'Geist'",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  fontSize: "12px !important",
+                  lineHeight: "16px",
+                }}
               >
                 Feed
               </TabsTrigger>
               <TabsTrigger
                 value="discover"
-                className="data-[state=active]:bg-electric-blue data-[state=active]:text-white text-xs sm:text-sm"
+                className="data-[state=active]:text-white data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-transparent text-[#9BB6CC99] h-6 bg-transparent hover:bg-transparent focus-visible:ring-0 border-0 flex items-center font-medium relative"
+                style={{
+                  fontFamily: "'Geist'",
+                  fontStyle: "normal",
+                  fontWeight: 500,
+                  fontSize: "12px !important",
+                  lineHeight: "16px",
+                }}
               >
                 Discover
               </TabsTrigger>
@@ -82,21 +111,21 @@ export default function HomePage() {
 
             {/* Discover Tab */}
             <TabsContent value="discover">
-              <div className="space-y-4 sm:space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              <div className="space-y-0 sm:space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 sm:gap-6">
                   {/* Left Column */}
-                  <div className="space-y-4 sm:space-y-6">
+                  <div className="space-y-0 sm:space-y-6">
                     {/* Trending Topics */}
                     <TrendingTopics />
 
                     {/* Trending Creators */}
-                    <Card className="bg-transparent border-none">
-                      <CardHeader className="pb-4">
+                    <Card className="bg-transparent border-none py-0 md:py-4">
+                      <CardHeader className="pb-2 md:pb-4 !px-0 md:!px-[12px]">
                         <CardTitle className="font-semibold text-[rgba(229,247,253,0.4)] text-xs">
                           Trending Creators
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="space-y-4">
+                      <CardContent className="space-y-[10px] md:space-y-4 px-0 md:px-6 pt-0 md:pt-6">
                         <div className="flex items-center space-x-3">
                           <Avatar className="w-10 h-10">
                             <AvatarImage src="/diverse-user-avatars.png" />
@@ -106,7 +135,7 @@ export default function HomePage() {
                             <p className="font-medium text-card-foreground text-[15px]">
                               Vitalik Buterin
                             </p>
-                            <p className="text-muted-foreground mt-1 text-[15px]">
+                            <p className="mt-1 text-[15px]" style={{ color: "#9BB6CC" }}>
                               Ethereum Foundation
                             </p>
                           </div>
@@ -123,7 +152,7 @@ export default function HomePage() {
                             <p className="font-medium text-card-foreground text-[15px]">
                               Sarah Miller
                             </p>
-                            <p className="text-muted-foreground mt-1 text-[15px]">
+                            <p className="mt-1 text-[15px]" style={{ color: "#9BB6CC" }}>
                               DeFi Researcher
                             </p>
                           </div>
@@ -153,19 +182,19 @@ export default function HomePage() {
                   </div>
 
                   {/* Right Column */}
-                  <div className="space-y-4 sm:space-y-6">
+                  <div className="space-y-0 sm:space-y-6">
                     {/* Suggested Connections */}
                     <SuggestedConnections />
 
                     {/* Active Rooms */}
-                    <Card className="bg-transparent border-none">
-                      <CardHeader className="pb-4">
+                    <Card className="bg-transparent border-none py-0 md:py-4">
+                      <CardHeader className="pb-2 md:pb-4 px-0 md:px-6">
                         <CardTitle className="font-semibold text-[rgba(229,247,253,0.4)] text-xs">
                           Active Rooms
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/50 cursor-pointer">
+                      <CardContent className="space-y-[10px] md:space-y-4 px-0  pt-0 md:pt-6">
+                        <div className="flex items-center space-x-3 p-2 md:p-3 rounded-lg hover:bg-muted/50 cursor-pointer">
                           <div className="w-10 h-10 bg-electric-blue/20 rounded-full flex items-center justify-center">
                             <span className="text-electric-blue text-sm">
                               🔒
@@ -175,13 +204,13 @@ export default function HomePage() {
                             <p className="font-medium text-card-foreground text-[15px]">
                               DeFi Builders
                             </p>
-                            <p className="text-muted-foreground mt-1 text-[15px]">
+                            <p className="mt-1 text-[15px]" style={{ color: "#9BB6CC" }}>
                               47 online
                             </p>
                           </div>
                           <div className="w-2 h-2 bg-veralux-green rounded-full"></div>
                         </div>
-                        <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/50 cursor-pointer">
+                        <div className="flex items-center space-x-3 p-2 md:p-3 rounded-lg hover:bg-muted/50 cursor-pointer">
                           <div className="w-10 h-10 bg-veralux-yellow/20 rounded-full flex items-center justify-center">
                             <span className="text-veralux-yellow text-sm">
                               🎮
@@ -191,13 +220,13 @@ export default function HomePage() {
                             <p className="font-medium text-card-foreground text-[15px]">
                               Gaming Alpha
                             </p>
-                            <p className="text-muted-foreground mt-1 text-[15px]">
+                            <p className="mt-1 text-[15px]" style={{ color: "#9BB6CC" }}>
                               23 online
                             </p>
                           </div>
                           <div className="w-2 h-2 bg-veralux-green rounded-full"></div>
                         </div>
-                        <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/50 cursor-pointer">
+                        <div className="flex items-center space-x-3 p-2 md:p-3 rounded-lg hover:bg-muted/50 cursor-pointer">
                           <div className="w-10 h-10 bg-veralux-green/20 rounded-full flex items-center justify-center">
                             <span className="text-veralux-green text-sm">
                               💎
@@ -207,7 +236,7 @@ export default function HomePage() {
                             <p className="font-medium text-card-foreground text-[15px]">
                               NFT Collectors
                             </p>
-                            <p className="text-muted-foreground mt-1 text-[15px]">
+                            <p className="mt-1 text-[15px]" style={{ color: "#9BB6CC" }}>
                               31 online
                             </p>
                           </div>
@@ -224,7 +253,7 @@ export default function HomePage() {
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/50 cursor-pointer">
+                        <div className="flex items-center space-x-3 p-2 md:p-3 rounded-lg hover:bg-muted/50 cursor-pointer">
                           <div className="w-10 h-10 bg-electric-blue/20 rounded-full flex items-center justify-center">
                             <span className="text-electric-blue text-sm">
                               🏗️
@@ -234,7 +263,7 @@ export default function HomePage() {
                             <p className="font-medium text-card-foreground text-[15px]">
                               DeFi Builders
                             </p>
-                            <p className="text-muted-foreground mt-1 text-[15px]">
+                            <p className="mt-1 text-[15px]" style={{ color: "#9BB6CC" }}>
                               1.2k members
                             </p>
                           </div>
@@ -242,7 +271,7 @@ export default function HomePage() {
                             Join
                           </button>
                         </div>
-                        <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-muted/50 cursor-pointer">
+                        <div className="flex items-center space-x-3 p-2 md:p-3 rounded-lg hover:bg-muted/50 cursor-pointer">
                           <div className="w-10 h-10 bg-veralux-yellow/20 rounded-full flex items-center justify-center">
                             <span className="text-veralux-yellow text-sm">
                               🎮
@@ -252,7 +281,7 @@ export default function HomePage() {
                             <p className="font-medium text-card-foreground text-[15px]">
                               NFT Gaming
                             </p>
-                            <p className="text-muted-foreground mt-1 text-[15px]">
+                            <p className="mt-1 text-[15px]" style={{ color: "#9BB6CC" }}>
                               856 members
                             </p>
                           </div>
@@ -283,8 +312,8 @@ export default function HomePage() {
               <TrendingTopics />
 
               {/* Trending Creators */}
-              <Card className="bg-transparent border-none">
-                <CardHeader className="pb-4">
+              <Card className="bg-transparent border-none py-4">
+                <CardHeader className="pb-4 px-[12px]">
                   <CardTitle className="font-semibold text-[rgba(229,247,253,0.4)] text-xs">
                     Trending Creators
                   </CardTitle>
@@ -299,7 +328,7 @@ export default function HomePage() {
                       <p className="font-medium text-card-foreground truncate text-[15px]">
                         Vitalik Buterin
                       </p>
-                      <p className="text-muted-foreground truncate mt-1 text-[15px]">
+                      <p className="truncate mt-1 text-[15px]" style={{ color: "#9BB6CC" }}>
                         Ethereum Foundation
                       </p>
                     </div>
@@ -316,7 +345,7 @@ export default function HomePage() {
                       <p className="font-medium text-card-foreground truncate text-[15px]">
                         Sarah Miller
                       </p>
-                      <p className="text-muted-foreground truncate mt-1 text-[15px]">
+                      <p className="truncate mt-1 text-[15px]" style={{ color: "#9BB6CC" }}>
                         DeFi Researcher
                       </p>
                     </div>
@@ -332,13 +361,13 @@ export default function HomePage() {
 
               {/* Active Rooms */}
               <Card className="bg-transparent border-none">
-                <CardHeader className="pb-4">
+                <CardHeader className="pb-4 px-[12px]">
                   <CardTitle className="font-semibold text-[rgba(229,247,253,0.4)] text-xs">
                     Active Rooms
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
+                  <div className="flex items-center gap-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
                     <div className="w-10 h-10 bg-electric-blue/20 rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-electric-blue text-sm">🔒</span>
                     </div>
@@ -346,13 +375,13 @@ export default function HomePage() {
                       <p className="font-medium text-card-foreground truncate text-[15px]">
                         DeFi Builders
                       </p>
-                      <p className="text-muted-foreground mt-1 text-[15px]">
+                      <p className="mt-1 text-[15px]" style={{ color: "#9BB6CC" }}>
                         47 online
                       </p>
                     </div>
                     <div className="w-2 h-2 bg-veralux-green rounded-full flex-shrink-0"></div>
                   </div>
-                  <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
+                  <div className="flex items-center gap-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
                     <div className="w-10 h-10 bg-veralux-yellow/20 rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-veralux-yellow text-sm">🎮</span>
                     </div>
@@ -360,13 +389,13 @@ export default function HomePage() {
                       <p className="font-medium text-card-foreground truncate text-[15px]">
                         Gaming Alpha
                       </p>
-                      <p className="text-muted-foreground mt-1 text-[15px]">
+                      <p className="mt-1 text-[15px]" style={{ color: "#9BB6CC" }}>
                         23 online
                       </p>
                     </div>
                     <div className="w-2 h-2 bg-veralux-green rounded-full flex-shrink-0"></div>
                   </div>
-                  <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
+                  <div className="flex items-center gap-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
                     <div className="w-10 h-10 bg-veralux-green/20 rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-veralux-green text-sm">💎</span>
                     </div>
@@ -374,7 +403,7 @@ export default function HomePage() {
                       <p className="font-medium text-card-foreground truncate text-[15px]">
                         NFT Collectors
                       </p>
-                      <p className="text-muted-foreground mt-1 text-[15px]">
+                      <p className="mt-1 text-[15px]" style={{ color: "#9BB6CC" }}>
                         31 online
                       </p>
                     </div>
@@ -384,14 +413,14 @@ export default function HomePage() {
               </Card>
 
               {/* Popular Communities */}
-              <Card className="bg-transparent border-none">
-                <CardHeader className="pb-4">
+              <Card className="bg-transparent border-none py-4">
+                <CardHeader className="pb-4 px-[12px]">
                   <CardTitle className="font-semibold text-[rgba(229,247,253,0.4)] text-xs">
                     Popular Communities
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
+                  <div className="flex items-center gap-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
                     <div className="w-10 h-10 bg-electric-blue/20 rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-electric-blue text-sm">🏗️</span>
                     </div>
@@ -399,7 +428,7 @@ export default function HomePage() {
                       <p className="font-medium text-card-foreground truncate text-[15px]">
                         DeFi Builders
                       </p>
-                      <p className="text-muted-foreground mt-1 text-[15px]">
+                      <p className="mt-1 text-[15px]" style={{ color: "#9BB6CC" }}>
                         1.2k members
                       </p>
                     </div>
@@ -407,7 +436,7 @@ export default function HomePage() {
                       Join
                     </button>
                   </div>
-                  <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
+                  <div className="flex items-center gap-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
                     <div className="w-10 h-10 bg-veralux-yellow/20 rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-veralux-yellow text-sm">🎮</span>
                     </div>
@@ -415,7 +444,7 @@ export default function HomePage() {
                       <p className="font-medium text-card-foreground truncate text-[15px]">
                         NFT Gaming
                       </p>
-                      <p className="text-muted-foreground mt-1 text-[15px]">
+                      <p className="mt-1 text-[15px]" style={{ color: "#9BB6CC" }}>
                         856 members
                       </p>
                     </div>
@@ -430,5 +459,6 @@ export default function HomePage() {
         </div>
       </div>
     </NavigationLayout>
+    </>
   );
 }
