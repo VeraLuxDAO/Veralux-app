@@ -723,8 +723,8 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                             className={cn(
                               "px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg shadow-sm",
                               message.isOwn
-                                ? "bg-[#5c6bc0] text-white rounded-br-sm"
-                                : "bg-[#1c2733] text-white rounded-bl-sm"
+                                ? "bg-[#7287FD] text-white rounded-br-sm"
+                                : "bg-[#7287FD1A] text-white rounded-bl-sm"
                             )}
                           >
                             {showAvatar &&

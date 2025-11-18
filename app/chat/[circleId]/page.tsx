@@ -198,6 +198,18 @@ export default function ChatPage() {
   const router = useRouter();
   const params = useParams();
   const circleId = params.circleId as string;
+
+  // Redirect to new circle sliding panel format
+  useEffect(() => {
+    if (circleId && mockCircles[circleId as keyof typeof mockCircles]) {
+      const circle = mockCircles[circleId as keyof typeof mockCircles];
+      const slugifiedName = circle.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      router.replace(`/?circle=${slugifiedName}`);
+    }
+  }, [circleId, router]);
   const [messages, setMessages] = useState<ChatMessage[]>(mockMessages);
   const [activeChannelId, setActiveChannelId] = useState("general");
   const [channelCategories, setChannelCategories] = useState(

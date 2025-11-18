@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -190,7 +190,7 @@ const mockMessages: Message[] = [
   },
 ];
 
-export default function MessagesPage() {
+function MessagesPageContent() {
   // URL state: room slug in query param
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -653,5 +653,13 @@ export default function MessagesPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MessagesPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
+      <MessagesPageContent />
+    </Suspense>
   );
 }

@@ -19,10 +19,11 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CirclesModal } from "@/components/circles-modal";
 import { RoomsSlidingPanel } from "@/components/rooms-sliding-panel";
+import { CirclesSlidingPanel } from "@/components/circles-sliding-panel";
 import { NotificationCenterPopover } from "@/components/notification-center-popover";
 
 interface DesktopTopBarProps {
@@ -40,10 +41,14 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
   const auth = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   // Desktop Rooms (private messages) panel is considered "open"
   // whenever the current path starts with /private_rooms
   const isRoomsPanelOpen = pathname.startsWith("/private_rooms");
+  
+  // Desktop Circles panel is considered "open" whenever the circle parameter is present
+  const isCirclesPanelOpen = pathname === "/" && searchParams.get("circle") !== null;
 
   const handleLogoClick = () => {
     router.push("/");
@@ -415,6 +420,12 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
       {/* Rooms Sliding Panel (desktop only, opened/closed based on /private_rooms path) */}
       <RoomsSlidingPanel
         isOpen={isRoomsPanelOpen}
+        onClose={() => router.push("/")}
+      />
+
+      {/* Circles Sliding Panel (desktop only, opened/closed based on ?circle parameter) */}
+      <CirclesSlidingPanel
+        isOpen={isCirclesPanelOpen}
         onClose={() => router.push("/")}
       />
 
