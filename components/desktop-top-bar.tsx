@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import { CirclesModal } from "@/components/circles-modal";
 import { RoomsSlidingPanel } from "@/components/rooms-sliding-panel";
 import { NotificationCenterPopover } from "@/components/notification-center-popover";
@@ -30,7 +31,6 @@ interface DesktopTopBarProps {
 
 export function DesktopTopBar({ className }: DesktopTopBarProps) {
   const [isCirclesModalOpen, setIsCirclesModalOpen] = useState(false);
-  const [isRoomsPanelOpen, setIsRoomsPanelOpen] = useState(false);
   const [isNotificationsPanelOpen, setIsNotificationsPanelOpen] =
     useState(false);
   const [isConnectionsPanelOpen, setIsConnectionsPanelOpen] = useState(false);
@@ -40,6 +40,10 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
   const auth = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+
+  // Desktop Rooms (private messages) panel is considered "open"
+  // whenever the current path starts with /private_rooms
+  const isRoomsPanelOpen = pathname.startsWith("/private_rooms");
 
   const handleLogoClick = () => {
     router.push("/");
@@ -206,9 +210,9 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     <Users className="h-5 w-5 text-white" />
                   </button>
 
-                  {/* Messages Button */}
-                  <button
-                    onClick={() => setIsRoomsPanelOpen(!isRoomsPanelOpen)}
+                  {/* Messages Button - navigates to /private_rooms (desktop private rooms) */}
+                  <Link
+                    href="/private_rooms"
                     className="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/5 transition-colors"
                   >
                     <MessageCircle className="h-5 w-5 text-white" />
@@ -224,7 +228,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     >
                       2
                     </Badge>
-                  </button>
+                  </Link>
 
                   {/* Profile Avatar */}
                   <button
@@ -293,9 +297,9 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     <Users className="h-5 w-5 text-white" />
                   </button>
 
-                  {/* Messages Button */}
-                  <button
-                    onClick={() => setIsRoomsPanelOpen(!isRoomsPanelOpen)}
+                  {/* Messages Button - navigates to /private_rooms (desktop private rooms) */}
+                  <Link
+                    href="/private_rooms"
                     className="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/5 transition-colors"
                   >
                     <MessageCircle className="h-5 w-5 text-white" />
@@ -311,7 +315,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     >
                       2
                     </Badge>
-                  </button>
+                  </Link>
 
                   {/* Profile Avatar */}
                   <button
@@ -408,10 +412,10 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
         onClose={() => setIsCirclesModalOpen(false)}
       />
 
-      {/* Rooms Sliding Panel */}
+      {/* Rooms Sliding Panel (desktop only, opened/closed based on /private_rooms path) */}
       <RoomsSlidingPanel
         isOpen={isRoomsPanelOpen}
-        onClose={() => setIsRoomsPanelOpen(false)}
+        onClose={() => router.push("/")}
       />
 
       {/* Notification Center Popover */}

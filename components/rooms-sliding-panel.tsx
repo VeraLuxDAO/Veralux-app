@@ -27,6 +27,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 interface Message {
   id: string;
@@ -180,10 +181,20 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Resizable divider state
-  const [roomsListWidth, setRoomsListWidth] = useState(320); // Default width
+  const [roomsListWidth, setRoomsListWidth] = useState(404); // Default width (matches design)
   const [isResizing, setIsResizing] = useState(false);
   const MIN_WIDTH = 240; // Minimum width for rooms list
   const MAX_WIDTH = 500; // Maximum width for rooms list
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const slugifyRoomName = (name: string) =>
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
@@ -197,12 +208,23 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
     }
   }, [messages]);
 
+  // Sync selectedRoom with URL when panel is open on desktop (/private_rooms?room=slug)
   useEffect(() => {
-    if (isOpen && !selectedRoom) {
-      // Auto-select first room when opening
-      setSelectedRoom(mockRooms[0] || null);
+    if (!isOpen) return;
+
+    // Read slug from ?room=slug
+    const slug = searchParams.get("room");
+
+    if (slug) {
+      const fromSlug =
+        mockRooms.find((room) => slugifyRoomName(room.name) === slug) ||
+        null;
+      setSelectedRoom(fromSlug);
+    } else {
+      // No slug -> no room selected (show "Select a chat" placeholder)
+      setSelectedRoom(null);
     }
-  }, [isOpen, selectedRoom]);
+  }, [isOpen, searchParams]);
 
   // Prevent body scroll when panel is open
   useEffect(() => {
@@ -449,7 +471,12 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                 {filteredRooms.map((room) => (
                   <button
                     key={room.id}
-                    onClick={() => setSelectedRoom(room)}
+                    onClick={() => {
+                      setSelectedRoom(room);
+              router.push(
+                `/private_rooms?room=${slugifyRoomName(room.name)}`
+              );
+                    }}
                     className={cn(
                       "w-full flex items-start gap-3 px-0 py-4 transition-all duration-150",
                       "hover:opacity-90 cursor-pointer",
