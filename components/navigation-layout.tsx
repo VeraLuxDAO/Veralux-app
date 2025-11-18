@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { MobileTopBar } from "@/components/mobile-top-bar";
 import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import { MobileHamburgerMenu } from "@/components/mobile-hamburger-menu";
@@ -46,7 +46,9 @@ export function NavigationLayout({
       <MobileAITab />
 
       {/* Desktop Navigation */}
-      <DesktopTopBar />
+      <Suspense fallback={null}>
+        <DesktopTopBar />
+      </Suspense>
       <DesktopLeftSidebar />
 
       {/* Desktop AI Chat (bottom-right popup) */}

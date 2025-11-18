@@ -23,10 +23,11 @@ import {
   Lock,
   Mic,
   Plus,
-  MessageCircle,
   ArrowLeft,
 } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 interface Message {
   id: string;
@@ -180,10 +181,20 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Resizable divider state
-  const [roomsListWidth, setRoomsListWidth] = useState(320); // Default width
+  const [roomsListWidth, setRoomsListWidth] = useState(404); // Default width (matches design)
   const [isResizing, setIsResizing] = useState(false);
   const MIN_WIDTH = 240; // Minimum width for rooms list
   const MAX_WIDTH = 500; // Maximum width for rooms list
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const slugifyRoomName = (name: string) =>
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
 
   // Auto-scroll to bottom when messages change
   const scrollToBottom = () => {
@@ -197,12 +208,23 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
     }
   }, [messages]);
 
+  // Sync selectedRoom with URL when panel is open on desktop (/private_rooms?room=slug)
   useEffect(() => {
-    if (isOpen && !selectedRoom) {
-      // Auto-select first room when opening
-      setSelectedRoom(mockRooms[0] || null);
+    if (!isOpen) return;
+
+    // Read slug from ?room=slug
+    const slug = searchParams.get("room");
+
+    if (slug) {
+      const fromSlug =
+        mockRooms.find((room) => slugifyRoomName(room.name) === slug) ||
+        null;
+      setSelectedRoom(fromSlug);
+    } else {
+      // No slug -> no room selected (show "Select a chat" placeholder)
+      setSelectedRoom(null);
     }
-  }, [isOpen, selectedRoom]);
+  }, [isOpen, searchParams]);
 
   // Prevent body scroll when panel is open
   useEffect(() => {
@@ -377,79 +399,82 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
           {/* Rooms List - Left Side */}
           <div
             className={cn(
-              "flex-shrink-0 border-r-0 flex flex-col relative overflow-hidden transition-none bg-transparent",
+              "flex-shrink-0 border-r-0 flex flex-col relative overflow-hidden transition-none bg-transparent bg-[#0000004A]",
               // Hide rooms list when chat is selected on medium screens
               selectedRoom ? "hidden lg:flex" : "flex"
             )}
+
             style={{ width: `${roomsListWidth}px` }}
           >
             {/* Header */}
-            <div className="px-6 py-5 border-b border-white/5 flex-shrink-0 w-full max-w-full overflow-hidden">
+            <div className="px-4 pl-[6px] pt-5 pb-4 flex-shrink-0 w-full max-w-full overflow-hidden">
               <div className="flex items-center justify-between gap-3 mb-5 w-full">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <Button
-                    variant="ghost"
+                    variant="link"
                     size="sm"
                     onClick={onClose}
-                    className="h-9 w-9 p-0 rounded-full bg-white/5 hover:bg-white/10 text-white transition-all"
+                    className="h-9 w-9 p-0 rounded-full  text-white transition-all"
                     title="Close rooms"
                   >
                     <ArrowLeft className="h-5 w-5" />
                   </Button>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <Lock className="h-4 w-4 text-white/70" />
+
+                  {/* Room meta: circular lock icon + title + subtitle */}
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-full border border-white/10 bg-[#FADEFD] flex items-center justify-center">
+                      <Lock className="h-4 w-4 text-[#001422]" />
+                    </div>
+                    <div className="flex flex-col">
                       <h2
-                        className="text-[17px] font-semibold"
+                        className="text-[15px] font-semibold leading-tight text-white"
                         style={{
-                          color: "#FFFFFF",
                           fontFamily: "'Geist'",
                         }}
                       >
                         {selectedRoom?.name ?? "Private Rooms"}
                       </h2>
+                      <p
+                        className="mt-0.5 text-[12px] leading-tight text-[#9BB6CC99]"
+                        style={{ fontFamily: "'Geist'" }}
+                      >
+                        Encrypted Messaging
+                      </p>
                     </div>
-                    <p
-                      className="text-[13px] text-white/60 mt-1"
-                      style={{ fontFamily: "'Geist'" }}
-                    >
-                      Encrypted Messaging
-                    </p>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-9 w-9 p-0 rounded-full bg-white/5 hover:bg-white/10 text-white transition-all"
-                  onClick={() => setSelectedRoom(null)}
-                  title="Hide chat"
-                >
-                  <MessageCircle className="h-5 w-5" />
-                </Button>
               </div>
 
               {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none" />
-                <Input
-                  placeholder="Search rooms..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-11 pr-4 h-11 bg-white/5 border border-white/10 text-white text-[14px] placeholder:text-white/40 focus:ring-0 focus:border-white/30 rounded-full transition-all shadow-inner"
-                  style={{
-                    fontFamily: "'Geist'",
-                  }}
-                />
+              <div className="pl-[10px]">  
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9BB6CC99] pointer-events-none" />
+                  <Input
+                    placeholder="Search rooms..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-11 pr-4 h-10 rounded-full bg-[#E5F7FD0A] text-[14px] text-white placeholder:text-[#9BB6CC99] focus:ring-0 focus:border-white/30 transition-all shadow-inner"
+                    style={{
+                      fontFamily: "'Geist'",
+                      backgroundColor: "#E5F7FD0A",
+                    }}
+                  />
+                </div>
               </div>
             </div>
 
             {/* Rooms List */}
             <ScrollArea className="flex-1 overflow-hidden w-full">
-              <div className="w-full max-w-full overflow-hidden pt-4 px-5">
+              <div className="w-full max-w-full overflow-hidden pt-2 px-4">
                 {filteredRooms.map((room) => (
                   <button
                     key={room.id}
-                    onClick={() => setSelectedRoom(room)}
+                    onClick={() => {
+                      setSelectedRoom(room);
+              router.push(
+                `/private_rooms?room=${slugifyRoomName(room.name)}`
+              );
+                    }}
                     className={cn(
                       "w-full flex items-start gap-3 px-0 py-4 transition-all duration-150",
                       "hover:opacity-90 cursor-pointer",
@@ -462,7 +487,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                   >
                     {/* Avatar */}
                     <div className="relative flex-shrink-0 mt-0.5">
-                      <Avatar className="h-10 w-10">
+                      <Avatar className="h-9 w-9">
                         <AvatarImage src={room.avatar} />
                         <AvatarFallback className="bg-gradient-to-br from-[#2b3642] to-[#1c2733] text-white text-sm font-medium">
                           {room.type === "group" ? "👥" : room.name[0]}
@@ -477,7 +502,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                     <div className="flex-1 min-w-0 text-left flex flex-col gap-1">
                       <div className="flex items-start justify-between gap-2">
                         <h3
-                          className="text-[15px] font-semibold line-clamp-1 flex-1"
+                          className="text-[14px] font-semibold line-clamp-1 flex-1"
                           style={{
                             color: "#FFFFFF",
                             fontFamily: "'Geist'",
@@ -488,12 +513,17 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                         </h3>
                         {/* Time Badge - Far Right, Top Aligned */}
                         {room.lastMessageTime && (
-                          <div className="flex-shrink-0 flex items-start pt-0.5">
+                          <div className="flex-shrink-0 flex items-center gap-1 pt-0.5">
+                            {!room.unreadCount &&
+                              room.type === "dm" &&
+                              !room.isTyping && (
+                                <CheckCheck className="h-3.5 w-3.5 text-[#4bd865] flex-shrink-0" />
+                              )}
                             <span
-                              className="px-2.5 py-1 rounded-lg text-[12px] font-medium whitespace-nowrap"
+                              className="px-[4px] py-[2px] rounded-lg text-[10px] font-medium whitespace-nowrap"
                               style={{
-                                background: "rgba(31, 41, 55, 0.8)",
-                                color: "#FFFFFF",
+                                background: "#9BB6CC1A",
+                                color: "#9BB6CC",
                                 fontFamily: "'Geist'",
                               }}
                             >
@@ -511,13 +541,8 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                         {room.isPinned && (
                           <Pin className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
                         )}
-                        {!room.unreadCount &&
-                          room.type === "dm" &&
-                          !room.isTyping && (
-                            <CheckCheck className="h-3.5 w-3.5 text-[#4bd865] flex-shrink-0" />
-                          )}
                         <p
-                          className="text-[14px] line-clamp-2 leading-relaxed flex-1"
+                          className="text-[12px] line-clamp-2 leading-relaxed flex-1"
                           style={{
                             color: "#9BB6CC",
                             fontFamily: "'Geist'",
@@ -543,8 +568,8 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                         </p>
                         {/* Unread Badge */}
                         {room.unreadCount > 0 && (
-                          <div className="h-5 min-w-5 px-1.5 bg-[#4cd964] rounded-full flex items-center justify-center flex-shrink-0">
-                            <span className="text-[11px] text-white font-semibold">
+                          <div className="h-5 min-w-5 px-1.5 bg-[#FADEFD] rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-[12px] text-[#000205] font-semibold">
                               {room.unreadCount > 99 ? "99+" : room.unreadCount}
                             </span>
                           </div>
@@ -560,7 +585,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
           {/* Resizable Divider */}
           <div
             className={cn(
-              "relative flex-shrink-0 w-1 bg-[#2b3642]/50 group hover:bg-[#5c6bc0] transition-colors duration-200",
+              "relative flex-shrink-0 w-[1px] bg-[#2b3642]/50 group hover:bg-[#5c6bc0] transition-colors duration-200",
               "hidden lg:block",
               isResizing && "bg-[#5c6bc0]"
             )}
@@ -571,7 +596,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
             }}
           >
             {/* Visual indicator */}
-            <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 group-hover:w-1.5 transition-all pointer-events-none">
+            <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 group-hover:w-[2px] transition-all pointer-events-none">
               <div className="h-full w-full bg-transparent group-hover:bg-[#5c6bc0]/50 transition-all" />
             </div>
             {/* Wider hit area for better UX */}
@@ -583,9 +608,9 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
 
           {/* Chat Area - Right Side */}
           {selectedRoom ? (
-            <div className="flex-1 flex flex-col min-w-0 bg-[#05080d] relative z-0">
+            <div className="flex-1 flex flex-col min-w-0 relative z-0">
               {/* Chat Header */}
-              <div className="flex-shrink-0 px-4 lg:px-6 py-4 border-b border-white/5 bg-black/20 backdrop-blur">
+              <div className="flex-shrink-0 px-4 lg:px-4 pt-6 bg-[#0000004A] border-b border-[#FFFFFF14]">
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2 lg:gap-3 flex-1 min-w-0">
@@ -600,7 +625,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                       </Button>
 
                       <div className="relative flex-shrink-0">
-                        <Avatar className="h-[42px] w-[42px]">
+                        <Avatar className="h-9 w-9">
                           <AvatarImage src={selectedRoom.avatar} />
                           <AvatarFallback className="bg-[#2b3642] text-white text-sm">
                             {selectedRoom.type === "group"
@@ -613,13 +638,13 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-white flex items-center gap-1 md:gap-1.5 truncate text-[15px] md:text-[16px] leading-tight">
+                        <h3 className="font-medium text-white flex items-center gap-1 md:gap-1.5 truncate text-[14px] md:text-[14px] leading-tight">
                           {selectedRoom.name}
                           {selectedRoom.isEncrypted && (
                             <Lock className="h-3 w-3 text-[#4bd865] flex-shrink-0" />
                           )}
                         </h3>
-                        <p className="text-[12px] text-white/60 truncate leading-tight mt-0.5">
+                        <p className="text-[12px] text-[#9BB6CC] truncate leading-tight mt-0.5">
                           {selectedRoom.type === "dm"
                             ? selectedRoom.isOnline
                               ? "Online"
@@ -635,13 +660,17 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
                           <Input
                             placeholder={`Search ${selectedRoom.name}`}
-                            className="pl-10 pr-4 h-10 bg-white/5 border border-white/10 rounded-full text-white placeholder:text-white/40 focus:border-white/30 focus:ring-0"
+                            className="pl-10 pr-4 h-9 bg-[#E5F7FD0A] rounded-full text-[#9BB6CC99] text-[14px] placeholder:text-[#9BB6CC99] focus:ring-0"
+                            style={{
+                              fontFamily: "'Geist'",
+                              backgroundColor: "#E5F7FD0A",
+                            }}
                           />
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div className="h-px bg-white/5 w-full" />
+                  <div className="h-px w-full" />
                 </div>
               </div>
 
@@ -694,8 +723,8 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                             className={cn(
                               "px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg shadow-sm",
                               message.isOwn
-                                ? "bg-[#5c6bc0] text-white rounded-br-sm"
-                                : "bg-[#1c2733] text-white rounded-bl-sm"
+                                ? "bg-[#7287FD] text-white rounded-br-sm"
+                                : "bg-[#7287FD1A] text-white rounded-bl-sm"
                             )}
                           >
                             {showAvatar &&
@@ -741,7 +770,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
               </div>
 
               {/* Input Area */}
-              <div className="flex-shrink-0 px-2 md:px-3 lg:px-4 py-2 md:py-2.5 lg:py-3 border-t border-[#2b3642]/50 bg-[#17212b] relative z-0">
+              <div className="flex-shrink-0 px-2 md:px-3 lg:px-4 py-2 md:py-2.5 lg:py-3 border-t border-[#2b3642]/50 bg-[#0000004A] relative z-0">
                 <div className="flex items-center gap-1.5 md:gap-2 lg:gap-3 relative z-0">
                   {/* Attachment Button */}
                   <Button
@@ -813,14 +842,18 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center bg-[#080E1199] px-4 relative z-0">
+            <div className="flex-1 flex items-center justify-center bg-[#0000004A] px-4 relative z-0">
               <div className="text-center relative">
-                <MessageCircle className="h-14 w-14 md:h-16 md:w-16 lg:h-20 lg:w-20 mx-auto mb-3 md:mb-4 lg:mb-5 opacity-10 text-gray-500" />
-                <p className="text-[14px] md:text-[15px] lg:text-[17px] font-medium mb-1 md:mb-1.5 text-white">
-                  Select a chat to start messaging
-                </p>
-                <p className="text-[11px] md:text-[12px] lg:text-[13px] text-[#707579]">
-                  Choose from your existing conversations
+                <Image
+                  src="/purple4.png"
+                  alt="Chat placeholder"
+                  width={430}
+                  height={430}
+                  className="mx-auto mb-3 md:mb-4 lg:mb-5 w-[140px] md:w-[260px] lg:w-[380px] h-auto"
+                  priority
+                />
+                <p className="text-[14px] md:text-[18px] lg:text-[24px] font-semibold mb-1 md:mb-1.5 text-[#9BB6CC]">
+                  Welcome to Private Rooms!
                 </p>
               </div>
             </div>

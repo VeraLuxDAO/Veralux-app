@@ -136,10 +136,16 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
   const [activeTab, setActiveTab] = useState("joined");
   const router = useRouter();
 
+  const slugifyCircleName = (name: string) =>
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
   const handleCircleClick = (circle: Circle) => {
     if (circle.isJoined) {
-      // Navigate to chat page
-      router.push(`/chat/${circle.id}`);
+      // Navigate to circle sliding panel with query parameter
+      router.push(`/?circle=${slugifyCircleName(circle.name)}`);
       onClose();
     } else {
       // Handle join circle logic

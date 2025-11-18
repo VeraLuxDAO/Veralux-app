@@ -172,7 +172,7 @@ export function DashboardSidebar({
 
               <Button
                 variant="ghost"
-                onClick={() => handleNavigation("/chat/defi-builders")}
+                onClick={() => handleNavigation("/?circle=defi-builders")}
                 className="w-full justify-start text-sm text-foreground hover:text-primary hover:bg-accent"
               >
                 <span className="mr-2 text-base">🏗️</span>
@@ -181,7 +181,7 @@ export function DashboardSidebar({
 
               <Button
                 variant="ghost"
-                onClick={() => handleNavigation("/chat/gaming-alpha")}
+                onClick={() => handleNavigation("/?circle=gaming-alpha")}
                 className="w-full justify-start text-sm text-foreground hover:text-primary hover:bg-accent"
               >
                 <span className="mr-2 text-base">🎮</span>
@@ -190,7 +190,7 @@ export function DashboardSidebar({
 
               <Button
                 variant="ghost"
-                onClick={() => handleNavigation("/chat/nft-collectors")}
+                onClick={() => handleNavigation("/?circle=nft-collectors")}
                 className="w-full justify-start text-sm text-foreground hover:text-primary hover:bg-accent"
               >
                 <span className="mr-2 text-base">💎</span>

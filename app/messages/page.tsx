@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { EmojiPicker } from "@/components/ui/emoji-picker";
+import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import {
   ArrowLeft,
   Search,
@@ -23,7 +24,7 @@ import {
   Mic,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface Message {
   id: string;
@@ -189,15 +190,30 @@ const mockMessages: Message[] = [
   },
 ];
 
-export default function MessagesPage() {
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+function MessagesPageContent() {
+  // URL state: room slug in query param
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const slugifyRoomName = (name: string) =>
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+  const activeRoomSlug = searchParams.get("room");
+  const selectedRoom =
+    activeRoomSlug != null
+      ? mockRooms.find((room) => slugifyRoomName(room.name) === activeRoomSlug) ||
+        null
+      : null;
+
   const [searchQuery, setSearchQuery] = useState("");
   const [messageInput, setMessageInput] = useState("");
   const [messages, setMessages] = useState<Message[]>(mockMessages);
   const [showSearch, setShowSearch] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -261,162 +277,181 @@ export default function MessagesPage() {
     room.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Rooms List View - Telegram Style
+  // Rooms List View - Rooms design (no room selected in URL)
   if (!selectedRoom) {
     return (
-      <div className="flex flex-col h-screen bg-[#080E1199]">
-        {/* Header - Telegram Style */}
-        <div className="flex-shrink-0 bg-[#17212b] border-b border-[#2b3642]/50 shadow-sm">
-          <div className="flex items-center justify-between h-[56px] px-3">
-            {/* Left: Back Button + Title with Avatar */}
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.push("/")}
-                className="h-10 w-10 p-0 hover:bg-[#2b3642]/60 active:bg-[#2b3642]/80 text-white rounded-full transition-all flex-shrink-0"
-              >
-                <ArrowLeft className="h-[22px] w-[22px]" />
-              </Button>
+      <>
+        <div className="flex flex-col min-h-screen bg-[#080E1199] pb-[120px]">
+          {/* Header - Maxwell's Private Room */}
+          <div className="flex-shrink-0 border-b border-white/5 bg-[#080E11]">
+            <div className="px-6 pt-4 pb-4">
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center"
+                  style={{ background: "#FADEFD" }}
+                >
+                  <Lock className="h-4 w-4 text-[#001422]" />
+                </div>
+                <div>
+                  <h1
+                    className="text-[16px] font-semibold"
+                    style={{ color: "#FFFFFF", fontFamily: "'Geist'", fontSize:"16px" }}
+                  >
+                    Maxwell&apos;s Private Room
+                  </h1>
+                  <p
+                    className="text-[12px]"
+                    style={{
+                      color: "rgba(155, 182, 204, 0.9)",
+                      fontFamily: "'Geist'",
+                    }}
+                  >
+                    Encrypted Messaging
+                  </p>
+                </div>
+              </div>
 
-              <Avatar className="h-9 w-9 ring-2 ring-[#2b3642]/40">
-                <AvatarImage src="/placeholder-user.jpg" />
-                <AvatarFallback className="bg-gradient-to-br from-[#5c6bc0] to-[#4d5ba8] text-white text-sm font-bold">
-                  U
-                </AvatarFallback>
-              </Avatar>
-
-              <h1 className="font-bold text-white text-[17px] tracking-tight">
-                Chats
-              </h1>
-            </div>
-
-            {/* Right: Action Buttons */}
-            <div className="flex items-center gap-0.5 flex-shrink-0">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowSearch(!showSearch)}
-                className="h-10 w-10 p-0 hover:bg-[#2b3642]/60 active:bg-[#2b3642]/80 text-gray-300 hover:text-white rounded-full transition-all"
-              >
-                <Search className="h-[21px] w-[21px]" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-10 w-10 p-0 hover:bg-[#2b3642]/60 active:bg-[#2b3642]/80 text-gray-300 hover:text-white rounded-full transition-all"
-              >
-                <Plus className="h-[21px] w-[21px]" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Search Bar - Shown when search is active */}
-          {showSearch && (
-            <div className="px-4 pb-3 pt-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
+              {/* Search rooms */}
+              <div className="relative mt-4">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9BB6CC99] pointer-events-none" />
                 <Input
-                  placeholder="Search"
+                  placeholder="Search rooms"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-3 h-9 bg-[#080E1199] border border-[#2b3642]/30 rounded-lg text-white text-[14px] placeholder:text-gray-500 focus:border-[#5c6bc0]/50 focus:ring-0"
-                  autoFocus
+                  className="pl-9 pr-4 h-11 border border-white/10 text-[#9BB6CC99] text-[14px] placeholder:text-[#9BB6CC99] focus:ring-0 focus:border-white/30 rounded-full transition-all shadow-inner"
+                  style={{
+                    fontFamily: "'Geist'",
+                    backgroundColor: "#E5F7FD0A",
+                  }}
                 />
               </div>
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* Rooms List - Telegram Style */}
-        <div className="flex-1 overflow-y-auto bg-[#080E1199]">
-          {filteredRooms.map((room, index) => (
-            <button
-              key={room.id}
-              onClick={() => setSelectedRoom(room)}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-[#17212b] active:bg-[#1c2733] transition-all duration-150"
-            >
-              {/* Avatar */}
-              <div className="relative flex-shrink-0">
-                <Avatar className="h-[56px] w-[56px] ring-1 ring-[#2b3642]/30">
-                  <AvatarImage src={room.avatar} />
-                  <AvatarFallback className="bg-gradient-to-br from-[#2b3642] to-[#1c2733] text-white text-lg font-medium">
-                    {room.type === "group" ? "👥" : room.name[0]}
-                  </AvatarFallback>
-                </Avatar>
-                {room.isOnline && room.type === "dm" && (
-                  <div className="absolute bottom-0.5 right-0.5 w-[14px] h-[14px] bg-[#4bd865] border-[3px] border-[#0e1621] rounded-full" />
-                )}
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 min-w-0 py-0.5">
-                <div className="flex items-start justify-between mb-1">
-                  <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                    <span className="font-semibold text-white truncate text-[16px] leading-tight">
-                      {room.name}
-                    </span>
-                    {room.type === "group" && (
-                      <span className="text-[10px] text-gray-500 flex-shrink-0">
-                        👥
-                      </span>
+          {/* Rooms List */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="pt-2">
+              {filteredRooms.map((room) => (
+                <button
+                  key={room.id}
+                  onClick={() =>
+                    router.push(
+                      `/messages?room=${slugifyRoomName(room.name)}`
+                    )
+                  }
+                  className={cn(
+                    "w-full flex items-start gap-3 px-6 py-4 cursor-pointer group relative",
+                    "transition-colors duration-300",
+                    "hover:bg-white/5 active:bg-[#FFFFFF14]"
+                  )}
+                  style={{
+                    borderBottom: "1px solid rgba(255, 255, 255, 0.06)",
+                  }}
+                >
+                  {/* Avatar */}
+                  <div className="relative flex-shrink-0 mt-0.5">
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src={room.avatar} />
+                      <AvatarFallback className="bg-gradient-to-br from-[#2b3642] to-[#1c2733] text-white text-sm font-medium">
+                        {room.type === "group" ? "👥" : room.name[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    {room.isOnline && room.type === "dm" && (
+                      <div className="absolute bottom-0.5 right-0.5 w-[14px] h-[14px] bg-[#4bd865] border-[3px] border-[#0e1621] rounded-full" />
                     )}
                   </div>
-                  <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
-                    {room.isPinned && (
-                      <Pin className="h-3 w-3 text-gray-500 fill-gray-500" />
-                    )}
-                    <span className="text-[11px] text-gray-500 font-medium">
-                      {room.lastMessageTime && formatTime(room.lastMessageTime)}
-                    </span>
-                  </div>
-                </div>
 
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                    {room.isMuted && (
-                      <VolumeX className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
-                    )}
-                    <p className="text-[14px] text-[#8B96A5] truncate leading-tight">
-                      {room.isTyping ? (
-                        <span className="text-[#4bd865] italic font-medium">
-                          typing...
+                  {/* Content */}
+                    <div className="flex-1 min-w-0 text-left flex flex-col gap-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <span
+                          className="flex items-center text-sm leading-[18px] font-medium text-white truncate flex-1"
+                          style={{ fontFamily: "'Geist'" }}
+                        >
+                          {room.name}
                         </span>
-                      ) : (
-                        <span className="line-clamp-1">{room.lastMessage}</span>
+
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          {/* Read status check mark (DMs with no unread, not typing) */}
+                          {!room.unreadCount &&
+                            room.type === "dm" &&
+                            !room.isTyping && (
+                              <CheckCheck className="h-3.5 w-3.5 text-[#4bd865] flex-shrink-0" />
+                            )}
+
+                          {/* Time pill */}
+                          {room.lastMessageTime && (
+                            <span
+                              className="inline-flex flex-row items-center justify-center py-[2px] px-1 rounded-[10px] text-[10px] font-medium text-[#9BB6CC] bg-[rgba(155,182,204,0.1)] flex-none order-1 grow-0 whitespace-nowrap"
+                              style={{
+                                fontFamily: "'Geist'",
+                              }}
+                            >
+                              {formatTime(room.lastMessageTime)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                    {/* Message preview + status */}
+                    <div className="flex items-center gap-1.5">
+                      {room.isMuted && (
+                        <VolumeX className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
                       )}
-                    </p>
+                      {room.isPinned && (
+                        <Pin className="h-3.5 w-3.5 text-gray-500 flex-shrink-0" />
+                      )}
+
+                      <p
+                        className="text-[12px] leading-relaxed flex-1 truncate"
+                        style={{
+                          color: "#9BB6CC",
+                          fontFamily: "'Geist'",
+                        }}
+                      >
+                        {room.isTyping ? (
+                          <span className="text-[#4bd865] italic">
+                            typing...
+                          </span>
+                        ) : (
+                          room.lastMessage
+                        )}
+                      </p>
+
+                      {/* Unread badge */}
+                      {room.unreadCount > 0 && (
+                        <div className="h-5 min-w-5 px-1.5 bg-[#4cd964] rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-[11px] text-white font-semibold">
+                            {room.unreadCount > 99 ? "99+" : room.unreadCount}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    {room.unreadCount > 0 ? (
-                      <Badge className="h-[20px] min-w-[20px] px-1.5 bg-[#4bd865] text-[#0e1621] text-[11px] rounded-full flex items-center justify-center font-bold shadow-sm">
-                        {room.unreadCount > 99 ? "99+" : room.unreadCount}
-                      </Badge>
-                    ) : room.type === "dm" ? (
-                      <CheckCheck className="h-[15px] w-[15px] text-[#4bd865]" />
-                    ) : null}
-                  </div>
-                </div>
-              </div>
-            </button>
-          ))}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
+
+        {/* Mobile Bottom Navigation - same as Social Hub / Notifications */}
+        <MobileBottomBar />
+      </>
     );
   }
 
-  // Chat View - Telegram Style
+  // Chat View - Rooms Mobile Chat Design
   return (
-    <div className="flex flex-col h-screen bg-[#080E1199]">
-      {/* Chat Header - Telegram Style */}
-      <div className="flex-shrink-0 bg-[#1c2733] border-b border-[#2b3642]">
-        <div className="flex items-center justify-between px-2 h-14">
+    <div className="flex flex-col h-screen bg-[#05080d]">
+      {/* Chat Header */}
+      <div className="flex-shrink-0 bg-[#080E1199] border-b border-white/5">
+        <div className="flex items-center justify-between px-3 pt-4 pb-3">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setSelectedRoom(null)}
-              className="h-9 w-9 p-0 hover:bg-[#2b3642] text-white flex-shrink-0"
+              onClick={() => router.push("/messages")}
+              className="hover:bg-white/10 text-white flex-shrink-0 rounded-full justify-start"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -429,15 +464,20 @@ export default function MessagesPage() {
                 </AvatarFallback>
               </Avatar>
               {selectedRoom.isOnline && selectedRoom.type === "dm" && (
-                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-[#4bd865] border-2 border-[#1c2733] rounded-full" />
+                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-[#4bd865] border-2 border-[#080E11] rounded-full" />
               )}
             </div>
 
-            <div className="flex-1 min-w-0">
-              <h3 className="font-medium text-white truncate text-[15px] leading-tight">
-                {selectedRoom.name}
-              </h3>
-              <p className="text-xs text-gray-400 truncate leading-tight">
+            <div className="flex flex-col min-w-0">
+              <div className="flex items-center gap-1 truncate">
+                <p className="text-white truncate leading-tight text-[14px]">
+                  {selectedRoom.name} 
+                </p>
+                {selectedRoom.isEncrypted && (
+                  <Lock className="h-3.5 w-3.5 text-[#4bd865] flex-shrink-0" />
+                )}
+              </div>
+              <p className="text-xs text-[#9BB6CC99] truncate leading-tight">
                 {selectedRoom.type === "dm"
                   ? selectedRoom.isOnline
                     ? "online"
@@ -447,28 +487,25 @@ export default function MessagesPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-1 flex-shrink-0">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 w-9 p-0 hover:bg-[#2b3642] text-white"
-            >
-              <Phone className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 w-9 p-0 hover:bg-[#2b3642] text-white"
-            >
-              <MoreVertical className="h-5 w-5" />
-            </Button>
+          {/* Search button on the right */}
+          <div 
+            className="h-4 w-4 p-0 hover:bg-white/10 text-white rounded-full flex-shrink-0 mx-3"
+            title="Search in chat"
+          >
+            <Search className="h-5 w-5 text-[#9BB6CC99]" />
           </div>
         </div>
       </div>
 
-      {/* Messages Area - Telegram Style */}
-      <div className="flex-1 overflow-y-auto px-2 py-3">
-        <div className="space-y-2">
+      {/* Messages Area */}
+      <div
+        className="flex-1 overflow-y-auto px-6 py-4"
+        style={{
+          background:
+            "radial-gradient(circle at top, rgba(61,80,120,0.25), transparent 45%), #05080d",
+        }}
+      >
+        <div className="space-y-3">
           {messages.map((message, index) => {
             const showAvatar =
               index === 0 || messages[index - 1]?.senderId !== message.senderId;
@@ -550,75 +587,79 @@ export default function MessagesPage() {
         </div>
       </div>
 
-      {/* Input Area - Telegram Style */}
-      <div className="flex-shrink-0 px-3 py-3 bg-[#17212b] border-t border-[#2b3642]/50">
-        <div className="flex items-center gap-2">
-          {/* Attachment Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-10 w-10 p-0 hover:bg-[#2b3642]/50 active:bg-[#2b3642]/70 text-gray-400 hover:text-white rounded-full flex-shrink-0 transition-all"
-            title="Attach file"
-          >
-            <Paperclip className="h-5 w-5" />
-          </Button>
+      {/* Input Area */}
+      <div className="flex-shrink-0 px-6 pt-3 pb-8 bg-[#080E1199] border-t border-white/5">
+        <div className="flex items-center">
+          <div className="flex w-full items-center rounded-full bg-[#E5F7FD0A] border border-white/10 px-3 gap-2">
+            {/* Emoji */}
+            <EmojiPicker
+              onEmojiSelect={handleEmojiSelect}
+              trigger={
+                <div
+                  className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0"
+                  title="Emoji"
+                >
+                  <Smile className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
+                </div>
+              }
+            />
 
-          {/* Input Field Container */}
-          <div className="flex-1">
-            <div className="flex items-center gap-2 bg-[#080E1199] rounded-xl px-3 py-2.5 border border-[#2b3642]/30 active:border-[#5c6bc0]/50 transition-all">
-              <Input
-                ref={inputRef}
-                placeholder="Message"
-                value={messageInput}
-                onChange={(e) => setMessageInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage();
-                  }
-                }}
-                className="flex-1 h-6 bg-transparent border-none text-white text-[15px] placeholder:text-gray-500 focus:ring-0 focus-visible:ring-0 p-0 shadow-none"
-                autoComplete="off"
-              />
-              <EmojiPicker
-                onEmojiSelect={handleEmojiSelect}
-                trigger={
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 hover:bg-[#2b3642]/50 active:bg-[#2b3642]/70 text-gray-400 hover:text-white rounded-full flex-shrink-0"
-                    title="Emoji"
-                    type="button"
-                  >
-                    <Smile className="h-4 w-4" />
-                  </Button>
+            {/* Input Field */}
+            <Input
+              ref={inputRef}
+              placeholder="Send Message"
+              value={messageInput}
+              onChange={(e) => setMessageInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSendMessage();
                 }
-              />
+              }}
+              className="flex-1 h-6 bg-[#E5F7FD0A] border-none text-[#9BB6CC99] text-[14px] placeholder:text-[#9BB6CC99] focus:ring-0 focus-visible:ring-0 px-2 py-0 shadow-none"
+              autoComplete="off"
+              style={{ fontFamily: "'Geist'", fontSize:"14px !important" }}
+            />
+
+            {/* Right icon group: Mic, Pin, Send (in this order) */}
+            <div className="flex items-center gap-3 flex-shrink-0">
+              {/* Mic */}
+              <div
+                className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 flex items-center justify-center"
+                title="Voice message"
+                style={{maxWidth:"16px !important", maxHeight:"16px !important"}}
+              >
+                <Mic className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
+              </div>
+
+              {/* Pin / Attach */}
+              <div
+                className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 flex items-center justify-center"
+                title="Attach file"
+              >
+                <Paperclip className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
+              </div>
+
+              {/* Send (paper airplane) */}
+              <div
+                onClick={handleSendMessage}
+                className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 flex items-center justify-center"
+                title="Send message"
+              >
+                <Send className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
+              </div>
             </div>
           </div>
-
-          {/* Send/Voice Button */}
-          {messageInput.trim() ? (
-            <Button
-              size="sm"
-              onClick={handleSendMessage}
-              className="h-10 w-10 p-0 rounded-full bg-[#5c6bc0] hover:bg-[#7986cb] active:bg-[#4d5ba8] flex-shrink-0 shadow-md transition-all active:scale-95"
-              title="Send message"
-            >
-              <Send className="h-5 w-5" />
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              className="h-10 w-10 p-0 rounded-full hover:bg-[#2b3642]/50 active:bg-[#2b3642]/70 text-gray-400 hover:text-white flex-shrink-0 transition-all"
-              variant="ghost"
-              title="Voice message"
-            >
-              <Mic className="h-5 w-5" />
-            </Button>
-          )}
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MessagesPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
+      <MessagesPageContent />
+    </Suspense>
   );
 }

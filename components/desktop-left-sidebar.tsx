@@ -20,6 +20,12 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
     router.push(path);
   };
 
+  const slugifyCircleName = (name: string) =>
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
   const connections = [
     {
       name: "Vitalik Buterin",
@@ -178,7 +184,7 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
             {circles.map((circle, index) => (
               <button
                 key={index}
-                onClick={() => handleNavigation(`/chat/${circle.routeId}`)}
+                onClick={() => handleNavigation(`/?circle=${slugifyCircleName(circle.name)}`)}
                 className="w-full flex items-center gap-2 p-1 rounded-lg hover:bg-white/5 transition-colors group"
               >
                 <div
