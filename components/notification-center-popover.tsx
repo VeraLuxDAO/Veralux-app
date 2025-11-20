@@ -291,6 +291,29 @@ export function NotificationCenterPopover({
     };
   }, [isOpen]);
 
+  // Close on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      // Check if click is outside notification panel
+      if (
+        isOpen &&
+        !target.closest('.notification-center-dropdown') &&
+        !target.closest('[data-notification-trigger]')
+      ) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
