@@ -3155,6 +3155,11 @@ a:active,
   background: hsl(var(--muted-foreground) / 0.4);
 }
 
+/* Hide scrollbar for sidebar while keeping scroll functionality */
+aside::-webkit-scrollbar {
+  display: none;
+}
+
 /* Emoji Picker Enhanced Styles */
 .emoji-popup {
   contain: layout style paint;

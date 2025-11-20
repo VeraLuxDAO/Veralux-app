@@ -361,17 +361,38 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
             onValueChange={setActiveTab}
             className="flex-1 flex flex-col overflow-hidden"
           >
-            <TabsList className="mx-3 sm:mx-5 mt-3 sm:mt-4 grid w-auto grid-cols-2 bg-[rgba(229,247,253,0.04)] h-[46px] rounded-[20px] p-1">
+            <TabsList
+              className="mx-3 sm:mx-5 mt-3 sm:mt-4 grid w-auto grid-cols-2 gap-1"
+              style={{
+                background: "rgba(229, 247, 253, 0.04)",
+                borderRadius: "22px",
+                padding: "4px",
+              }}
+            >
               <TabsTrigger
                 value="joined"
-                className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm text-xs sm:text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5"
+                className="text-[13px] font-medium text-muted-foreground relative transition-all py-2 flex items-center justify-center gap-1.5"
+                style={{
+                  ...(activeTab === "joined" && {
+                    background: "rgba(229, 247, 253, 0.2)",
+                    borderRadius: "18px",
+                    color: "white",
+                  }),
+                }}
               >
                 <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
                 <span>My ({mockJoinedCircles.length})</span>
               </TabsTrigger>
               <TabsTrigger
                 value="discover"
-                className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm text-xs sm:text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5"
+                className="text-[13px] font-medium text-muted-foreground relative transition-all py-2 flex items-center justify-center gap-1.5"
+                style={{
+                  ...(activeTab === "discover" && {
+                    background: "rgba(229, 247, 253, 0.2)",
+                    borderRadius: "18px",
+                    color: "white",
+                  }),
+                }}
               >
                 <div className="w-1.5 h-1.5 bg-primary rounded-full" />
                 <span>Discover</span>

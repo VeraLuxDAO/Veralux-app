@@ -188,7 +188,12 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     onClick={() =>
                       setIsNotificationsPanelOpen(!isNotificationsPanelOpen)
                     }
-                    className="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/5 transition-colors"
+                    className={cn(
+                      "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",
+                      isNotificationsPanelOpen
+                        ? "bg-[#FFFFFF14]"
+                        : "hover:bg-white/5"
+                    )}
                   >
                     <Bell className="h-5 w-5 text-white" />
                     <Badge
@@ -210,7 +215,12 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     onClick={() =>
                       setIsConnectionsPanelOpen(!isConnectionsPanelOpen)
                     }
-                    className="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/5 transition-colors"
+                    className={cn(
+                      "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",
+                      isConnectionsPanelOpen || isCirclesPanelOpen
+                        ? "bg-[#FFFFFF14]"
+                        : "hover:bg-white/5"
+                    )}
                   >
                     <Users className="h-5 w-5 text-white" />
                   </button>
@@ -218,7 +228,12 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                   {/* Messages Button - navigates to /private_rooms (desktop private rooms) */}
                   <Link
                     href="/private_rooms"
-                    className="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/5 transition-colors"
+                    className={cn(
+                      "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",
+                      isRoomsPanelOpen
+                        ? "bg-[#FFFFFF14]"
+                        : "hover:bg-white/5"
+                    )}
                   >
                     <MessageCircle className="h-5 w-5 text-white" />
                     <Badge
@@ -275,7 +290,12 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     onClick={() =>
                       setIsNotificationsPanelOpen(!isNotificationsPanelOpen)
                     }
-                    className="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/5 transition-colors"
+                    className={cn(
+                      "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",
+                      isNotificationsPanelOpen
+                        ? "bg-[#FFFFFF14]"
+                        : "hover:bg-white/5"
+                    )}
                   >
                     <Bell className="h-5 w-5 text-white" />
                     <Badge
@@ -297,7 +317,12 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     onClick={() =>
                       setIsConnectionsPanelOpen(!isConnectionsPanelOpen)
                     }
-                    className="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/5 transition-colors"
+                    className={cn(
+                      "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",
+                      isConnectionsPanelOpen || isCirclesPanelOpen
+                        ? "bg-[#FFFFFF14]"
+                        : "hover:bg-white/5"
+                    )}
                   >
                     <Users className="h-5 w-5 text-white" />
                   </button>
@@ -305,7 +330,12 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                   {/* Messages Button - navigates to /private_rooms (desktop private rooms) */}
                   <Link
                     href="/private_rooms"
-                    className="relative flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/5 transition-colors"
+                    className={cn(
+                      "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",
+                      isRoomsPanelOpen
+                        ? "bg-[#FFFFFF14]"
+                        : "hover:bg-white/5"
+                    )}
                   >
                     <MessageCircle className="h-5 w-5 text-white" />
                     <Badge

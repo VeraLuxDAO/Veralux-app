@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,6 +10,45 @@ import { TrendingTopics } from "@/components/trending-topics";
 import { SuggestedConnections } from "@/components/suggested-connections";
 
 export default function HomePage() {
+  const [isSticky, setIsSticky] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const [sidebarTop, setSidebarTop] = useState(0);
+  const [sidebarWidth, setSidebarWidth] = useState('300px');
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!sidebarRef.current) return;
+      
+      // Get sidebar's initial position and width
+      const rect = sidebarRef.current.getBoundingClientRect();
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      
+      // Store original width
+      if (rect.width) {
+        setSidebarWidth(`${rect.width}px`);
+      }
+      
+      // Calculate the original top position on first load
+      if (sidebarTop === 0 && rect.top > 90) {
+        setSidebarTop(scrollTop + rect.top);
+      }
+      
+      // Stick when scrolled past the original position minus the offset (90px)
+      const shouldStick = scrollTop > (sidebarTop - 90);
+      setIsSticky(shouldStick);
+    };
+
+    // Set initial position
+    handleScroll();
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [sidebarTop]);
+
   return (
     <>
       {/* Background - Absolute from page top, scrolls with content */}
@@ -75,7 +115,7 @@ export default function HomePage() {
       }
     >
       {/* Content Container - Constrained width with proper margins */}
-      <div className="w-full max-w-[1600px] mx-auto z-[1]">
+      <div className="w-full max-w-[1600px] mx-auto">
         {/* Mobile: Tabs Layout */}
         <div className="block lg:hidden">
           <Tabs defaultValue="feed" className="space-y-4 sm:space-y-6">
@@ -306,16 +346,31 @@ export default function HomePage() {
 
         {/* Desktop: Equal 24px gaps on left and right */}
         <div className="hidden lg:block">
-          <div className="flex gap-[24px] w-full">
+          <div className="flex gap-[24px] w-full items-start">
             {/* Left Column: Feed - Grows to fill available space */}
-            <div className="flex-1 min-w-0 max-w-full z-[1]">
+            <div className="flex-1 min-w-0 max-w-full">
               <SocialFeed />
             </div>
 
-            {/* Right Column: Sidebar - Responsive width */}
-            <div className="space-y-6 w-[300px] xl:w-[340px] 2xl:w-[380px] flex-shrink-0 z-[1]">
-              {/* Trending Topics */}
-              <TrendingTopics />
+            {/* Right Column: Sidebar - Responsive width, sticky */}
+            <div className="w-[300px] xl:w-[340px] 2xl:w-[380px] flex-shrink-0">
+              <aside 
+                ref={sidebarRef}
+                className="w-full overflow-y-auto"
+                style={{
+                  position: isSticky ? 'fixed' : 'static',
+                  top: isSticky ? '90px' : 'auto',
+                  width: isSticky ? sidebarWidth : '100%',
+                  zIndex: isSticky ? 40 : 'auto',
+                  maxHeight: isSticky ? 'calc(100vh - 90px)' : 'none',
+                  scrollbarWidth: 'none', // Firefox
+                  msOverflowStyle: 'none', // IE/Edge
+                }}
+              >
+                {/* Content wrapper with spacing */}
+                <div className="space-y-6 pb-6">
+                {/* Trending Topics */}
+                <TrendingTopics />
 
               {/* Trending Creators */}
               <Card className="bg-transparent border-none py-4">
@@ -460,6 +515,8 @@ export default function HomePage() {
                   </div>
                 </CardContent>
               </Card>
+                </div>
+              </aside>
             </div>
           </div>
         </div>
