@@ -185,6 +185,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
 
                   {/* Notifications */}
                   <button
+                    data-notification-trigger
                     onClick={() =>
                       setIsNotificationsPanelOpen(!isNotificationsPanelOpen)
                     }
@@ -287,6 +288,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
 
                   {/* Notifications */}
                   <button
+                    data-notification-trigger
                     onClick={() =>
                       setIsNotificationsPanelOpen(!isNotificationsPanelOpen)
                     }

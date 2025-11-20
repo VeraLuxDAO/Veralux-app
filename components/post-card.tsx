@@ -39,12 +39,20 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
 
   return (
     <Card
-      className="border-none transition-all duration-200 rounded-xl shadow-lg w-full"
+      className="border-none transition-all duration-300 rounded-xl shadow-lg w-full cursor-pointer hover:shadow-xl group relative overflow-hidden"
       style={{
         background:
           "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
       }}
     >
+      {/* Hover overlay - brighter gradient */}
+      <div 
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(0deg, rgba(229, 247, 253, 0.12) 0%, rgba(229, 247, 253, 0.04) 100%)",
+        }}
+      />
       <CardContent className="p-4 sm:p-5 md:py-0.5 md:px-6 md:pt-6">
         {/* Post Header */}
         <div className="flex items-start space-x-3 mb-6">

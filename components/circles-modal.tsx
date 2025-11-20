@@ -292,9 +292,14 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
   );
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => {}}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        className="w-[95vw] max-w-2xl h-[85vh] max-h-[600px] p-0 gap-0 bg-[rgba(11,15,17,0.94)] border-[0.4px] border-[rgba(255,255,255,0.12)] rounded-[15px]"
+        className="w-[95vw] max-w-2xl h-[85vh] max-h-[600px] p-0 gap-0 border-[0.4px] border-[rgba(255,255,255,0.08)] rounded-[16px]"
+        style={{
+          background: "rgba(8, 14, 17, 0.6)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+        }}
         showCloseButton={false}
       >
         <DialogHeader className="p-3 sm:p-5 pb-3">
@@ -335,11 +340,11 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus={false}
-                className="w-full h-full border-0 bg-transparent font-medium text-[11px] leading-[26px] text-left text-[rgba(77,243,255,0.36)] placeholder:text-[rgba(77,243,255,0.36)] focus-visible:ring-0 focus-visible:ring-offset-0 p-0 pl-2 pr-6"
+                className="w-full h-full border-0 bg-transparent font-medium text-[11px] leading-[26px] text-left text-[rgba(255,255,255,0.5)] placeholder:text-[rgba(255,255,255,0.4)] focus-visible:ring-0 focus-visible:ring-offset-0 p-0 pl-2 pr-6"
               />
               {/* Search Icon - Inside Right */}
               <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
-                <Search className="w-3.5 h-3.5 text-[rgba(77,243,255,0.36)]" />
+                <Search className="w-3.5 h-3.5 text-[rgba(255,255,255,0.4)]" />
               </div>
               {/* Clear Button (if searching) */}
               {searchQuery && (
