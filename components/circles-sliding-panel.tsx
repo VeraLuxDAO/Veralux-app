@@ -272,17 +272,23 @@ export function CirclesSlidingPanel({
     }
   }, [isOpen, searchParams]);
 
-  // Prevent body scroll when panel is open
+  // Lock body scroll when panel is open
   useEffect(() => {
     if (isOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
       document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
+      
+      return () => {
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.width = "";
+        document.body.style.overflow = "";
+        window.scrollTo(0, scrollY);
+      };
     }
-
-    return () => {
-      document.body.style.overflow = "";
-    };
   }, [isOpen]);
 
   // Hide AI button when circles panel is open

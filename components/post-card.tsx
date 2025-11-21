@@ -2,7 +2,6 @@
 
 import { memo, useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface FlowPost {
@@ -39,7 +38,7 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
 
   return (
     <Card
-      className="border-none transition-all duration-300 rounded-xl shadow-lg w-full cursor-pointer hover:shadow-xl group relative overflow-hidden"
+      className="border-none transition-all duration-300 rounded-xl py-[0px] shadow-lg w-full cursor-pointer hover:shadow-xl group relative overflow-hidden"
       style={{
         background:
           "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
@@ -53,10 +52,10 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
             "linear-gradient(0deg, rgba(229, 247, 253, 0.12) 0%, rgba(229, 247, 253, 0.04) 100%)",
         }}
       />
-      <CardContent className="p-4 sm:p-5 md:py-0.5 md:px-6 md:pt-6">
+      <CardContent className="p-4 sm:p-5 md:py-0.5 md:px-6 md:pt-6 md:pb-6">
         {/* Post Header */}
-        <div className="flex items-start space-x-3 mb-6">
-          <Avatar className="w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0">
+        <div className="flex items-center space-x-3 mb-6">
+          <Avatar className="w-9 h-9 flex-shrink-0">
             <AvatarImage src={post.author.avatar || "/placeholder.svg"} />
             <AvatarFallback className="text-sm">
               {post.author.name
@@ -67,10 +66,16 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
           </Avatar>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-white text-sm sm:text-base">
+              <span 
+                className="font-semibold text-white"
+                style={{ fontSize: "14px" }}
+              >
                 {post.author.name}
               </span>
-              <span className="text-xs sm:text-sm text-gray-400">
+              <span 
+                className="text-gray-400"
+                style={{ fontSize: "12px" }}
+              >
                 {post.author.username}
               </span>
               {post.author.verified && isMounted && (
@@ -88,30 +93,19 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
                   />
                 </svg>
               )}
-              <span className="text-xs sm:text-sm text-gray-500">
+              <span 
+                className="text-gray-500"
+                style={{ fontSize: "12px" }}
+              >
                 • {post.timestamp}
               </span>
             </div>
-            {post.author.badges.length > 0 && (
-              <div className="mt-1">
-                <Badge
-                  className="text-xs px-2 py-0.5 rounded"
-                  style={{
-                    backgroundColor: "rgba(250, 222, 253, 0.1)",
-                    color: "rgba(250, 222, 253, 1)",
-                    border: "1px solid rgba(250, 222, 253, 0.2)",
-                  }}
-                >
-                  {post.author.badges[0]}
-                </Badge>
-              </div>
-            )}
           </div>
         </div>
 
         {/* Post Content */}
         <div className="mb-3">
-          <p className="text-gray-100 whitespace-pre-line leading-relaxed text-base sm:text-[17px]">
+          <p className="text-gray-100 whitespace-pre-line leading-relaxed text-base sm:text-[16px]">
             {post.content}
           </p>
         </div>

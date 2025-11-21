@@ -24,6 +24,25 @@ export function AIChat({ className = "" }: AIChatProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [backdropProgress, setBackdropProgress] = useState(0);
+
+  // Lock body scroll when chat panel is open
+  React.useEffect(() => {
+    if (isOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+      document.body.style.overflow = "hidden";
+      
+      return () => {
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.width = "";
+        document.body.style.overflow = "";
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [isOpen]);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -147,28 +166,79 @@ export function AIChat({ className = "" }: AIChatProps) {
         }}
       >
         <Button
-        onClick={handleToggle}
+          onClick={handleToggle}
           disabled={isAnimating}
           className={cn(
             "desktop-ai-tab-button group relative cursor-pointer transform-gpu",
-            "bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-600",
-            "hover:from-blue-400 hover:via-purple-500 hover:to-indigo-500",
-            "text-white shadow-xl border-2 border-white/20",
+            "text-white shadow-xl",
             "flex items-center justify-center backdrop-blur-sm",
             "disabled:cursor-not-allowed",
             "h-14 w-14 rounded-2xl",
-            "before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300",
+            "overflow-visible",
             // Conditional hover effects - disable during animation
             !isAnimating &&
-              "transition-all duration-300 hover:scale-110 active:scale-95 hover:shadow-2xl hover:shadow-purple-500/30"
+              "transition-all duration-300 hover:scale-110 active:scale-95"
           )}
           style={{
             willChange: isAnimating ? "none" : "transform",
+            background: "linear-gradient(135deg, rgba(229, 247, 253, 0.15) 0%, rgba(250, 222, 253, 0.2) 50%, rgba(155, 182, 204, 0.15) 100%)",
+            border: "1px solid rgba(229, 247, 253, 0.3)",
+            boxShadow: "0 4px 20px rgba(229, 247, 253, 0.15), 0 0 0 1px rgba(250, 222, 253, 0.1) inset",
+          }}
+          onMouseEnter={(e) => {
+            if (!isAnimating) {
+              e.currentTarget.style.background = "linear-gradient(135deg, rgba(229, 247, 253, 0.25) 0%, rgba(250, 222, 253, 0.3) 50%, rgba(155, 182, 204, 0.25) 100%)";
+              e.currentTarget.style.boxShadow = "0 8px 30px rgba(229, 247, 253, 0.25), 0 0 0 1px rgba(250, 222, 253, 0.2) inset, 0 0 40px rgba(229, 247, 253, 0.1)";
+              e.currentTarget.style.border = "1px solid rgba(229, 247, 253, 0.4)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isAnimating) {
+              e.currentTarget.style.background = "linear-gradient(135deg, rgba(229, 247, 253, 0.15) 0%, rgba(250, 222, 253, 0.2) 50%, rgba(155, 182, 204, 0.15) 100%)";
+              e.currentTarget.style.boxShadow = "0 4px 20px rgba(229, 247, 253, 0.15), 0 0 0 1px rgba(250, 222, 253, 0.1) inset";
+              e.currentTarget.style.border = "1px solid rgba(229, 247, 253, 0.3)";
+            }
           }}
         >
-          <div className="relative z-10">
-            <Bot className="h-6 w-6 transition-transform duration-200 group-hover:scale-110 text-white drop-shadow-sm" />
-            <div className="absolute -bottom-1 -right-1 h-3 w-3 bg-green-400 rounded-full border-2 border-white shadow-sm animate-pulse" />
+          {/* Glowing background effect */}
+          <div 
+            className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            style={{
+              background: "radial-gradient(circle at center, rgba(229, 247, 253, 0.2) 0%, transparent 70%)",
+              filter: "blur(8px)",
+            }}
+          />
+          
+          {/* Main content */}
+          <div className="relative z-10 flex items-center justify-center">
+            <img 
+              src="/AIbtn.png" 
+              alt="AI Assistant" 
+              className="h-8 w-8 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 object-contain"
+              style={{ 
+                filter: "drop-shadow(0 2px 4px rgba(229, 247, 253, 0.3))",
+              }} 
+            />
+            
+            {/* Status indicator with pulsing animation */}
+            <div 
+              className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 shadow-lg"
+              style={{
+                backgroundColor: "#22C55E",
+                borderColor: "rgba(8, 14, 17, 0.8)",
+                boxShadow: "0 0 8px rgba(34, 197, 94, 0.6), 0 0 12px rgba(34, 197, 94, 0.4)",
+                animation: "pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+              }}
+            >
+              {/* Inner pulse ring */}
+              <div 
+                className="absolute inset-0 rounded-full"
+                style={{
+                  backgroundColor: "rgba(34, 197, 94, 0.4)",
+                  animation: "ping 2s cubic-bezier(0, 0, 0.2, 1) infinite",
+                }}
+              />
+            </div>
           </div>
         </Button>
       </div>
@@ -176,7 +246,7 @@ export function AIChat({ className = "" }: AIChatProps) {
       {/* Desktop AI Chat Slide-out Panel - Direct Chat Interface */}
       <div
         className={cn(
-          "desktop-ai-chat-panel fixed bottom-6 right-6 z-40 flex flex-col",
+          "desktop-ai-chat-panel fixed bottom-6 right-6 z-[60] flex flex-col",
           "w-80 h-[480px] rounded-xl",
           "bg-card/98 backdrop-blur-md border border-border/30",
           "shadow-[0_0_40px_rgba(0,0,0,0.3)]",
@@ -192,20 +262,39 @@ export function AIChat({ className = "" }: AIChatProps) {
         <div className="flex-shrink-0 p-3 border-b border-border/20 bg-card/50 backdrop-blur-sm rounded-t-xl">
           <div className="flex items-center space-x-3">
             <div className="relative">
-              <Avatar className="h-8 w-8 ring-1 ring-border/30">
-                <AvatarFallback className="bg-gradient-to-br from-primary/80 via-primary to-primary/90 text-primary-foreground text-sm">
+              <Avatar className="h-8 w-8 ring-1" style={{ borderColor: "rgba(229, 247, 253, 0.3)" }}>
+                <AvatarFallback 
+                  className="text-sm"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(229, 247, 253, 0.2) 0%, rgba(250, 222, 253, 0.25) 100%)",
+                    color: "#E5F7FD",
+                  }}
+                >
                   <Bot className="h-4 w-4" />
                 </AvatarFallback>
               </Avatar>
-              <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-veralux-green rounded-full border border-card" />
+              <div 
+                className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border"
+                style={{
+                  backgroundColor: "#22C55E",
+                  borderColor: "rgba(8, 14, 17, 0.8)",
+                  boxShadow: "0 0 6px rgba(34, 197, 94, 0.5)",
+                }}
+              />
             </div>
             <div className="flex flex-col">
               <h3 className="font-semibold text-sm text-foreground">
                 VeraLux AI
               </h3>
               <div className="flex items-center space-x-1.5">
-                <div className="h-1.5 w-1.5 bg-veralux-green rounded-full" />
-                <p className="text-xs text-muted-foreground">Online</p>
+                <div 
+                  className="h-1.5 w-1.5 rounded-full"
+                  style={{
+                    backgroundColor: "#22C55E",
+                    boxShadow: "0 0 4px rgba(34, 197, 94, 0.6)",
+                  }}
+                />
+                <p className="text-xs" style={{ color: "#9BB6CC" }}>Online</p>
               </div>
             </div>
           </div>

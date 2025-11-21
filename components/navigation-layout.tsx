@@ -85,7 +85,7 @@ export function NavigationLayout({
           // Desktop: Right margin = 24px (equal to left gap)
           "md:mr-[24px]",
           // Gap between header and main content - FIXED
-          "mt-0 md:mt-[131px]"
+          "mt-0 md:mt-[40px]"
         )}
       >
         <div className="w-full px-4 py-4 sm:px-6 sm:py-6 md:px-0 md:py-8">

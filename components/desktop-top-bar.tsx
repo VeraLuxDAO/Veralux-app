@@ -122,7 +122,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
       >
         <div className="flex items-center justify-center px-8 pt-4 pb-3.5 relative">
           {/* Center - Navigation Pills with Icons - Centered ignoring sidebar */}
-          <nav className="flex items-center gap-8 bg-[#080E11]/40 border border-white/[0.08] rounded-[24px] p-3 backdrop-blur-[40px] h-[60px]">
+          <nav className="flex items-center gap-3 bg-[#080E11]/40 border border-white/[0.08] rounded-[24px] p-3 backdrop-blur-[40px] h-[60px]">
             {navItems.map((item) => {
               const isActive = pathname === item.path;
               // Play, Build, Trade buttons should use #E5F7FD99 when not active
@@ -268,7 +268,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                 </div>
               ) : (
                 /* Search Collapsed - Compact container */
-                <div className="flex flex-row justify-center items-center p-3 gap-5 h-[60px] bg-[rgba(8,14,17,0.4)] border border-[rgba(255,255,255,0.08)] rounded-[24px] backdrop-blur-[20px] flex-none">
+                <div className="flex flex-row justify-center items-center p-3 gap-4 h-[60px] bg-[rgba(8,14,17,0.4)] border border-[rgba(255,255,255,0.08)] rounded-[24px] backdrop-blur-[20px] flex-none">
                   {/* Search Icon Button */}
                   <button
                     id="search-button"
@@ -373,7 +373,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
             ) : /* Not Authenticated State */
             isSearchExpanded ? (
               /* Search Expanded - Show input + Sign In */
-              <div className="flex items-center justify-evenly p-3 gap-6 w-[350px] h-[60px] bg-[#080E11]/90 border border-[#E5F7FD]/20 backdrop-blur-[20px] rounded-[20px] transition-all duration-300 ease-in-out animate-in fade-in zoom-in-95">
+              <div className="flex items-center justify-evenly p-3 gap-4 w-[350px] h-[60px] bg-[#080E11]/90 border border-[#E5F7FD]/20 backdrop-blur-[20px] rounded-[20px] transition-all duration-300 ease-in-out animate-in fade-in zoom-in-95">
                 {/* Search Input */}
                 <div className="relative flex-1 animate-in fade-in slide-in-from-left-4 duration-300">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
@@ -418,7 +418,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                 </button>
 
                 {/* Space: 26px */}
-                <div style={{ width: "26px" }} />
+                <div style={{ width: "6px" }} />
 
                 {/* Vertical Divider */}
                 <div className="h-8 w-px bg-[rgba(255,255,255,0.2)]" />
@@ -430,7 +430,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                 <button
                   onClick={auth.signInWithGoogle}
                   disabled={auth.isLoading}
-                  className="flex items-center justify-center px-6 py-2.5 h-10 bg-white text-black font-semibold text-[15px] rounded-[20px] transition-all disabled:opacity-50 hover:shadow-lg"
+                  className="flex items-center justify-center px-[12.5px] py-[10PX] h-9 bg-white text-black font-weight-500 text-[12px] rounded-[20px] transition-all disabled:opacity-50 hover:shadow-lg"
                   style={{
                     boxShadow: "0px 4px 12px rgba(255, 255, 255, 0.25)",
                   }}

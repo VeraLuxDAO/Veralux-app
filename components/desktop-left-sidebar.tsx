@@ -104,19 +104,34 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
         "desktop-left-sidebar fixed z-[60] hidden md:block",
         // Responsive positioning and sizing
         "left-[14px] top-[14px]",
-        "h-[calc(100vh-80px)]",
         "w-[200px] lg:w-[220px] xl:w-[250px]", // Responsive width
         "bg-[#080E11]/40 border border-white/[0.08] backdrop-blur-[20px]",
         "rounded-[24px]",
         "transition-all duration-300 ease-out",
-        "overflow-y-auto",
+        "flex flex-col",
+        "overflow-hidden", // Prevent outer scroll, we'll handle scrolling internally
         className
       )}
+      style={{
+        maxHeight: "calc(100vh - 28px)", // Responsive height based on viewport
+        height: "calc(100vh - 28px)",
+        display: "flex",
+        flexDirection: "column",
+      }}
     >
-      <div className="flex flex-col h-full py-6 px-4 gap-8">
-        {/* Logo Section */}
-        <div className="flex items-center justify-start cursor-pointer transition-transform hover:scale-105" onClick={() => handleNavigation("/")}>
-          <svg width="88" height="26" viewBox="0 0 88 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Logo Section - Fixed at top, doesn't scroll */}
+      <div 
+        className="flex items-center justify-start cursor-pointer transition-transform hover:scale-105"
+        onClick={() => handleNavigation("/")}
+        style={{
+          paddingTop: "1.5rem",
+          paddingBottom: "1rem",
+          paddingLeft: "1rem",
+          paddingRight: "1rem",
+          flexShrink: 0,
+        }}
+      >
+        <svg width="88" height="26" viewBox="0 0 88 26" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g clipPath="url(#clip0_2129_5590)">
               <path d="M20.1587 18.1199V0.000244141H26.0001V26.0002H19.3569L5.84154 7.84639V26.0002H0.00012207V0.000244141H6.72721L20.1587 18.1199Z" fill="#9BB6CC"/>
               <g filter="url(#filter0_dddd_2129_5590)">
@@ -182,19 +197,33 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
                 <rect width="26" height="26" fill="white"/>
               </clipPath>
             </defs>
-          </svg>
-        </div>
+        </svg>
+      </div>
 
-        {/* Connections Section */}
-        <div className="flex flex-col gap-3 flex-1 overflow-y-auto">
-          <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+      {/* Scrollable Content - Connections and Circles */}
+      <div 
+        className="flex flex-col overflow-y-auto sidebar-scrollable"
+        style={{
+          paddingLeft: "1rem",
+          paddingRight: "1rem",
+          paddingBottom: "1.5rem",
+          flex: "1 1 0%",
+          minHeight: 0,
+          overflowY: "auto",
+          scrollbarWidth: "none", // Firefox
+          msOverflowStyle: "none", // IE/Edge
+        }}
+      >
+          {/* Connections Section */}
+          <div className="flex flex-col gap-3" style={{ paddingTop: "1rem" }}>
+          <h3 className="text-[10px] font-semibold text-[#E5F7FD66] uppercase tracking-wider">
             Connections
           </h3>
           <div className="flex flex-col gap-2">
             {connections.slice(0, 9).map((user, index) => (
               <button
                 key={index}
-                className="w-full flex items-center gap-2 p-1 rounded-lg hover:bg-white/5 transition-colors group"
+                className="w-full flex items-center gap-2 pb-1 rounded-lg hover:bg-white/5 transition-colors group"
               >
                 <div className="relative flex-shrink-0">
                   <Avatar className="h-8 w-8">
@@ -239,68 +268,69 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
               </button>
             </div>
           </div>
-        </div>
+          </div>
 
-        {/* Circles Section */}
-        <div className="flex flex-col gap-3">
-          <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
-            Circles
-          </h3>
-          <div className="flex flex-col gap-2">
-            {circles.map((circle, index) => (
-              <button
-                key={index}
-                onClick={() => handleNavigation(`/?circle=${slugifyCircleName(circle.name)}`)}
-                className="w-full flex items-center gap-2 p-1 rounded-lg hover:bg-white/5 transition-colors group"
-              >
-                <div
-                  className={cn(
-                    "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
-                    circle.color
-                  )}
+          {/* Circles Section */}
+          <div className="flex flex-col gap-3" style={{ marginTop: "2rem" }}>
+            <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+              Circles
+            </h3>
+            <div className="flex flex-col gap-2">
+              {circles.map((circle, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleNavigation(`/?circle=${slugifyCircleName(circle.name)}`)}
+                  className="w-full flex items-center gap-2 p-1 rounded-lg hover:bg-white/5 transition-colors group"
                 >
-                  <span className="text-base">{circle.icon}</span>
-                </div>
-                <div className="flex-1 text-left min-w-0">
-                  <p
-                    className="truncate"
-                    style={{
-                      fontFamily: "'Geist'",
-                      fontStyle: "normal",
-                      fontWeight: 500,
-                      fontSize: "14px",
-                      color: "#FFFFFF",
-                    }}
+                  <div
+                    className={cn(
+                      "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
+                      circle.color
+                    )}
                   >
-                    {circle.name}
-                  </p>
-                  <p
-                    className="truncate"
-                    style={{
-                      color: "#FADEFD",
-                      fontSize: "12px",
-                    }}
-                  >
-                    {circle.members} members
-                  </p>
-                </div>
-              </button>
-            ))}
-            <div className="flex gap-2 justify-between">
-              <button
-                onClick={() => setIsCirclesModalOpen(true)}
-                className="flex items-center px-2.5 py-1.5 gap-2 w-[95.89px] h-[28px] bg-[rgba(229,247,253,0.06)] rounded-[10px]"
-              >
-                <MoreHorizontal className="h-3.5 w-3.5" style={{ color: "#9BB6CC" }} />
-                <span className="text-xs" style={{ color: "#9BB6CC" }}>See more</span>
-              </button>
-              <button className="flex justify-center items-center p-1 gap-[10px] w-[28px] h-[28px] bg-[rgba(229,247,253,0.08)] rounded-full">
-                <Users className="h-3.5 w-3.5" />
-              </button>
+                    <span className="text-base">{circle.icon}</span>
+                  </div>
+                  <div className="flex-1 text-left min-w-0">
+                    <p
+                      className="truncate"
+                      style={{
+                        fontFamily: "'Geist'",
+                        fontStyle: "normal",
+                        fontWeight: 500,
+                        fontSize: "14px",
+                        color: "#FFFFFF",
+                      }}
+                    >
+                      {circle.name}
+                    </p>
+                    <p
+                      className="truncate"
+                      style={{
+                        color: "#FADEFD",
+                        fontSize: "12px",
+                      }}
+                    >
+                      {circle.members} members
+                    </p>
+                  </div>
+                </button>
+              ))}
+              <div className="flex gap-2 justify-between">
+                <button
+                  onClick={() => setIsCirclesModalOpen(true)}
+                  className="flex items-center px-2.5 py-1.5 gap-2 w-[95.89px] h-[28px] bg-[rgba(229,247,253,0.06)] rounded-[10px]"
+                >
+                  <MoreHorizontal className="h-3.5 w-3.5" style={{ color: "#9BB6CC" }} />
+                  <span className="text-xs" style={{ color: "#9BB6CC" }}>See more</span>
+                </button>
+                <button className="flex justify-center items-center p-1 gap-[10px] w-[28px] h-[28px] bg-[rgba(229,247,253,0.08)] rounded-full">
+                  <Users className="h-3.5 w-3.5" />
+                </button>
             </div>
           </div>
+          </div>
         </div>
-      </div>
+        {/* End of Scrollable Content */}
 
       {/* Circles Modal */}
       <CirclesModal
