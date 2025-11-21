@@ -13,26 +13,41 @@ import { cn } from "@/lib/utils";
 export default function HomePage() {
   const [isSticky, setIsSticky] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [sidebarTop, setSidebarTop] = useState(0);
   const [sidebarWidth, setSidebarWidth] = useState('300px');
+  const lockedScrollYRef = useRef<number | null>(null);
 
   useEffect(() => {
     let rafId: number | null = null;
+    let isBodyLockedState = false;
+    
+    // Check if body scroll is locked (pop-up is open)
+    const isBodyLocked = () => {
+      return document.body.style.position === 'fixed';
+    };
     
     const handleScroll = () => {
       if (rafId) return; // Throttle with requestAnimationFrame
       
       rafId = requestAnimationFrame(() => {
-        if (!sidebarRef.current) {
+        if (!sidebarRef.current || !containerRef.current) {
           rafId = null;
           return;
         }
         
-        // Get sidebar's initial position and width
+        // If body is locked (pop-up open), completely skip recalculation
+        // This prevents the sidebar from jumping when pop-ups open/close
+        if (isBodyLocked()) {
+          rafId = null;
+          return;
+        }
+        
+        // Get sidebar's current position
         const rect = sidebarRef.current.getBoundingClientRect();
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         
-        // Store original width
+        // Store original width when not sticky
         if (rect.width && !isSticky) {
           setSidebarWidth(`${rect.width}px`);
         }
@@ -45,7 +60,7 @@ export default function HomePage() {
         // Stick when scrolled past the original position minus the offset (90px)
         // Add a small threshold to prevent flickering
         const threshold = 5;
-        const shouldStick = scrollTop > (sidebarTop - 90 + threshold);
+        const shouldStick = sidebarTop > 0 && scrollTop > (sidebarTop - 90 + threshold);
         
         if (shouldStick !== isSticky) {
           setIsSticky(shouldStick);
@@ -55,15 +70,55 @@ export default function HomePage() {
       });
     };
 
+    // Monitor body style changes to detect when pop-ups open/close
+    const observeBodyChanges = () => {
+      const observer = new MutationObserver(() => {
+        const currentlyLocked = isBodyLocked();
+        
+        // Only react to state changes (lock -> unlock or unlock -> lock)
+        if (currentlyLocked !== isBodyLockedState) {
+          isBodyLockedState = currentlyLocked;
+          
+          if (currentlyLocked) {
+            // Body just got locked - store current scroll position
+            const bodyTop = document.body.style.top;
+            if (bodyTop && bodyTop.startsWith('-')) {
+              lockedScrollYRef.current = Math.abs(parseFloat(bodyTop));
+            } else {
+              lockedScrollYRef.current = window.pageYOffset || document.documentElement.scrollTop;
+            }
+          } else {
+            // Body just got unlocked - wait for scroll restoration then recalculate
+            lockedScrollYRef.current = null;
+            // Use a longer delay to ensure scroll position is fully restored
+            setTimeout(() => {
+              handleScroll();
+            }, 100);
+          }
+        }
+      });
+      
+      observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['style']
+      });
+      
+      return observer;
+    };
+
     // Set initial position
     handleScroll();
+    isBodyLockedState = isBodyLocked();
     
+    const bodyObserver = observeBodyChanges();
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleScroll, { passive: true });
+    
     return () => {
       if (rafId) {
         cancelAnimationFrame(rafId);
       }
+      bodyObserver.disconnect();
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
     };
@@ -373,7 +428,10 @@ export default function HomePage() {
             </div>
 
             {/* Right Column: Sidebar - Responsive width, sticky */}
-            <div className="w-[300px] xl:w-[340px] 2xl:w-[380px] flex-shrink-0">
+            <div 
+              ref={containerRef}
+              className="w-[300px] xl:w-[340px] 2xl:w-[380px] flex-shrink-0"
+            >
               <aside 
                 ref={sidebarRef}
                 className={cn(
@@ -388,6 +446,7 @@ export default function HomePage() {
                   maxHeight: isSticky ? 'calc(100vh - 90px)' : 'none',
                   scrollbarWidth: 'none', // Firefox
                   msOverflowStyle: 'none', // IE/Edge
+                  transition: 'none', // Disable transition to prevent jumps
                 }}
               >
                 {/* Content wrapper with spacing */}

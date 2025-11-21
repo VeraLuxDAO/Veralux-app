@@ -101,7 +101,9 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
   return (
     <aside
       className={cn(
-        "desktop-left-sidebar fixed z-[60] hidden md:block",
+        "desktop-left-sidebar fixed z-[60]",
+        // Hide on all mobile and tablet sizes, only show on desktop (1024px+)
+        "hidden lg:block",
         // Responsive positioning and sizing
         "left-[14px] top-[14px]",
         "w-[200px] lg:w-[220px] xl:w-[250px]", // Responsive width
@@ -113,8 +115,8 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
         className
       )}
       style={{
-        maxHeight: "calc(100vh - 28px)", // Responsive height based on viewport
-        height: "calc(100vh - 28px)",
+        maxHeight: "calc(100vh - 14px - 24px)", // 14px from top, 24px from bottom
+        height: "calc(100vh - 14px - 24px)", // Responsive height: grows with viewport
         display: "flex",
         flexDirection: "column",
       }}
@@ -209,13 +211,14 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
           paddingBottom: "1.5rem",
           flex: "1 1 0%",
           minHeight: 0,
+          maxHeight: "100%",
           overflowY: "auto",
           scrollbarWidth: "none", // Firefox
           msOverflowStyle: "none", // IE/Edge
         }}
       >
           {/* Connections Section */}
-          <div className="flex flex-col gap-3" style={{ paddingTop: "1rem" }}>
+          <div className="flex flex-col gap-3 flex-shrink-0" style={{ paddingTop: "1rem" }}>
           <h3 className="text-[10px] font-semibold text-[#E5F7FD66] uppercase tracking-wider">
             Connections
           </h3>
@@ -270,12 +273,24 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
           </div>
           </div>
 
-          {/* Circles Section */}
-          <div className="flex flex-col gap-3" style={{ marginTop: "2rem" }}>
+          {/* Circles Section - Grows to fill available space when sidebar height increases */}
+          <div 
+            className="flex flex-col flex-1" 
+            style={{ 
+              marginTop: "2rem",
+            }}
+          >
             <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
               Circles
             </h3>
-            <div className="flex flex-col gap-2">
+            <div 
+              className="flex flex-col flex-1"
+              style={{ 
+                gap: "0.5rem",
+                marginTop: "0.75rem",
+              }}
+            >
+              <div className="flex flex-col flex-1">  
               {circles.map((circle, index) => (
                 <button
                   key={index}
@@ -315,7 +330,8 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
                   </div>
                 </button>
               ))}
-              <div className="flex gap-2 justify-between">
+              </div>
+              <div className="flex gap-2 justify-between flex-shrink-0" style={{ marginTop: "auto" }}>
                 <button
                   onClick={() => setIsCirclesModalOpen(true)}
                   className="flex items-center px-2.5 py-1.5 gap-2 w-[95.89px] h-[28px] bg-[rgba(229,247,253,0.06)] rounded-[10px]"

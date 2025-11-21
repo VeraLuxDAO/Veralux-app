@@ -412,18 +412,24 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
             "linear-gradient(145deg, rgba(14,20,28,0.95) 0%, rgba(8,12,18,0.92) 100%)",
           border: "1px solid rgba(255, 255, 255, 0.08)",
           borderRadius: "20px",
+          backdropFilter: "blur(40px)",
+          WebkitBackdropFilter: "blur(40px)",
         }}
       >
         <div className="flex h-full overflow-hidden">
           {/* Rooms List - Left Side */}
           <div
             className={cn(
-              "flex-shrink-0 border-r-0 flex flex-col relative overflow-hidden transition-none bg-transparent bg-[#0000004A]",
+              "flex-shrink-0 border-r-0 flex flex-col relative overflow-hidden transition-none",
               // Hide rooms list when chat is selected on medium screens
               selectedRoom ? "hidden lg:flex" : "flex"
             )}
-
-            style={{ width: `${roomsListWidth}px` }}
+            style={{ 
+              width: `${roomsListWidth}px`,
+              background: "rgba(0, 0, 0, 0.3)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+            }}
           >
             {/* Header */}
             <div className="px-4 pl-[6px] pt-5 pb-4 flex-shrink-0 w-full max-w-full overflow-hidden">
@@ -627,9 +633,23 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
 
           {/* Chat Area - Right Side */}
           {selectedRoom ? (
-            <div className="flex-1 flex flex-col min-w-0 relative z-0">
+            <div 
+              className="flex-1 flex flex-col min-w-0 relative z-0"
+              style={{
+                background: "rgba(0, 0, 0, 0.2)",
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+              }}
+            >
               {/* Chat Header */}
-              <div className="flex-shrink-0 px-4 lg:px-4 pt-6 bg-[#0000004A] border-b border-[#FFFFFF14]">
+              <div 
+                className="flex-shrink-0 px-4 lg:px-4 pt-6 border-b border-[#FFFFFF14]"
+                style={{
+                  background: "rgba(0, 0, 0, 0.3)",
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
+                }}
+              >
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2 lg:gap-3 flex-1 min-w-0">
@@ -742,8 +762,8 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                             className={cn(
                               "px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg shadow-sm",
                               message.isOwn
-                                ? "bg-[#7287FD] text-white rounded-br-sm"
-                                : "bg-[#7287FD1A] text-white rounded-bl-sm"
+                                ? "bg-[#FADEFD] text-[#080E11] rounded-br-sm"
+                                : "bg-[#9BB6CC0A] text-[#9BB6CC] rounded-bl-sm"
                             )}
                           >
                             {showAvatar &&
@@ -789,7 +809,14 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
               </div>
 
               {/* Input Area */}
-              <div className="flex-shrink-0 px-2 md:px-3 lg:px-4 py-2 md:py-2.5 lg:py-3 border-t border-[#2b3642]/50 bg-[#0000004A] relative z-0">
+              <div 
+                className="flex-shrink-0 px-2 md:px-3 lg:px-4 py-2 md:py-2.5 lg:py-3 border-t border-[#2b3642]/50 relative z-0"
+                style={{
+                  background: "rgba(0, 0, 0, 0.3)",
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
+                }}
+              >
                 <div className="flex items-center gap-1.5 md:gap-2 lg:gap-3 relative z-0">
                   {/* Attachment Button */}
                   <Button
@@ -861,7 +888,14 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center bg-[#0000004A] px-4 relative z-0">
+            <div 
+              className="flex-1 flex items-center justify-center px-4 relative z-0"
+              style={{
+                background: "rgba(0, 0, 0, 0.3)",
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+              }}
+            >
               <div className="text-center relative">
                 <Image
                   src="/purple4.png"

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Home, Users, Search, Bell, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { CirclesModal } from "@/components/circles-modal";
 
 interface MobileBottomBarProps {
@@ -20,6 +20,7 @@ export function MobileBottomBar({
   const [isCirclesModalOpen, setIsCirclesModalOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const navItems = [
     // 1. Home
@@ -74,31 +75,39 @@ export function MobileBottomBar({
 
   return (
     <>
-      {/* Backdrop blur layer - positioned independently to avoid transform context issues */}
+      {/* Backdrop blur layer - positioned behind the nav bar, above Circles component */}
       <div
-        className="fixed inset-x-0 bottom-4 z-[99] flex justify-center md:hidden pointer-events-none"
+        className={cn(
+          "fixed inset-x-0 bottom-4 z-[111] flex justify-center md:hidden pointer-events-none",
+          className
+        )}
       >
         <div
-          className="w-[calc(100%-32px)] max-w-[480px] h-[88px] rounded-[48px] pointer-events-none"
+          className={cn(
+            "box-border",
+            // Base: comfortable padding & gap on typical mobile widths
+            "h-[88px] w-[calc(100%-32px)] max-w-[480px]",
+            "rounded-[48px]"
+          )}
           style={{
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
-            background: "rgba(8,14,17,0.3)",
+            background: "rgba(8, 14, 17, 0.4)",
           }}
         />
       </div>
-      
+
       <nav
         className={cn(
-          // Outer container just positions the pill-style nav
-          "mobile-bottom-bar fixed inset-x-0 bottom-4 z-[100] flex justify-center md:hidden pointer-events-none",
+          // Outer container just positions the pill-style nav, above Circles component
+          "mobile-bottom-bar fixed inset-x-0 bottom-4 z-[112] flex justify-center md:hidden pointer-events-none",
           className
         )}
       >
         {/* Pill-style bottom nav, matching Figma sample, responsive */}
         <div
           className={cn(
-            "pointer-events-auto box-border flex items-center justify-between",
+            "mobile-bottom-nav-blur pointer-events-auto box-border flex items-center justify-between",
             // Base: comfortable padding & gap on typical mobile widths
             "px-8 py-3 gap-6 h-[88px] w-[calc(100%-32px)] max-w-[480px]",
             // Tighten padding and gaps as the viewport shrinks
@@ -106,11 +115,25 @@ export function MobileBottomBar({
             "max-[380px]:px-5 max-[380px]:gap-4",
             "max-[350px]:px-4 max-[350px]:gap-3",
             "max-[330px]:px-3 max-[330px]:gap-2",
-            "border border-[rgba(255,255,255,0.08)] rounded-[48px] bg-transparent"
+            "border border-[rgba(255,255,255,0.08)] rounded-[48px]"
           )}
+          style={{
+            background: "transparent",
+          }}
         >
         {navItems.map((item) => {
-          const isActive = pathname === item.path;
+          // Check if Circles button should be active (modal open OR on circle/chat page)
+          const isCirclesActive = item.path === "/circles" && (
+            isCirclesModalOpen || 
+            (pathname === "/" && searchParams.get("circle") !== null) ||
+            pathname.startsWith("/chat/")
+          );
+          // Home should only be active when on home page AND no circle is selected
+          const isHomeActive = item.path === "/" && 
+            pathname === "/" && 
+            searchParams.get("circle") === null &&
+            !isCirclesModalOpen;
+          const isActive = isHomeActive || (item.path !== "/" && (pathname === item.path || isCirclesActive));
 
           return (
             <Button

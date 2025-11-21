@@ -2742,6 +2742,23 @@ a:active,
   transform: translateY(100%) translateZ(0);
 }
 
+/* Ensure backdrop-filter works on mobile bottom bar - override any conflicting styles */
+.mobile-bottom-nav-blur {
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  background: rgba(8, 14, 17, 0.4) !important;
+  position: relative !important;
+  isolation: isolate !important;
+  will-change: backdrop-filter;
+  transform: translateZ(0);
+}
+
+/* Force backdrop-filter to work even with parent transforms */
+.mobile-bottom-bar .mobile-bottom-nav-blur {
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+}
+
 /* Scroll animation states */
 @keyframes slideDownFromTop {
   from {
@@ -3166,15 +3183,52 @@ aside::-webkit-scrollbar {
   will-change: transform, opacity;
 }
 
-/* Responsive Sidebar - Prevents cutoff on smaller viewports */
+/* Responsive Sidebar - Grows with viewport height, 14px from top, 24px from bottom */
 .desktop-left-sidebar {
-  max-height: calc(100vh - 28px) !important;
-  height: auto !important;
+  max-height: calc(100vh - 14px - 24px) !important;
+  height: calc(100vh - 14px - 24px) !important;
 }
 
-@media (min-width: 768px) {
+/* Force hide on mobile and tablet - only show on desktop (1024px+) */
+/* Mobile input field padding override */
+@media (max-width: 767px) {
+  /* Search input in circles panel */
+  .mobile-search-input {
+    padding-left: 32px !important;
+  }
+  
+  /* Chat input textarea */
+  .mobile-chat-input {
+    padding-left: 32px !important;
+  }
+}
+
+@media (max-width: 1023px) {
   .desktop-left-sidebar {
-    max-height: calc(100vh - clamp(14px, 2vh, 28px)) !important;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .desktop-left-sidebar {
+    max-height: calc(100vh - 14px - 24px) !important;
+    height: calc(100vh - 14px - 24px) !important;
+  }
+}
+
+/* Hide bottom bar on mobile when circle parameter is in URL */
+@media (max-width: 767px) {
+  /* Hide mobile bottom bar when circle is selected */
+  [data-circle-selected="true"] ~ * .mobile-bottom-bar,
+  [data-circle-selected="true"] .mobile-bottom-bar,
+  body[data-circle-selected="true"] .mobile-bottom-bar {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 }
 
@@ -3188,29 +3242,12 @@ aside::-webkit-scrollbar {
   scrollbar-width: none; /* Firefox */
 }
 
-/* Right Sidebar Sticky Transition - Smooth animation */
+/* Right Sidebar Sticky - No transition to prevent jumps */
 .right-sidebar-sticky {
-  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-              transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
   will-change: transform, opacity;
   backface-visibility: hidden;
   transform: translateZ(0); /* Force hardware acceleration */
-}
-
-/* Smooth transition when becoming sticky */
-.right-sidebar-is-sticky {
-  animation: smoothStick 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-@keyframes smoothStick {
-  from {
-    opacity: 0.96;
-    transform: translateY(-6px) translateZ(0);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) translateZ(0);
-  }
+  /* Removed transition to prevent awkward jumps when pop-ups open/close */
 }
 
 /* AI Chat Button Animations */

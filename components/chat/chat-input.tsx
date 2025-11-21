@@ -11,6 +11,8 @@ import {
   MoreHorizontal,
   X,
   Smile,
+  Mic,
+  Paperclip,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -35,10 +37,10 @@ export function ChatInput({
   const [isMobile, setIsMobile] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Detect mobile device
+  // Detect mobile device (for any mobile-specific logic if needed)
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 450);
+      setIsMobile(window.innerWidth < 768); // md breakpoint
     };
 
     checkMobile();
@@ -114,38 +116,40 @@ export function ChatInput({
     <div
       className={cn(
         "bg-background/95 backdrop-blur-md border-t border-border/50",
-        "p-3 sm:p-4 md:p-5 safe-area-bottom",
-        "shadow-lg shadow-black/5 chat-input-container",
+        "shadow-lg shadow-black/5 chat-input-container p-0",
         className
       )}
+      style={{
+        padding: "0px !important",
+      }}
     >
-      <div className="flex gap-2 sm:gap-3 max-w-full items-center">
-        {/* Telegram-Style Desktop Layout (>= 450px or forceDesktop) */}
+      <div className="flex gap-2 md:gap-3 max-w-full items-center">
+        {/* Desktop/Tablet Layout (>= 768px or forceDesktop) */}
         <div
           className={cn(
-            "gap-3 sm:gap-4 flex-1 items-center",
-            forceDesktop ? "flex" : "hidden min-[450px]:flex"
+            "gap-2 md:gap-3 lg:gap-4 flex-1 items-center",
+            forceDesktop ? "flex" : "hidden md:flex"
           )}
         >
-          {/* Emoji Picker - Outside input field */}
-          <div className="flex-shrink-0">
-            <EmojiPicker
-              onEmojiSelect={handleEmojiSelect}
-              className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10"
-            />
-          </div>
-
           {/* Message Input Container */}
           <div className="flex-1 relative min-w-0">
             <div
               className={cn(
-                "relative rounded-2xl sm:rounded-3xl transition-all duration-200",
+                "relative rounded-2xl md:rounded-3xl transition-all duration-200",
                 "bg-muted/30 hover:bg-muted/40",
                 "border border-border/30 hover:border-border/50",
                 "focus-within:border-primary/50 focus-within:bg-background/90",
                 "focus-within:shadow-sm focus-within:shadow-primary/10"
               )}
             >
+              {/* Left: Emoji Picker - Inside input field */}
+              <div className="absolute left-1.5 md:left-2 lg:left-3 top-1/2 -translate-y-1/2 z-10">
+                <EmojiPicker
+                  onEmojiSelect={handleEmojiSelect}
+                  className="w-7 h-7 md:w-8 md:h-8 lg:w-9 lg:h-9"
+                />
+              </div>
+
               {/* Text Input */}
               <Textarea
                 ref={textareaRef}
@@ -155,83 +159,101 @@ export function ChatInput({
                 placeholder={placeholder}
                 disabled={disabled}
                 className={cn(
-                  "w-full min-h-[44px] xs:min-h-[48px] sm:min-h-[52px] max-h-40 resize-none border-0 bg-transparent",
+                  "w-full min-h-[44px] md:min-h-[48px] lg:min-h-[52px] max-h-40 resize-none border-0 bg-transparent",
                   "focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
-                  "placeholder:text-muted-foreground/60 text-sm xs:text-base sm:text-lg leading-relaxed",
-                  "py-2.5 xs:py-3 sm:py-4 pl-3 xs:pl-4 sm:pl-5 pr-12 xs:pr-14 sm:pr-16 font-medium",
-                  "scrollbar-thin scrollbar-thumb-muted-foreground/20 rounded-2xl sm:rounded-3xl mobile-search-input"
+                  "placeholder:text-muted-foreground/60 text-sm md:text-base lg:text-lg leading-relaxed",
+                  "py-2.5 md:py-3 lg:py-4 pl-11 md:pl-12 lg:pl-14 pr-12 md:pr-14 lg:pr-16 font-medium",
+                  "scrollbar-thin scrollbar-thumb-muted-foreground/20 rounded-2xl md:rounded-3xl"
                 )}
                 rows={1}
                 style={{
-                  fontSize: "16px",
+                  fontSize: "clamp(14px, 1.5vw, 16px)",
                   wordWrap: "break-word",
                   overflowWrap: "break-word",
                 }}
               />
 
-              {/* Right: Attachment Button */}
-              <div className="absolute right-1.5 xs:right-2 sm:right-3 top-1/2 -translate-y-1/2">
+              {/* Right: Send Button - Inside input field */}
+              <div className="absolute right-1.5 md:right-2 lg:right-3 top-1/2 -translate-y-1/2 z-10">
                 <Button
-                  variant="ghost"
+                  onClick={handleSend}
+                  disabled={!message.trim() || disabled}
                   size="sm"
                   className={cn(
-                    "w-7 h-7 xs:w-8 xs:h-8 sm:w-9 sm:h-9 p-0 rounded-full group flex-shrink-0",
-                    "hover:bg-muted/60 active:bg-muted/80",
-                    "transition-all duration-200",
+                    "w-7 h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 p-0 rounded-full transition-all duration-300",
                     "hover:scale-105 active:scale-95",
+                    message.trim()
+                      ? [
+                          "bg-gradient-to-br from-primary via-primary to-primary/90",
+                          "hover:from-primary/95 hover:via-primary/90 hover:to-primary/80",
+                          "text-primary-foreground border-0",
+                          "hover:rotate-12",
+                          "shadow-primary/25 hover:shadow-primary/40",
+                        ]
+                      : [
+                          "bg-muted/60",
+                          "text-muted-foreground/60 cursor-not-allowed",
+                          "border border-border/20 opacity-60",
+                        ],
                     disabled && "opacity-50 cursor-not-allowed"
                   )}
-                  disabled={disabled}
-                  onClick={() => {
-                    // Handle attachment functionality
-                    console.log("Attachment clicked");
-                  }}
                 >
-                  <ImagePlus className="h-3.5 w-3.5 xs:h-4 xs:w-4 sm:h-5 sm:w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  <Send
+                    className={cn(
+                      "h-3.5 w-3.5 md:h-4 md:w-4 lg:h-5 lg:w-5 transition-all duration-200",
+                      message.trim()
+                        ? "text-primary-foreground"
+                        : "text-muted-foreground/50"
+                    )}
+                  />
                 </Button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Telegram-Style Mobile Layout (< 450px and not forceDesktop) */}
+        {/* Mobile Layout (< 768px and not forceDesktop) */}
         <div
           className={cn(
             "flex items-end gap-2 flex-1 relative",
-            forceDesktop ? "hidden" : "flex min-[450px]:hidden"
+            forceDesktop ? "hidden" : "flex md:hidden"
           )}
         >
-          {/* Emoji Picker - Outside input field */}
-          <div className="flex-shrink-0">
-            <EmojiPicker
-              onEmojiSelect={handleEmojiSelect}
-              className="w-8 h-8 xs:w-9 xs:h-9"
-            />
-          </div>
-
-          {/* Center: Input Container (Telegram Style) */}
+          {/* Center: Input Container */}
           <div className="flex-1 relative min-w-0">
             <div
               className={cn(
                 "relative rounded-2xl transition-all duration-200",
-                "bg-muted/30 hover:bg-muted/40",
-                "border border-border/30 hover:border-border/50",
-                "focus-within:border-primary/50 focus-within:bg-background/90",
-                "focus-within:shadow-sm focus-within:shadow-primary/10"
+                "bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.08)]",
+                "border border-[rgba(255,255,255,0.1)]",
+                "focus-within:border-[rgba(255,255,255,0.2)] focus-within:bg-[rgba(255,255,255,0.08)]",
+                "backdrop-blur-md"
               )}
+              style={{
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+              }}
             >
+              {/* Left: Emoji Picker - Inside input field */}
+              <div className="absolute left-[-5px] top-1/2 -translate-y-1/2 z-10">
+                <EmojiPicker
+                  onEmojiSelect={handleEmojiSelect}
+                  className="w-7 h-7"
+                />
+              </div>
+
               <Textarea
                 ref={textareaRef}
                 value={message}
                 onChange={(e) => handleInputChange(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder={placeholder}
+                placeholder="Send Message"
                 disabled={disabled}
                 className={cn(
-                  "w-full min-h-[40px] xs:min-h-[44px] max-h-32 resize-none border-0 bg-transparent",
+                  "mobile-chat-input w-full min-h-[44px] max-h-32 resize-none border-0 bg-transparent",
                   "focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
-                  "placeholder:text-muted-foreground/60 text-sm xs:text-base leading-relaxed",
-                  "py-2.5 xs:py-3 pl-3 xs:pl-4 pr-10 xs:pr-12 rounded-2xl mobile-search-input",
+                  "placeholder:text-white/50 text-white text-sm leading-relaxed",
+                  "py-2.5 pl-10 pr-20 rounded-2xl",
                   "scrollbar-thin scrollbar-thumb-muted-foreground/20"
                 )}
                 rows={1}
@@ -242,66 +264,64 @@ export function ChatInput({
                 }}
               />
 
-              {/* Right: Attachment Button */}
-              <div className="absolute right-1.5 xs:right-2 top-1/2 -translate-y-1/2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "w-7 h-7 xs:w-8 xs:h-8 p-0 rounded-full group flex-shrink-0",
-                    "hover:bg-muted/60 active:bg-muted/80",
-                    "transition-all duration-200",
-                    "hover:scale-105 active:scale-95",
-                    disabled && "opacity-50 cursor-not-allowed"
-                  )}
-                  disabled={disabled}
+              {/* Right: Icons Container - Microphone, Paperclip, Send */}
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 z-10 flex items-center">
+                {/* Microphone Icon */}
+                <div
+                  className="w-7 h-7 p-0 hover:bg-transparent flex items-center justify-center"
                   onClick={() => {
-                    // Handle attachment functionality
-                    console.log("Attachment clicked");
+                    // Handle microphone click
                   }}
                 >
-                  <ImagePlus className="h-3.5 w-3.5 xs:h-4 xs:w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-                </Button>
+                  <Mic className="h-5 w-5 text-white/70" />
+                </div>
+
+                {/* Paperclip Icon */}
+                <div
+                  className="w-7 h-7 p-0 hover:bg-transparent flex items-center justify-center"
+                  onClick={() => {
+                    // Handle attachment click
+                  }}
+                >
+                  <Paperclip className="h-5 w-5 text-white/70" />
+                </div>
+
+                {/* Send Button */}
+                <div
+                  onClick={handleSend}
+                  className={cn(
+                    "flex items-center justify-center",
+                    "w-7 h-7 p-0 rounded-full transition-all duration-300",
+                    "hover:scale-105 active:scale-95",
+                    message.trim()
+                      ? [
+                          "bg-gradient-to-br from-primary via-primary to-primary/90",
+                          "hover:from-primary/95 hover:via-primary/90 hover:to-primary/80",
+                          "text-primary-foreground border-0",
+                          "hover:rotate-12",
+                          "shadow-primary/25 hover:shadow-primary/40",
+                        ]
+                      : [
+                          "bg-transparent",
+                          "text-white/50 cursor-not-allowed",
+                          "border-0 opacity-60",
+                        ],
+                    disabled && "opacity-50 cursor-not-allowed"
+                  )}
+                >
+                  <Send
+                    className={cn(
+                      "h-4 w-4 transition-all duration-200",
+                      message.trim()
+                        ? "text-primary-foreground"
+                        : "text-white/50"
+                    )}
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Send Button (Always visible) */}
-        <Button
-          onClick={handleSend}
-          disabled={!message.trim() || disabled}
-          size="sm"
-          className={cn(
-            "flex-shrink-0 w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14 p-0 rounded-full mobile-touch-target",
-            "transition-all duration-300 ease-out transform",
-            "active:scale-90 disabled:scale-100",
-            "shadow-lg hover:shadow-xl disabled:shadow-sm",
-            message.trim() && "send-button-active",
-            message.trim()
-              ? [
-                  "bg-gradient-to-br from-primary via-primary to-primary/90",
-                  "hover:from-primary/95 hover:via-primary/90 hover:to-primary/80",
-                  "text-primary-foreground border-0",
-                  "hover:scale-110 hover:rotate-12",
-                  "shadow-primary/25 hover:shadow-primary/40",
-                ]
-              : [
-                  "bg-gradient-to-br from-muted/80 to-muted/60",
-                  "text-muted-foreground/60 cursor-not-allowed",
-                  "border border-border/20 opacity-60",
-                ]
-          )}
-        >
-          <Send
-            className={cn(
-              "transition-all duration-200",
-              message.trim()
-                ? "h-5 w-5 sm:h-6 sm:w-6 ml-0.5 text-primary-foreground"
-                : "h-5 w-5 sm:h-5 sm:w-5 ml-0.5 text-muted-foreground/50"
-            )}
-          />
-        </Button>
       </div>
     </div>
   );

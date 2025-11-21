@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bot, Send, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
 
 interface Message {
   id: string;
@@ -24,25 +25,6 @@ export function AIChat({ className = "" }: AIChatProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [backdropProgress, setBackdropProgress] = useState(0);
-
-  // Lock body scroll when chat panel is open
-  React.useEffect(() => {
-    if (isOpen) {
-      const scrollY = window.scrollY;
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
-      document.body.style.overflow = "hidden";
-      
-      return () => {
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.width = "";
-        document.body.style.overflow = "";
-        window.scrollTo(0, scrollY);
-      };
-    }
-  }, [isOpen]);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -55,6 +37,9 @@ export function AIChat({ className = "" }: AIChatProps) {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  // Lock body scroll when AI chat panel is open
+  useBodyScrollLock(isOpen);
 
   const handleToggle = () => {
     if (isAnimating) return;
@@ -211,11 +196,10 @@ export function AIChat({ className = "" }: AIChatProps) {
           
           {/* Main content */}
           <div className="relative z-10 flex items-center justify-center">
-            <img 
-              src="/AIbtn.png" 
-              alt="AI Assistant" 
-              className="h-8 w-8 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 object-contain"
+            <Bot 
+              className="h-6 w-6 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" 
               style={{ 
+                color: "#E5F7FD",
                 filter: "drop-shadow(0 2px 4px rgba(229, 247, 253, 0.3))",
               }} 
             />
@@ -246,9 +230,9 @@ export function AIChat({ className = "" }: AIChatProps) {
       {/* Desktop AI Chat Slide-out Panel - Direct Chat Interface */}
       <div
         className={cn(
-          "desktop-ai-chat-panel fixed bottom-6 right-6 z-[60] flex flex-col",
+          "desktop-ai-chat-panel fixed bottom-6 right-6 z-40 flex flex-col",
           "w-80 h-[480px] rounded-xl",
-          "bg-card/98 backdrop-blur-md border border-border/30",
+          "bg-[#080E1199] backdrop-blur-[20px] border border-border/30",
           "shadow-[0_0_40px_rgba(0,0,0,0.3)]",
           "transition-all duration-300 ease-out transform-gpu"
         )}
@@ -259,16 +243,12 @@ export function AIChat({ className = "" }: AIChatProps) {
         }}
       >
         {/* Header - Subtle Design */}
-        <div className="flex-shrink-0 p-3 border-b border-border/20 bg-card/50 backdrop-blur-sm rounded-t-xl">
+        <div className="flex-shrink-0 p-3 border-b border-border/20 backdrop-blur-[20px] rounded-t-xl">
           <div className="flex items-center space-x-3">
             <div className="relative">
-              <Avatar className="h-8 w-8 ring-1" style={{ borderColor: "rgba(229, 247, 253, 0.3)" }}>
+              <Avatar className="h-8 w-8 ring-1">
                 <AvatarFallback 
-                  className="text-sm"
-                  style={{
-                    background: "linear-gradient(135deg, rgba(229, 247, 253, 0.2) 0%, rgba(250, 222, 253, 0.25) 100%)",
-                    color: "#E5F7FD",
-                  }}
+                  className="text-sm bg-[#FADEFD] text-[#080E11]"
                 >
                   <Bot className="h-4 w-4" />
                 </AvatarFallback>
@@ -284,18 +264,8 @@ export function AIChat({ className = "" }: AIChatProps) {
             </div>
             <div className="flex flex-col">
               <h3 className="font-semibold text-sm text-foreground">
-                VeraLux AI
+                YNX AI
               </h3>
-              <div className="flex items-center space-x-1.5">
-                <div 
-                  className="h-1.5 w-1.5 rounded-full"
-                  style={{
-                    backgroundColor: "#22C55E",
-                    boxShadow: "0 0 4px rgba(34, 197, 94, 0.6)",
-                  }}
-                />
-                <p className="text-xs" style={{ color: "#9BB6CC" }}>Online</p>
-              </div>
             </div>
           </div>
         </div>
@@ -318,8 +288,8 @@ export function AIChat({ className = "" }: AIChatProps) {
                   className={cn(
                     "group max-w-[82%] rounded-xl px-3 py-2.5 text-sm transition-all duration-200",
                     message.sender === "user"
-                      ? "bg-primary/95 text-primary-foreground ml-2 shadow-sm"
-                      : "bg-muted/60 text-foreground mr-2 border border-border/20"
+                      ? "bg-primary/95 text-primary-foreground ml-2 shadow-sm  bg-[#FADEFD] text-[#080E11]"
+                      : "bg-muted/60 text-foreground mr-2 border border-border/20 bg-[#9BB6CC0A] text-[#9BB6CC]"
                   )}
                 >
                   <p className="whitespace-pre-wrap break-words leading-relaxed">
@@ -352,7 +322,7 @@ export function AIChat({ className = "" }: AIChatProps) {
 
             {isLoading && (
               <div className="flex justify-start w-full">
-                <div className="bg-muted/60 text-foreground max-w-[82%] rounded-xl px-3 py-2.5 mr-2 border border-border/20">
+                <div className="text-foreground max-w-[82%] bg-[#9BB6CC0A] text-[#9BB6CC] rounded-xl px-3 py-2.5 mr-2 border border-border/20">
                   <div className="flex items-center space-x-2">
                     <div className="h-5 w-5 rounded-full bg-primary/80 flex items-center justify-center">
                       <Bot className="h-2.5 w-2.5 text-primary-foreground" />
@@ -402,7 +372,7 @@ export function AIChat({ className = "" }: AIChatProps) {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask me anything about Web3..."
-              className="flex-1 h-8 border-0 bg-transparent text-sm placeholder:text-muted-foreground/60 focus:ring-0 focus:outline-none"
+              className="flex-1 h-8 border-0 bg-transparent text-sm text-[#9BB6CC] placeholder:text-muted-foreground/60 placeholder:text-[#9BB6CC99] focus:ring-0 focus:outline-none"
               disabled={isLoading}
             />
             <Button
@@ -422,11 +392,6 @@ export function AIChat({ className = "" }: AIChatProps) {
                 <Send className="h-3 w-3" />
               )}
             </Button>
-          </div>
-          <div className="flex items-center justify-center mt-2 px-1">
-            <p className="text-xs text-muted-foreground">
-              Powered by VeraLux AI
-            </p>
           </div>
         </div>
       </div>

@@ -163,8 +163,13 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
 
   const handleCircleClick = (circle: Circle) => {
     if (circle.isJoined) {
-      // Navigate to circle sliding panel with query parameter
-      router.push(`/?circle=${slugifyCircleName(circle.name)}`);
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      // On mobile, add #channel hash by default
+      if (isMobile) {
+        router.push(`/?circle=${slugifyCircleName(circle.name)}&channel=general#channel`);
+      } else {
+        router.push(`/?circle=${slugifyCircleName(circle.name)}&channel=general`);
+      }
       onClose();
     } else {
       // Handle join circle logic
