@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -197,17 +197,22 @@ const mockMessages: ChatMessage[] = [
 export default function ChatPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const circleId = params.circleId as string;
 
-  // Redirect to new circle sliding panel format
+  // Redirect to new circle sliding panel format (only on desktop)
+  // On mobile, keep the chat page route
   useEffect(() => {
-    if (circleId && mockCircles[circleId as keyof typeof mockCircles]) {
+    const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768; // Desktop only
+    if (isDesktop && circleId && mockCircles[circleId as keyof typeof mockCircles]) {
       const circle = mockCircles[circleId as keyof typeof mockCircles];
       const slugifiedName = circle.name
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "");
-      router.replace(`/?circle=${slugifiedName}`);
+      const searchParams = new URLSearchParams(window.location.search);
+      const channel = searchParams.get("channel") || "general";
+      router.replace(`/?circle=${slugifiedName}&channel=${channel}`);
     }
   }, [circleId, router]);
   const [messages, setMessages] = useState<ChatMessage[]>(mockMessages);
@@ -224,6 +229,43 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const circle = mockCircles[circleId as keyof typeof mockCircles];
+  
+  // Redirect to home if circle doesn't exist (only on mobile, desktop redirects earlier)
+  useEffect(() => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    if (isMobile && !circle && circleId) {
+      router.push("/");
+    }
+  }, [circle, circleId, router]);
+  
+  // Helper function to navigate back to channel list
+  const navigateToChannelList = () => {
+    if (circle) {
+      const slugifiedName = circle.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      const channel = searchParams.get("channel") || "general";
+      router.push(`/?circle=${slugifiedName}&channel=${channel}`);
+    } else {
+      router.push("/");
+    }
+  };
+
+  // Read channel from URL and set as active
+  useEffect(() => {
+    const channelFromUrl = searchParams.get("channel");
+    if (channelFromUrl) {
+      setActiveChannelId(channelFromUrl);
+    } else {
+      // If no channel in URL, default to "general" and update URL
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      if (isMobile && circle) {
+        router.replace(`/chat/${circleId}?channel=general`, { scroll: false });
+        setActiveChannelId("general");
+      }
+    }
+  }, [searchParams, circle, circleId, router]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -327,18 +369,18 @@ export default function ChatPage() {
                 : "-translate-y-full opacity-0 absolute"
             )}
           >
-            {/* Left: Back to Home - Ultra Compact */}
+            {/* Left: Back to Channel List - Ultra Compact */}
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => router.push("/")}
+              onClick={navigateToChannelList}
               className="flex items-center gap-1 xs:gap-1.5 sm:gap-2 px-1 xs:px-1.5 sm:px-2 py-1.5 xs:py-2 rounded-xl xs:rounded-2xl hover:bg-white/60 dark:hover:bg-slate-800/60 text-xs xs:text-sm font-medium transition-all duration-300 hover:scale-105 backdrop-blur-sm"
             >
               <div className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-xl xs:rounded-2xl flex items-center justify-center shadow-lg xs:shadow-xl shadow-indigo-500/25 xs:shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all duration-300">
-                <Home className="h-3.5 w-3.5 xs:h-4 xs:w-4 text-white filter drop-shadow-sm" />
+                <ArrowLeft className="h-3.5 w-3.5 xs:h-4 xs:w-4 text-white filter drop-shadow-sm" />
               </div>
               <span className="hidden xs:inline font-bold text-slate-900 dark:text-white text-xs">
-                Home
+                Channels
               </span>
             </Button>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -136,6 +136,25 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
   const [activeTab, setActiveTab] = useState("joined");
   const router = useRouter();
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+      document.body.style.overflow = "hidden";
+      
+      return () => {
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.width = "";
+        document.body.style.overflow = "";
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [isOpen]);
+
   const slugifyCircleName = (name: string) =>
     name
       .toLowerCase()
@@ -144,8 +163,13 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
 
   const handleCircleClick = (circle: Circle) => {
     if (circle.isJoined) {
-      // Navigate to circle sliding panel with query parameter
-      router.push(`/?circle=${slugifyCircleName(circle.name)}`);
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      // On mobile, add #channel hash by default
+      if (isMobile) {
+        router.push(`/?circle=${slugifyCircleName(circle.name)}&channel=general#channel`);
+      } else {
+        router.push(`/?circle=${slugifyCircleName(circle.name)}&channel=general`);
+      }
       onClose();
     } else {
       // Handle join circle logic

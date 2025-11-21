@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { MobileTopBar } from "@/components/mobile-top-bar";
 import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import { MobileHamburgerMenu } from "@/components/mobile-hamburger-menu";
@@ -8,6 +8,8 @@ import { MobileAITab } from "@/components/mobile-ai-tab";
 import { DesktopTopBar } from "@/components/desktop-top-bar";
 import { DesktopLeftSidebar } from "@/components/desktop-left-sidebar";
 import { AIChat } from "@/components/ai-chat";
+import { CirclesSlidingPanel } from "@/components/circles-sliding-panel";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 interface NavigationLayoutProps {
@@ -22,6 +24,15 @@ export function NavigationLayout({
   header,
 }: NavigationLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  
+  // Compute shouldHideBottomBar directly - check if circle parameter exists and we're on mobile
+  // Use both searchParams and window.location as fallback for reliability
+  const hasCircle = searchParams.get("circle") !== null;
+  const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+  const shouldHideBottomBar = isMobile && hasCircle;
 
   const handleMobileMenuToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -31,6 +42,20 @@ export function NavigationLayout({
     setIsMobileMenuOpen(false);
   };
 
+  // Circles panel is open when circle parameter is present (works on both mobile and desktop)
+  const isCirclesPanelOpen = pathname === "/" && searchParams.get("circle") !== null;
+
+  // Set data attribute on body for CSS targeting
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      if (hasCircle && isMobile) {
+        document.body.setAttribute('data-circle-selected', 'true');
+      } else {
+        document.body.removeAttribute('data-circle-selected');
+      }
+    }
+  }, [hasCircle, isMobile]);
+
   return (
     <div className={cn("min-h-screen", className)}>
       {/* Mobile Navigation */}
@@ -38,7 +63,7 @@ export function NavigationLayout({
         onMenuToggle={handleMobileMenuToggle}
         isMenuOpen={isMobileMenuOpen}
       />
-      <MobileBottomBar isMenuOpen={isMobileMenuOpen} />
+      {!shouldHideBottomBar && <MobileBottomBar isMenuOpen={isMobileMenuOpen} />}
       <MobileHamburgerMenu
         isOpen={isMobileMenuOpen}
         onClose={handleMobileMenuClose}
@@ -55,6 +80,12 @@ export function NavigationLayout({
       <div className="hidden md:block">
         <AIChat />
       </div>
+
+      {/* Circles Sliding Panel (works on both mobile and desktop) */}
+      <CirclesSlidingPanel
+        isOpen={isCirclesPanelOpen}
+        onClose={() => router.push("/")}
+      />
 
       {/* Page Header Section (Between Top Nav and Main Content) */}
       {header && (
@@ -79,13 +110,13 @@ export function NavigationLayout({
           // bottom bar, making the glass/blur effect clearly visible.
           "pb-0 md:pb-0",
           // Responsive left margins: 14px edge + Sidebar width + 24px gap
-          "md:ml-[238px]", // md: 14 + 200 + 24
+          // No left margin on mobile/tablet (sidebar hidden below lg breakpoint)
           "lg:ml-[258px]", // lg: 14 + 220 + 24
           "xl:ml-[288px]", // xl: 14 + 250 + 24
           // Desktop: Right margin = 24px (equal to left gap)
           "md:mr-[24px]",
           // Gap between header and main content - FIXED
-          "mt-0 md:mt-[131px]"
+          "mt-0 md:mt-[40px]"
         )}
       >
         <div className="w-full px-4 py-4 sm:px-6 sm:py-6 md:px-0 md:py-8">

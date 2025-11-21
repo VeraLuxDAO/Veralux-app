@@ -8,46 +8,121 @@ import { NavigationLayout } from "@/components/navigation-layout";
 import { SocialFeed } from "@/components/social-feed";
 import { TrendingTopics } from "@/components/trending-topics";
 import { SuggestedConnections } from "@/components/suggested-connections";
+import { cn } from "@/lib/utils";
 
 export default function HomePage() {
   const [isSticky, setIsSticky] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [sidebarTop, setSidebarTop] = useState(0);
   const [sidebarWidth, setSidebarWidth] = useState('300px');
+  const lockedScrollYRef = useRef<number | null>(null);
 
   useEffect(() => {
+    let rafId: number | null = null;
+    let isBodyLockedState = false;
+    
+    // Check if body scroll is locked (pop-up is open)
+    const isBodyLocked = () => {
+      return document.body.style.position === 'fixed';
+    };
+    
     const handleScroll = () => {
-      if (!sidebarRef.current) return;
+      if (rafId) return; // Throttle with requestAnimationFrame
       
-      // Get sidebar's initial position and width
-      const rect = sidebarRef.current.getBoundingClientRect();
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      rafId = requestAnimationFrame(() => {
+        if (!sidebarRef.current || !containerRef.current) {
+          rafId = null;
+          return;
+        }
+        
+        // If body is locked (pop-up open), completely skip recalculation
+        // This prevents the sidebar from jumping when pop-ups open/close
+        if (isBodyLocked()) {
+          rafId = null;
+          return;
+        }
+        
+        // Get sidebar's current position
+        const rect = sidebarRef.current.getBoundingClientRect();
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Store original width when not sticky
+        if (rect.width && !isSticky) {
+          setSidebarWidth(`${rect.width}px`);
+        }
+        
+        // Calculate the original top position on first load
+        if (sidebarTop === 0 && rect.top > 90) {
+          setSidebarTop(scrollTop + rect.top);
+        }
+        
+        // Stick when scrolled past the original position minus the offset (90px)
+        // Add a small threshold to prevent flickering
+        const threshold = 5;
+        const shouldStick = sidebarTop > 0 && scrollTop > (sidebarTop - 90 + threshold);
+        
+        if (shouldStick !== isSticky) {
+          setIsSticky(shouldStick);
+        }
+        
+        rafId = null;
+      });
+    };
+
+    // Monitor body style changes to detect when pop-ups open/close
+    const observeBodyChanges = () => {
+      const observer = new MutationObserver(() => {
+        const currentlyLocked = isBodyLocked();
+        
+        // Only react to state changes (lock -> unlock or unlock -> lock)
+        if (currentlyLocked !== isBodyLockedState) {
+          isBodyLockedState = currentlyLocked;
+          
+          if (currentlyLocked) {
+            // Body just got locked - store current scroll position
+            const bodyTop = document.body.style.top;
+            if (bodyTop && bodyTop.startsWith('-')) {
+              lockedScrollYRef.current = Math.abs(parseFloat(bodyTop));
+            } else {
+              lockedScrollYRef.current = window.pageYOffset || document.documentElement.scrollTop;
+            }
+          } else {
+            // Body just got unlocked - wait for scroll restoration then recalculate
+            lockedScrollYRef.current = null;
+            // Use a longer delay to ensure scroll position is fully restored
+            setTimeout(() => {
+              handleScroll();
+            }, 100);
+          }
+        }
+      });
       
-      // Store original width
-      if (rect.width) {
-        setSidebarWidth(`${rect.width}px`);
-      }
+      observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['style']
+      });
       
-      // Calculate the original top position on first load
-      if (sidebarTop === 0 && rect.top > 90) {
-        setSidebarTop(scrollTop + rect.top);
-      }
-      
-      // Stick when scrolled past the original position minus the offset (90px)
-      const shouldStick = scrollTop > (sidebarTop - 90);
-      setIsSticky(shouldStick);
+      return observer;
     };
 
     // Set initial position
     handleScroll();
+    isBodyLockedState = isBodyLocked();
     
+    const bodyObserver = observeBodyChanges();
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleScroll, { passive: true });
+    
     return () => {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+      bodyObserver.disconnect();
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
     };
-  }, [sidebarTop]);
+  }, [sidebarTop, isSticky]);
 
   return (
     <>
@@ -353,18 +428,25 @@ export default function HomePage() {
             </div>
 
             {/* Right Column: Sidebar - Responsive width, sticky */}
-            <div className="w-[300px] xl:w-[340px] 2xl:w-[380px] flex-shrink-0">
+            <div 
+              ref={containerRef}
+              className="w-[300px] xl:w-[340px] 2xl:w-[380px] flex-shrink-0"
+            >
               <aside 
                 ref={sidebarRef}
-                className="w-full overflow-y-auto"
+                className={cn(
+                  "w-full overflow-y-auto right-sidebar-sticky",
+                  isSticky && "right-sidebar-is-sticky"
+                )}
                 style={{
                   position: isSticky ? 'fixed' : 'static',
                   top: isSticky ? '90px' : 'auto',
                   width: isSticky ? sidebarWidth : '100%',
-                  zIndex: isSticky ? 40 : 'auto',
+                  zIndex: isSticky ? 30 : 'auto', // Lower than AI chat (z-50)
                   maxHeight: isSticky ? 'calc(100vh - 90px)' : 'none',
                   scrollbarWidth: 'none', // Firefox
                   msOverflowStyle: 'none', // IE/Edge
+                  transition: 'none', // Disable transition to prevent jumps
                 }}
               >
                 {/* Content wrapper with spacing */}

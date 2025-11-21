@@ -39,7 +39,7 @@ export function ChatMessageComponent({
   if (message.type === "system") {
     return (
       <div className="flex justify-center py-2">
-        <div className="bg-muted px-3 py-1 rounded-full text-xs text-muted-foreground">
+        <div className="bg-muted px-3 py-1 rounded-full text-[10px] text-[#9BB6CC]">
           {message.content}
         </div>
       </div>
@@ -48,12 +48,7 @@ export function ChatMessageComponent({
 
   return (
     <div
-      className={cn(
-        "group flex gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 hover:bg-muted/20 transition-colors",
-        isGrouped && "py-0.5 sm:py-1",
-        message.isOwn && "flex-row-reverse"
-      )}
-    >
+      className={cn("group flex gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 hover:bg-muted/20 transition-colors", isGrouped && "py-0.5 sm:py-1", message.isOwn && "flex-row-reverse")}>
       {/* Avatar */}
       <div className="flex-shrink-0">
         {showAvatar && !isGrouped ? (
@@ -102,10 +97,10 @@ export function ChatMessageComponent({
         {/* Header (only show if not grouped) */}
         {!isGrouped && !message.isOwn && (
           <div className="flex items-center gap-2 mb-1">
-            <span className="chat-message-author font-semibold text-sm sm:text-base text-foreground">
+            <span className="chat-message-author font-medium text-[14px] sm:text-">
               {message.authorName}
             </span>
-            <span className="chat-message-time text-xs text-muted-foreground">
+            <span className="chat-message-time text-[10px] text-[#9BB6CC]">
               {message.timestamp.toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -126,7 +121,7 @@ export function ChatMessageComponent({
             <div className="text-xs text-primary font-medium mb-1">
               Replying to {message.replyTo.authorName}
             </div>
-            <div className="text-xs text-muted-foreground line-clamp-2">
+            <div className="text-[10px] text-[#9BB6CC] line-clamp-2">
               {message.replyTo.content}
             </div>
           </div>
@@ -135,10 +130,10 @@ export function ChatMessageComponent({
         {/* Message Text */}
         <div
           className={cn(
-            "chat-message-content text-sm sm:text-base leading-relaxed whitespace-pre-wrap break-words word-break overflow-wrap-anywhere",
+            "chat-message-content text-[12px] leading-relaxed whitespace-pre-wrap break-words word-break overflow-wrap-anywhere",
             message.isOwn
               ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md px-3 sm:px-4 py-2 sm:py-2.5 shadow-sm max-w-[85%] sm:max-w-[75%] inline-block"
-              : "text-foreground max-w-full"
+              : "text-[#9BB6CC] max-w-full"
           )}
           style={{
             wordWrap: "break-word",
@@ -169,20 +164,23 @@ export function ChatMessageComponent({
             )}
           >
             {message.reactions.map((reaction, index) => (
-              <Button
+              <div
                 key={index}
                 variant="ghost"
                 size="sm"
                 className={cn(
-                  "h-6 sm:h-7 px-2 text-xs rounded-full",
+                  "h-4 px-2 text-[10px] rounded-full",
                   reaction.hasReacted
                     ? "bg-primary/20 text-primary border border-primary/30"
                     : "bg-muted hover:bg-muted/80"
                 )}
+                style={{
+                  height: "16px !important",
+                }}
               >
                 <span className="mr-1">{reaction.emoji}</span>
                 <span>{reaction.count}</span>
-              </Button>
+              </div>
             ))}
           </div>
         )}

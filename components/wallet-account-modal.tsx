@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useWallet } from "@suiet/wallet-kit";
 import { ClientOnly } from "@/components/client-only";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,25 @@ function WalletAccountModalContent({
 }: WalletAccountModalProps) {
   const wallet = useWallet();
   const [isDisconnecting, setIsDisconnecting] = useState(false);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+      document.body.style.overflow = "hidden";
+      
+      return () => {
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.width = "";
+        document.body.style.overflow = "";
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [isOpen]);
 
   const handleCopyAddress = () => {
     if (wallet.account?.address) {
