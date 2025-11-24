@@ -532,13 +532,13 @@ export function CirclesSlidingPanel({
 
               {/* Channels List */}
               <ScrollArea className="flex-1 overflow-hidden">
-                <div className="px-2 pb-4">
+                <div className="px-6 pb-4">
                   {channelCategories.map((category) => (
                     <div key={category.id} className="mb-4">
                       <button
                         type="button"
                         onClick={() => handleCategoryToggle(category.id)}
-                        className="w-full flex items-center justify-between px-2 py-1 text-xs font-semibold text-[#9BB6CC] hover:text-white transition-colors uppercase tracking-wide"
+                        className="w-full flex items-center justify-between  py-1 text-xs font-semibold text-white hover:text-white transition-colors uppercase tracking-wide"
                       >
                         <span>{category.name}</span>
                         <ChevronDown
@@ -574,7 +574,7 @@ export function CirclesSlidingPanel({
                                 <Lock className="h-3 w-3 flex-shrink-0" />
                               )}
                               {channel.unreadCount && channel.unreadCount > 0 && (
-                                <Badge className="h-4 min-w-4 px-1 text-xs bg-[#ED4245] text-white">
+                                <Badge className="h-4 min-w-4 px-1 text-xs bg-[#FADEFD] text-[#000205]">
                                   {channel.unreadCount}
                                 </Badge>
                               )}
@@ -593,7 +593,7 @@ export function CirclesSlidingPanel({
             {mobileView === "chatting" && activeChannelId && activeChannel && (
               <div className="flex flex-col relative overflow-hidden w-full flex-shrink-0 transition-all duration-300">
                 {/* Chat Header */}
-                <div className="flex-shrink-0 px-4 pt-5 pb-4 bg-[#0000004A] border-b border-[#FFFFFF14]">
+                <div className="flex-shrink-0 px-4 pt-8 pb-4 bg-[#0000004A] border-b border-[#FFFFFF14]">
                   <div className="flex items-center justify-between gap-3 mb-3">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <Button
@@ -686,9 +686,9 @@ export function CirclesSlidingPanel({
 
                 {/* Input Area */}
                 <div 
-                  className="flex-shrink-0 px-4 py-3 border-t border-[#2b3642]/50"
+                  className="flex-shrink-0 px-6 pt-3 pb-8 border-t border-white/5"
                   style={{
-                    background: "rgba(0, 0, 0, 0.3)",
+                    background: "rgba(8, 14, 17, 0.6)",
                     backdropFilter: "blur(20px)",
                     WebkitBackdropFilter: "blur(20px)",
                   }}

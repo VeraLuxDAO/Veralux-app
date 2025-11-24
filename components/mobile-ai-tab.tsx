@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Bot, Send, Loader2 } from "lucide-react";
+import { EmojiPicker } from "@/components/ui/emoji-picker";
+import { Bot, Send, Loader2, Smile, Mic, Paperclip, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Message {
@@ -129,6 +130,10 @@ export function MobileAITab({ className }: MobileAITabProps) {
     }
   };
 
+  const handleEmojiSelect = (emoji: string) => {
+    setInputValue((prev) => prev + emoji);
+  };
+
   const quickActions = [
     { label: "💰 DeFi Basics", action: () => setInputValue("What is DeFi?") },
     { label: "🎨 NFT Guide", action: () => setInputValue("How do NFTs work?") },
@@ -181,49 +186,69 @@ export function MobileAITab({ className }: MobileAITabProps) {
         </Button>
       </div>
 
-      {/* AI Chat Slide-out Panel - Proper Navigation Bar Spacing */}
+      {/* AI Chat Modal - Centered on Mobile */}
       <div
         className={cn(
-          "ai-chat-panel fixed right-0 z-40 md:hidden flex flex-col",
-          "w-[75vw] max-w-[320px] min-w-[280px]",
-          "bg-card/98 backdrop-blur-md border-l border-border/30",
-          "shadow-[0_0_40px_rgba(0,0,0,0.3)]",
+          "ai-chat-panel fixed z-[120] md:hidden flex flex-col",
+          "bg-[#080E1199] backdrop-blur-md border border-white/10 rounded-2xl",
+          "shadow-[0_0_40px_rgba(0,0,0,0.5)]",
           "transition-all duration-300 ease-out transform-gpu",
-          isOpen ? "translate-x-0" : "translate-x-full"
+          isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
         )}
         style={{
-          top: "64px", // Exact height of mobile top bar
-          bottom: "80px", // Exact height of mobile bottom bar
-          height: "calc(100vh - 144px)", // Total: 100vh - 64px - 80px
-          willChange: "transform",
-          opacity: isOpen ? 1 : 0,
+          top: "50%",
+          left: "50%",
+          width: "98vw",
+          maxWidth: "700px",
+          transform: isOpen 
+            ? "translate(-50%, -50%)" 
+            : "translate(-50%, -50%) scale(0.95)",
+          maxHeight: "95vh",
+          height: "auto",
+          willChange: "transform, opacity",
         }}
       >
-        {/* Header - Subtle Design */}
-        <div className="flex-shrink-0 p-3 border-b border-border/20 bg-card/50 backdrop-blur-sm">
-          <div className="flex items-center space-x-3">
-            <div className="relative">
-              <Avatar className="h-8 w-8 ring-1 ring-border/30">
-                <AvatarFallback className="bg-gradient-to-br from-primary/80 via-primary to-primary/90 text-primary-foreground text-sm">
-                  <Bot className="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
-              <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-veralux-green rounded-full border border-card" />
-            </div>
-            <div className="flex flex-col">
-              <h3 className="font-semibold text-sm text-foreground">
-                VeraLux AI
-              </h3>
-              <div className="flex items-center space-x-1.5">
-                <div className="h-1.5 w-1.5 bg-veralux-green rounded-full" />
-                <p className="text-xs text-muted-foreground">Online</p>
+        {/* Header - With Close Button */}
+        <div className="flex-shrink-0 p-4 border-b border-white/5 bg-[#080E1199] backdrop-blur-sm rounded-t-2xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="relative">
+                <Avatar className="h-10 w-10 ring-1 ring-border/30">
+                  <AvatarFallback className="bg-gradient-to-br from-primary/80 via-primary to-primary/90 text-primary-foreground">
+                    <Bot className="h-5 w-5" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-veralux-green rounded-full border-2 border-[#080E11]" />
+              </div>
+              <div className="flex flex-col">
+                <h3 className="font-semibold text-base text-white">
+                  VeraLux AI
+                </h3>
+                <div className="flex items-center space-x-1.5">
+                  <div className="h-1.5 w-1.5 bg-veralux-green rounded-full" />
+                  <p className="text-xs text-[#9BB6CC99]">Online</p>
+                </div>
               </div>
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClose}
+              className="h-8 w-8 p-0 rounded-full hover:bg-white/10 text-white"
+            >
+              <X className="h-5 w-5" />
+            </Button>
           </div>
         </div>
 
         {/* Messages */}
-        <ScrollArea ref={scrollAreaRef} className="flex-1 p-3 overflow-y-auto">
+        <ScrollArea 
+          ref={scrollAreaRef} 
+          className="flex-1 p-5 overflow-y-auto"
+          style={{
+            maxHeight: "calc(92vh - 250px)",
+          }}
+        >
           <div className="space-y-2.5">
             {messages.map((message, index) => (
               <div
@@ -240,8 +265,8 @@ export function MobileAITab({ className }: MobileAITabProps) {
                   className={cn(
                     "group max-w-[82%] rounded-xl px-3 py-2.5 text-sm transition-all duration-200",
                     message.sender === "user"
-                      ? "bg-primary/95 text-primary-foreground ml-2 shadow-sm"
-                      : "bg-muted/60 text-foreground mr-2 border border-border/20"
+                      ? "bg-[#FADEFD] text-[#080E11] ml-2 shadow-sm"
+                      : "bg-[#9BB6CC0A] text-[#9BB6CC] mr-2 border border-border/20"
                   )}
                 >
                   <p className="whitespace-pre-wrap break-words leading-relaxed">
@@ -316,51 +341,101 @@ export function MobileAITab({ className }: MobileAITabProps) {
           </div>
         </ScrollArea>
 
-        {/* Input */}
-        <div className="flex-shrink-0 p-3 border-t border-border/20 bg-card/50 backdrop-blur-sm">
-          <div className="flex items-center space-x-2 p-2 bg-background/60 rounded-xl border border-border/20">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask me anything about Web3..."
-              className="flex-1 h-8 border-0 bg-transparent text-sm placeholder:text-muted-foreground/60 focus:ring-0 focus:outline-none"
-              disabled={isLoading}
-            />
-            <Button
-              onClick={handleSendMessage}
-              disabled={!inputValue.trim() || isLoading}
-              size="sm"
-              className={cn(
-                "h-8 w-8 rounded-lg p-0 transition-all duration-200",
-                !inputValue.trim() || isLoading
-                  ? "bg-muted/50 text-muted-foreground cursor-not-allowed"
-                  : "bg-primary/90 text-primary-foreground hover:bg-primary cursor-pointer"
-              )}
-            >
-              {isLoading ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                <Send className="h-3 w-3" />
-              )}
-            </Button>
-          </div>
-          <div className="flex items-center justify-center mt-2 px-1">
-            <p className="text-xs text-muted-foreground">
-              Powered by VeraLux AI
-            </p>
+        {/* Input - Matching Sample Design */}
+        <div 
+          className="flex-shrink-0 px-6 pt-3 pb-6 border-t border-white/5 rounded-b-2xl"
+          style={{
+            background: "rgba(8, 14, 17, 0.6)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+          }}
+        >
+          <div className="flex items-center">
+            <div className="flex w-full items-center rounded-full bg-[#E5F7FD0A] border border-white/10 px-3 gap-2">
+              {/* Emoji Picker */}
+              <EmojiPicker
+                onEmojiSelect={handleEmojiSelect}
+                trigger={
+                  <div
+                    className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 cursor-pointer"
+                    title="Emoji"
+                  >
+                    <Smile className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
+                  </div>
+                }
+              />
+
+              {/* Input Field */}
+              <Input
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
+                placeholder="Send Message"
+                disabled={isLoading}
+                className="flex-1 h-6 bg-[#E5F7FD0A] border-none text-[#9BB6CC99] text-[14px] placeholder:text-[#9BB6CC99] focus:ring-0 focus-visible:ring-0 px-2 py-0 shadow-none"
+                autoComplete="off"
+                style={{ fontFamily: "'Geist'", fontSize: "14px !important" }}
+              />
+
+              {/* Right icon group: Mic, Paperclip, Send */}
+              <div className="flex items-center gap-3 flex-shrink-0">
+                {/* Mic */}
+                <div
+                  className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 flex items-center justify-center cursor-pointer"
+                  title="Voice message"
+                  style={{ maxWidth: "16px !important", maxHeight: "16px !important" }}
+                  onClick={() => {
+                    // Handle microphone click
+                  }}
+                >
+                  <Mic className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
+                </div>
+
+                {/* Paperclip */}
+                <div
+                  className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 flex items-center justify-center cursor-pointer"
+                  title="Attach file"
+                  onClick={() => {
+                    // Handle attachment click
+                  }}
+                >
+                  <Paperclip className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
+                </div>
+
+                {/* Send */}
+                <div
+                  onClick={handleSendMessage}
+                  className={cn(
+                    "h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 flex-shrink-0 flex items-center justify-center cursor-pointer",
+                    (!inputValue.trim() || isLoading) && "opacity-60 cursor-not-allowed"
+                  )}
+                  title="Send message"
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3 text-[#9BB6CC99] animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3 text-[#9BB6CC99]" />
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Overlay */}
+      {/* Overlay - Behind Modal */}
       <div
         className={cn(
-          "ai-overlay fixed inset-0 z-30 md:hidden transition-all duration-300 ease-out",
+          "ai-overlay fixed inset-0 z-[115] md:hidden transition-all duration-300 ease-out",
           isOpen ? "pointer-events-auto" : "pointer-events-none"
         )}
         style={{
-          background: `rgba(0, 0, 0, ${0.4 * backdropProgress})`,
+          background: `rgba(0, 0, 0, ${0.6 * backdropProgress})`,
           backdropFilter: `blur(${8 * backdropProgress}px)`,
           opacity: backdropProgress,
         }}

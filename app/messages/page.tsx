@@ -544,8 +544,8 @@ function MessagesPageContent() {
                     className={cn(
                       "px-3 py-2 rounded-lg shadow-sm",
                       message.isOwn
-                        ? "bg-[#5c6bc0] text-white rounded-br-sm"
-                        : "bg-[#1c2733] text-white rounded-bl-sm"
+                        ? "bg-[#FADEFD] text-[#080E11] rounded-br-sm"
+                        : "bg-[#9BB6CC0A] text-[#9BB6CC] rounded-bl-sm"
                     )}
                   >
                     {showAvatar &&
