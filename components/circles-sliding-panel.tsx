@@ -686,7 +686,7 @@ export function CirclesSlidingPanel({
 
                 {/* Input Area */}
                 <div 
-                  className="flex-shrink-0 px-6 pt-3 pb-8 border-t border-white/5"
+                  className="flex-shrink-0 pt-3 pb-8 border-t border-white/5"
                   style={{
                     background: "rgba(8, 14, 17, 0.6)",
                     backdropFilter: "blur(20px)",

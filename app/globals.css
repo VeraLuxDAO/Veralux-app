@@ -2414,6 +2414,12 @@ button:active:not(:disabled) {
   max-height: 95vh !important;
 }
 
+/* Prevent initial animation flash on page load */
+.ai-chat-panel:not([class*="transition"]) {
+  transition: none !important;
+  animation: none !important;
+}
+
 @media (max-width: 480px) {
   /* Only apply to sidebar version */
   .ai-chat-panel:not([style*="top: 50%"]) {

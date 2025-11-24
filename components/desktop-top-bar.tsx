@@ -211,16 +211,10 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     </Badge>
                   </button>
 
-                  {/* Connections Button - Toggles Random Circle */}
+                  {/* Connections Button - Opens Random Circle */}
                   <button
                     onClick={() => {
-                      // If circle is already open, close it
-                      if (isCirclesPanelOpen) {
-                        router.push("/");
-                        return;
-                      }
-                      
-                      // Otherwise, open a random circle from user's joined circles
+                      // Open a random circle from user's joined circles
                       const mockJoinedCircles = [
                         {
                           id: "defi-builders",
@@ -349,16 +343,10 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     </Badge>
                   </button>
 
-                  {/* Connections Button - Toggles Random Circle */}
+                  {/* Connections Button - Opens Random Circle */}
                   <button
                     onClick={() => {
-                      // If circle is already open, close it
-                      if (isCirclesPanelOpen) {
-                        router.push("/");
-                        return;
-                      }
-                      
-                      // Otherwise, open a random circle from user's joined circles
+                      // Open a random circle from user's joined circles
                       const mockJoinedCircles = [
                         {
                           id: "defi-builders",
