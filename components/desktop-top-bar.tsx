@@ -211,11 +211,46 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     </Badge>
                   </button>
 
-                  {/* Connections Button */}
+                  {/* Connections Button - Toggles Random Circle */}
                   <button
-                    onClick={() =>
-                      setIsConnectionsPanelOpen(!isConnectionsPanelOpen)
-                    }
+                    onClick={() => {
+                      // If circle is already open, close it
+                      if (isCirclesPanelOpen) {
+                        router.push("/");
+                        return;
+                      }
+                      
+                      // Otherwise, open a random circle from user's joined circles
+                      const mockJoinedCircles = [
+                        {
+                          id: "defi-builders",
+                          name: "DeFi Builders",
+                        },
+                        {
+                          id: "gaming-alpha",
+                          name: "Gaming Alpha",
+                        },
+                        {
+                          id: "nft-collectors",
+                          name: "NFT Collectors",
+                        },
+                      ];
+                      
+                      // Select a random circle
+                      const randomCircle = mockJoinedCircles[Math.floor(Math.random() * mockJoinedCircles.length)];
+                      
+                      // Slugify the circle name
+                      const slugifyCircleName = (name: string) =>
+                        name
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]+/g, "-")
+                          .replace(/^-+|-+$/g, "");
+                      
+                      const circleSlug = slugifyCircleName(randomCircle.name);
+                      
+                      // Navigate to the random circle
+                      router.push(`/?circle=${circleSlug}&channel=general`);
+                    }}
                     className={cn(
                       "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",
                       isConnectionsPanelOpen || isCirclesPanelOpen
@@ -314,11 +349,46 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     </Badge>
                   </button>
 
-                  {/* Connections Button */}
+                  {/* Connections Button - Toggles Random Circle */}
                   <button
-                    onClick={() =>
-                      setIsConnectionsPanelOpen(!isConnectionsPanelOpen)
-                    }
+                    onClick={() => {
+                      // If circle is already open, close it
+                      if (isCirclesPanelOpen) {
+                        router.push("/");
+                        return;
+                      }
+                      
+                      // Otherwise, open a random circle from user's joined circles
+                      const mockJoinedCircles = [
+                        {
+                          id: "defi-builders",
+                          name: "DeFi Builders",
+                        },
+                        {
+                          id: "gaming-alpha",
+                          name: "Gaming Alpha",
+                        },
+                        {
+                          id: "nft-collectors",
+                          name: "NFT Collectors",
+                        },
+                      ];
+                      
+                      // Select a random circle
+                      const randomCircle = mockJoinedCircles[Math.floor(Math.random() * mockJoinedCircles.length)];
+                      
+                      // Slugify the circle name
+                      const slugifyCircleName = (name: string) =>
+                        name
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]+/g, "-")
+                          .replace(/^-+|-+$/g, "");
+                      
+                      const circleSlug = slugifyCircleName(randomCircle.name);
+                      
+                      // Navigate to the random circle
+                      router.push(`/?circle=${circleSlug}&channel=general`);
+                    }}
                     className={cn(
                       "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",
                       isConnectionsPanelOpen || isCirclesPanelOpen

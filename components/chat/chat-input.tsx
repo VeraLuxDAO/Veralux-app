@@ -3,6 +3,7 @@
 import { useState, useRef, KeyboardEvent, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { EmojiPicker } from "@/components/ui/emoji-picker";
 import {
   ImagePlus,
@@ -69,47 +70,11 @@ export function ChatInput({
 
   const handleInputChange = (value: string) => {
     setMessage(value);
-
-    // Auto-resize textarea
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-
-      // Expand if content is more than one line
-      setIsExpanded(textareaRef.current.scrollHeight > 40);
-    }
   };
 
   const handleEmojiSelect = (emoji: string) => {
-    if (!textareaRef.current) return;
-
-    const textarea = textareaRef.current;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const currentValue = message;
-
-    // Insert emoji at cursor position
-    const newValue =
-      currentValue.slice(0, start) + emoji + currentValue.slice(end);
-    setMessage(newValue);
-
-    // Restore cursor position after emoji
-    setTimeout(() => {
-      if (textarea) {
-        const newCursorPos = start + emoji.length;
-        textarea.setSelectionRange(newCursorPos, newCursorPos);
-        textarea.focus();
-      }
-    }, 0);
-
-    // Auto-resize textarea
-    setTimeout(() => {
-      if (textarea) {
-        textarea.style.height = "auto";
-        textarea.style.height = `${textarea.scrollHeight}px`;
-        setIsExpanded(textarea.scrollHeight > 40);
-      }
-    }, 0);
+    // For mobile Input, just append emoji to the end
+    setMessage((prev) => prev + emoji);
   };
 
   return (
@@ -212,112 +177,81 @@ export function ChatInput({
           </div>
         </div>
 
-        {/* Mobile Layout (< 768px and not forceDesktop) */}
+        {/* Mobile Layout (< 768px and not forceDesktop) - Matching Private Room Design */}
         <div
           className={cn(
-            "flex items-end gap-2 flex-1 relative",
+            "flex items-center flex-1 relative",
             forceDesktop ? "hidden" : "flex md:hidden"
           )}
         >
-          {/* Center: Input Container */}
-          <div className="flex-1 relative min-w-0">
-            <div
-              className={cn(
-                "relative rounded-2xl transition-all duration-200",
-                "bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.08)]",
-                "border border-[rgba(255,255,255,0.1)]",
-                "focus-within:border-[rgba(255,255,255,0.2)] focus-within:bg-[rgba(255,255,255,0.08)]",
-                "backdrop-blur-md"
-              )}
-              style={{
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
+          {/* Input Container - Matching Private Room Style */}
+          <div className="flex w-full items-center rounded-full bg-[#E5F7FD0A] border border-white/10 px-3 gap-2">
+            {/* Emoji Picker */}
+            <EmojiPicker
+              onEmojiSelect={handleEmojiSelect}
+              trigger={
+                <div
+                  className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 cursor-pointer"
+                  title="Emoji"
+                >
+                  <Smile className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
+                </div>
+              }
+            />
+
+            {/* Input Field */}
+            <Input
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
               }}
-            >
-              {/* Left: Emoji Picker - Inside input field */}
-              <div className="absolute left-[-5px] top-1/2 -translate-y-1/2 z-10">
-                <EmojiPicker
-                  onEmojiSelect={handleEmojiSelect}
-                  className="w-7 h-7"
-                />
+              placeholder="Send Message"
+              disabled={disabled}
+              className="flex-1 h-6 bg-[#E5F7FD0A] border-none text-[#9BB6CC99] text-[14px] placeholder:text-[#9BB6CC99] focus:ring-0 focus-visible:ring-0 px-2 py-0 shadow-none"
+              autoComplete="off"
+              style={{ fontFamily: "'Geist'", fontSize: "14px !important" }}
+            />
+
+            {/* Right icon group: Mic, Paperclip, Send */}
+            <div className="flex items-center gap-3 flex-shrink-0">
+              {/* Mic */}
+              <div
+                className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 flex items-center justify-center cursor-pointer"
+                title="Voice message"
+                style={{ maxWidth: "16px !important", maxHeight: "16px !important" }}
+                onClick={() => {
+                  // Handle microphone click
+                }}
+              >
+                <Mic className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
               </div>
 
-              <Textarea
-                ref={textareaRef}
-                value={message}
-                onChange={(e) => handleInputChange(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Send Message"
-                disabled={disabled}
-                className={cn(
-                  "mobile-chat-input w-full min-h-[44px] max-h-32 resize-none border-0 bg-transparent",
-                  "focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
-                  "placeholder:text-white/50 text-white text-sm leading-relaxed",
-                  "py-2.5 pl-10 pr-20 rounded-2xl",
-                  "scrollbar-thin scrollbar-thumb-muted-foreground/20"
-                )}
-                rows={1}
-                style={{
-                  fontSize: "16px",
-                  wordWrap: "break-word",
-                  overflowWrap: "break-word",
+              {/* Paperclip */}
+              <div
+                className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 flex items-center justify-center cursor-pointer"
+                title="Attach file"
+                onClick={() => {
+                  // Handle attachment click
                 }}
-              />
+              >
+                <Paperclip className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
+              </div>
 
-              {/* Right: Icons Container - Microphone, Paperclip, Send */}
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 z-10 flex items-center">
-                {/* Microphone Icon */}
-                <div
-                  className="w-7 h-7 p-0 hover:bg-transparent flex items-center justify-center"
-                  onClick={() => {
-                    // Handle microphone click
-                  }}
-                >
-                  <Mic className="h-5 w-5 text-white/70" />
-                </div>
-
-                {/* Paperclip Icon */}
-                <div
-                  className="w-7 h-7 p-0 hover:bg-transparent flex items-center justify-center"
-                  onClick={() => {
-                    // Handle attachment click
-                  }}
-                >
-                  <Paperclip className="h-5 w-5 text-white/70" />
-                </div>
-
-                {/* Send Button */}
-                <div
-                  onClick={handleSend}
-                  className={cn(
-                    "flex items-center justify-center",
-                    "w-7 h-7 p-0 rounded-full transition-all duration-300",
-                    "hover:scale-105 active:scale-95",
-                    message.trim()
-                      ? [
-                          "bg-gradient-to-br from-primary via-primary to-primary/90",
-                          "hover:from-primary/95 hover:via-primary/90 hover:to-primary/80",
-                          "text-primary-foreground border-0",
-                          "hover:rotate-12",
-                          "shadow-primary/25 hover:shadow-primary/40",
-                        ]
-                      : [
-                          "bg-transparent",
-                          "text-white/50 cursor-not-allowed",
-                          "border-0 opacity-60",
-                        ],
-                    disabled && "opacity-50 cursor-not-allowed"
-                  )}
-                >
-                  <Send
-                    className={cn(
-                      "h-4 w-4 transition-all duration-200",
-                      message.trim()
-                        ? "text-primary-foreground"
-                        : "text-white/50"
-                    )}
-                  />
-                </div>
+              {/* Send */}
+              <div
+                onClick={handleSend}
+                className={cn(
+                  "h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 flex-shrink-0 flex items-center justify-center cursor-pointer",
+                  !message.trim() && "opacity-60 cursor-not-allowed",
+                  disabled && "opacity-50 cursor-not-allowed"
+                )}
+                title="Send message"
+              >
+                <Send className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3 text-[#9BB6CC99]" />
               </div>
             </div>
           </div>

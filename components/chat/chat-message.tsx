@@ -132,7 +132,7 @@ export function ChatMessageComponent({
           className={cn(
             "chat-message-content text-[12px] leading-relaxed whitespace-pre-wrap break-words word-break overflow-wrap-anywhere",
             message.isOwn
-              ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md px-3 sm:px-4 py-2 sm:py-2.5 shadow-sm max-w-[85%] sm:max-w-[75%] inline-block"
+              ? "bg-[#FADEFD] text-[#080E11] rounded-2xl rounded-br-md px-3 sm:px-4 py-2 sm:py-2.5 shadow-sm max-w-[85%] sm:max-w-[75%] inline-block"
               : "text-[#9BB6CC] max-w-full"
           )}
           style={{

@@ -2390,8 +2390,8 @@ button:active:not(:disabled) {
   backface-visibility: hidden;
 }
 
-/* Mobile AI Panel Responsive Design */
-.ai-chat-panel {
+/* Mobile AI Panel Responsive Design - Only apply to sidebar version */
+.ai-chat-panel:not([style*="top: 50%"]) {
   /* Optimized positioning between navigation bars */
   position: fixed;
   top: 64px;
@@ -2403,21 +2403,48 @@ button:active:not(:disabled) {
   transform: translateZ(0);
 }
 
+/* Override for centered modal version */
+.ai-chat-panel[style*="top: 50%"] {
+  top: 50% !important;
+  left: 50% !important;
+  bottom: auto !important;
+  height: auto !important;
+  width: 98vw !important;
+  max-width: 700px !important;
+  max-height: 95vh !important;
+}
+
 @media (max-width: 480px) {
-  .ai-chat-panel {
+  /* Only apply to sidebar version */
+  .ai-chat-panel:not([style*="top: 50%"]) {
     width: 75vw !important;
     max-width: 300px !important;
+  }
+  
+  /* Modal version - larger */
+  .ai-chat-panel[style*="top: 50%"] {
+    width: 98vw !important;
+    max-width: 95vw !important;
+    max-height: 95vh !important;
   }
 }
 
 @media (max-width: 360px) {
-  .ai-chat-panel {
+  /* Only apply to sidebar version */
+  .ai-chat-panel:not([style*="top: 50%"]) {
     width: 80vw !important;
     max-width: 280px !important;
   }
 
   .ai-tab-container[data-open="true"] {
     transform: translateY(-50%) translateX(-80vw) !important;
+  }
+  
+  /* Modal version - larger */
+  .ai-chat-panel[style*="top: 50%"] {
+    width: 98vw !important;
+    max-width: 95vw !important;
+    max-height: 95vh !important;
   }
 }
 
@@ -2459,12 +2486,20 @@ button:active:not(:disabled) {
 
 /* Ultra-small mobile screens */
 @media (max-width: 320px) {
-  .ai-chat-panel {
+  /* Only apply to sidebar version */
+  .ai-chat-panel:not([style*="top: 50%"]) {
     width: 95vw !important;
   }
 
   .ai-tab-container[data-open="true"] {
     transform: translateY(-50%) translateX(-95vw) !important;
+  }
+  
+  /* Modal version - larger */
+  .ai-chat-panel[style*="top: 50%"] {
+    width: 98vw !important;
+    max-width: 95vw !important;
+    max-height: 95vh !important;
   }
 }
 
