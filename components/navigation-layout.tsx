@@ -42,8 +42,8 @@ export function NavigationLayout({
     setIsMobileMenuOpen(false);
   };
 
-  // Circles panel is open when circle parameter is present (works on both mobile and desktop)
-  const isCirclesPanelOpen = pathname === "/" && searchParams.get("circle") !== null;
+  // Circles panel is open when circle parameter is present (works on both mobile and desktop, on all pages)
+  const isCirclesPanelOpen = searchParams.get("circle") !== null;
 
   // Set data attribute on body for CSS targeting
   useEffect(() => {

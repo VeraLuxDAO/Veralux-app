@@ -25,6 +25,7 @@ import { CirclesModal } from "@/components/circles-modal";
 import { RoomsSlidingPanel } from "@/components/rooms-sliding-panel";
 import { CirclesSlidingPanel } from "@/components/circles-sliding-panel";
 import { NotificationCenterPopover } from "@/components/notification-center-popover";
+import { joinedCircles } from "@/lib/circles-data";
 
 interface DesktopTopBarProps {
   className?: string;
@@ -47,8 +48,8 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
   // whenever the current path starts with /private_rooms
   const isRoomsPanelOpen = pathname.startsWith("/private_rooms");
   
-  // Desktop Circles panel is considered "open" whenever the circle parameter is present
-  const isCirclesPanelOpen = pathname === "/" && searchParams.get("circle") !== null;
+  // Desktop Circles panel is considered "open" whenever the circle parameter is present (on any page)
+  const isCirclesPanelOpen = searchParams.get("circle") !== null;
 
   const handleLogoClick = () => {
     router.push("/");
@@ -127,12 +128,29 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
               const isActive = pathname === item.path;
               // Play, Build, Trade buttons should use #E5F7FD99 when not active
               const shouldUseHighlightColor = !isActive && (item.path === "/gaming" || item.path === "/dev" || item.path === "/marketplace");
+              
+              // Preserve circle and channel query parameters when navigating
+              const handleNavigation = () => {
+                const circle = searchParams.get("circle");
+                const channel = searchParams.get("channel");
+                
+                let newPath = item.path;
+                if (circle) {
+                  newPath += `?circle=${circle}`;
+                  if (channel) {
+                    newPath += `&channel=${channel}`;
+                  }
+                }
+                
+                router.push(newPath);
+              };
+              
               return (
                 <Button
                   key={item.path}
                   variant="ghost"
                   size="sm"
-                  onClick={() => router.push(item.path)}
+                  onClick={handleNavigation}
                   className={cn(
                     "flex items-center gap-2 rounded-[12px] px-4 py-2 transition-all duration-200 text-sm h-9",
                     isActive
@@ -214,36 +232,11 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                   {/* Connections Button - Opens Random Circle */}
                   <button
                     onClick={() => {
-                      // Open a random circle from user's joined circles
-                      const mockJoinedCircles = [
-                        {
-                          id: "defi-builders",
-                          name: "DeFi Builders",
-                        },
-                        {
-                          id: "gaming-alpha",
-                          name: "Gaming Alpha",
-                        },
-                        {
-                          id: "nft-collectors",
-                          name: "NFT Collectors",
-                        },
-                      ];
+                      // Select a random circle from user's joined circles
+                      const randomCircle = joinedCircles[Math.floor(Math.random() * joinedCircles.length)];
                       
-                      // Select a random circle
-                      const randomCircle = mockJoinedCircles[Math.floor(Math.random() * mockJoinedCircles.length)];
-                      
-                      // Slugify the circle name
-                      const slugifyCircleName = (name: string) =>
-                        name
-                          .toLowerCase()
-                          .replace(/[^a-z0-9]+/g, "-")
-                          .replace(/^-+|-+$/g, "");
-                      
-                      const circleSlug = slugifyCircleName(randomCircle.name);
-                      
-                      // Navigate to the random circle
-                      router.push(`/?circle=${circleSlug}&channel=general`);
+                      // Navigate to the random circle using its ID
+                      router.push(`/?circle=${randomCircle.id}&channel=general`);
                     }}
                     className={cn(
                       "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",
@@ -346,36 +339,11 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                   {/* Connections Button - Opens Random Circle */}
                   <button
                     onClick={() => {
-                      // Open a random circle from user's joined circles
-                      const mockJoinedCircles = [
-                        {
-                          id: "defi-builders",
-                          name: "DeFi Builders",
-                        },
-                        {
-                          id: "gaming-alpha",
-                          name: "Gaming Alpha",
-                        },
-                        {
-                          id: "nft-collectors",
-                          name: "NFT Collectors",
-                        },
-                      ];
+                      // Select a random circle from user's joined circles
+                      const randomCircle = joinedCircles[Math.floor(Math.random() * joinedCircles.length)];
                       
-                      // Select a random circle
-                      const randomCircle = mockJoinedCircles[Math.floor(Math.random() * mockJoinedCircles.length)];
-                      
-                      // Slugify the circle name
-                      const slugifyCircleName = (name: string) =>
-                        name
-                          .toLowerCase()
-                          .replace(/[^a-z0-9]+/g, "-")
-                          .replace(/^-+|-+$/g, "");
-                      
-                      const circleSlug = slugifyCircleName(randomCircle.name);
-                      
-                      // Navigate to the random circle
-                      router.push(`/?circle=${circleSlug}&channel=general`);
+                      // Navigate to the random circle using its ID
+                      router.push(`/?circle=${randomCircle.id}&channel=general`);
                     }}
                     className={cn(
                       "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",

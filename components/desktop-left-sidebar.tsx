@@ -7,6 +7,7 @@ import { Users, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { CirclesModal } from "@/components/circles-modal";
+import { joinedCircles } from "@/lib/circles-data";
 
 interface DesktopLeftSidebarProps {
   className?: string;
@@ -74,29 +75,24 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
     },
   ];
 
-  const circles = [
-    {
-      name: "DeFi Builders",
-      members: 47,
-      icon: "🏗️",
-      color: "bg-blue-500/10 text-blue-400",
-      routeId: "defi-builders",
-    },
-    {
-      name: "Gaming Alpha",
-      members: 23,
-      icon: "🎮",
-      color: "bg-purple-500/10 text-purple-400",
-      routeId: "gaming-alpha",
-    },
-    {
-      name: "NFT Collectors",
-      members: 31,
-      icon: "💎",
-      color: "bg-green-500/10 text-green-400",
-      routeId: "nft-collectors",
-    },
-  ];
+  // Map shared circles data to sidebar format
+  const circleColors: Record<string, string> = {
+    "defi-builders": "bg-blue-500/10 text-blue-400",
+    "kings-alliance": "bg-purple-500/10 text-purple-400",
+    "governance-circle": "bg-green-500/10 text-green-400",
+    "defi-community": "bg-cyan-500/10 text-cyan-400",
+    "ynx-dao": "bg-yellow-500/10 text-yellow-400",
+    "our-space": "bg-pink-500/10 text-pink-400",
+  };
+
+  // Use shared circles data - show first 4 joined circles in sidebar
+  const circles = joinedCircles.slice(0, 4).map((circle) => ({
+    name: circle.name,
+    members: circle.memberCount,
+    icon: circle.icon,
+    color: circleColors[circle.id] || "bg-gray-500/10 text-gray-400",
+    routeId: circle.id,
+  }));
 
   return (
     <aside
