@@ -13,10 +13,8 @@ import {
   Volume2,
   Lock,
   ChevronDown,
-  Settings,
   Users,
   Plus,
-  MoreHorizontal,
   ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -27,7 +25,7 @@ import {
   type ChatMessage,
 } from "@/components/chat/chat-message";
 import { ChatInput } from "@/components/chat/chat-input";
-import { joinedCircles, getCirclesRecord, type Circle } from "@/lib/circles-data";
+import { getCirclesRecord, type Circle } from "@/lib/circles-data";
 
 interface Channel {
   id: string;
@@ -393,11 +391,19 @@ export function CirclesSlidingPanel({
     setSwitchCircleSearch("");
   };
 
-  // Close popup when clicking outside
+  // Close popup when clicking outside (but allow scrolling)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (switchCircleRef.current && !switchCircleRef.current.contains(event.target as Node)) {
-        setIsSwitchCircleOpen(false);
+      const target = event.target as Node;
+      // Don't close if clicking on scrollable areas or if it's a scroll event
+      if (switchCircleRef.current && !switchCircleRef.current.contains(target)) {
+        // Check if the click is on a scrollable element (ScrollArea or its children)
+        const isScrollableElement = (target as Element)?.closest('[data-slot="scroll-area"]') || 
+                                    (target as Element)?.closest('[data-slot="scroll-area-viewport"]');
+        // Only close on actual clicks, not scroll interactions
+        if (!isScrollableElement && event.type === 'mousedown') {
+          setIsSwitchCircleOpen(false);
+        }
       }
     };
 
@@ -748,7 +754,7 @@ export function CirclesSlidingPanel({
           <div className="flex h-full overflow-hidden relative">
             {/* Left Sidebar - Channels */}
             <div
-              className="flex-shrink-0 w-[240px] flex flex-col relative overflow-visible"
+              className="flex-shrink-0 w-[300px] flex flex-col relative overflow-visible"
               style={{ 
                 borderRight: "1px solid rgba(255, 255, 255, 0.08)",
                 background: "#0000004A",
@@ -809,16 +815,19 @@ export function CirclesSlidingPanel({
                 {/* Switch Circle Popup - Positioned in sidebar */}
                 {isSwitchCircleOpen && (
                   <div
-                    className="absolute top-full left-0 right-0 mt-2 rounded-lg shadow-2xl z-[100]"
+                    className="absolute top-full left-0 right-0 mt-2 rounded-lg shadow-2xl z-[100] flex flex-col"
                     style={{
                       background: "rgba(8, 14, 17, 0.95)",
                       border: "1px solid rgba(255, 255, 255, 0.1)",
                       backdropFilter: "blur(20px)",
                       WebkitBackdropFilter: "blur(20px)",
+                      maxHeight: "400px",
+                      overflow: "hidden",
                     }}
+                    onClick={(e) => e.stopPropagation()}
                   >
                     {/* Header */}
-                    <div className="px-4 pt-4 pb-3 border-b border-white/10">
+                    <div className="px-4 pt-4 pb-3 border-b border-white/10 flex-shrink-0">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <Users className="h-4 w-4 text-[#4bd865]" />
@@ -841,7 +850,7 @@ export function CirclesSlidingPanel({
                     </div>
 
                     {/* Search Bar */}
-                    <div className="px-4 py-3 border-b border-white/10">
+                    <div className="px-4 py-3 border-b border-white/10 flex-shrink-0">
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9BB6CC99]" />
                         <Input
@@ -853,8 +862,14 @@ export function CirclesSlidingPanel({
                       </div>
                     </div>
 
-                    {/* Circles List */}
-                    <ScrollArea className="max-h-[400px]">
+                    {/* Circles List - Scrollable */}
+                    <ScrollArea 
+                      className="w-full"
+                      style={{ 
+                        maxHeight: "400px",
+                        height: "400px"
+                      }}
+                    >
                       <div className="p-2">
                         {Object.values(mockCircles)
                           .filter((circle) =>
@@ -877,14 +892,9 @@ export function CirclesSlidingPanel({
                                   <p className="text-sm font-medium text-white truncate">
                                     {circle.name}
                                   </p>
-                                  {circle.id === "ynx-dao" && (
+                                  {circle.unreadCount && circle.unreadCount > 0 && (
                                     <Badge className="h-4 min-w-4 px-1 text-xs bg-[rgba(255,255,255,0.15)] text-white">
-                                      3
-                                    </Badge>
-                                  )}
-                                  {circle.id === "defi-community" && (
-                                    <Badge className="h-4 min-w-4 px-1 text-xs bg-[rgba(255,255,255,0.15)] text-white">
-                                      3
+                                      {circle.unreadCount}
                                     </Badge>
                                   )}
                                 </div>
@@ -901,7 +911,14 @@ export function CirclesSlidingPanel({
               </div>
 
               {/* Channels List */}
-              <ScrollArea className="flex-1 overflow-hidden">
+              <ScrollArea 
+                className="flex-1 overflow-hidden"
+                style={{ 
+                  position: 'relative',
+                  zIndex: isSwitchCircleOpen ? 10 : 'auto',
+                  pointerEvents: 'auto'
+                }}
+              >
                 <div className="px-2 pb-4">
                   {channelCategories.map((category) => (
                     <div key={category.id} className="mb-4">

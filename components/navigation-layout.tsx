@@ -18,7 +18,7 @@ interface NavigationLayoutProps {
   header?: React.ReactNode;
 }
 
-export function NavigationLayout({
+function NavigationLayoutContent({
   children,
   className,
   header,
@@ -124,5 +124,19 @@ export function NavigationLayout({
         </div>
       </main>
     </div>
+  );
+}
+
+export function NavigationLayout(props: NavigationLayoutProps) {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen">
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-muted-foreground">Loading...</div>
+        </div>
+      </div>
+    }>
+      <NavigationLayoutContent {...props} />
+    </Suspense>
   );
 }
