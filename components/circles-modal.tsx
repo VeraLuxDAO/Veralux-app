@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Users, Lock, Globe, Crown, Shield, Hash, X } from "lucide-react";
+import { Search, Users, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { joinedCircles, discoverCircles, type Circle } from "@/lib/circles-data";
 

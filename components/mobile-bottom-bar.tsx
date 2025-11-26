@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Home, Users, Search, Bell, MessageCircle } from "lucide-react";
@@ -13,7 +13,7 @@ interface MobileBottomBarProps {
   className?: string;
 }
 
-export function MobileBottomBar({
+function MobileBottomBarContent({
   isMenuOpen = false,
   className,
 }: MobileBottomBarProps) {
@@ -178,5 +178,13 @@ export function MobileBottomBar({
       />
     </nav>
     </>
+  );
+}
+
+export function MobileBottomBar(props: MobileBottomBarProps) {
+  return (
+    <Suspense fallback={null}>
+      <MobileBottomBarContent {...props} />
+    </Suspense>
   );
 }

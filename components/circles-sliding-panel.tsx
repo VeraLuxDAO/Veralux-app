@@ -13,10 +13,8 @@ import {
   Volume2,
   Lock,
   ChevronDown,
-  Settings,
   Users,
   Plus,
-  MoreHorizontal,
   ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -27,7 +25,7 @@ import {
   type ChatMessage,
 } from "@/components/chat/chat-message";
 import { ChatInput } from "@/components/chat/chat-input";
-import { joinedCircles, getCirclesRecord, type Circle } from "@/lib/circles-data";
+import { getCirclesRecord, type Circle } from "@/lib/circles-data";
 
 interface Channel {
   id: string;
