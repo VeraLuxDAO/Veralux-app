@@ -103,20 +103,20 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
             {/* Content */}
             <div className="flex-1 min-w-0">
               {/* Title */}
-              <h3 className="font-medium text-base text-white truncate mb-0.5">
+              <h3 className="font-[16px] text-base text-white truncate mb-0.5">
                 {circle.name}
               </h3>
               
               {/* Description */}
-              <p className="text-sm text-[#9BB6CC99] truncate">
+              <p className="text-[12px] text-[#9BB6CC99] truncate">
                 {circle.description}
               </p>
             </div>
 
             {/* Notification badge - far right - Only show if unreadCount > 0 */}
-            {circle.unreadCount && circle.unreadCount > 0 && (
-              <div className="w-5 h-5 rounded-full bg-[rgba(255,255,255,0.15)] flex items-center justify-center flex-shrink-0 mt-1">
-                <span className="text-xs text-white font-medium">
+            {(circle.unreadCount ?? 0) > 0 && (
+              <div className="w-5 h-5 rounded-full bg-[#FADEFD] flex items-center justify-center flex-shrink-0 mt-1">
+                <span className="text-[12px] text-[#000205] font-medium">
                   {circle.unreadCount}
                 </span>
               </div>
@@ -126,22 +126,22 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
           {/* Stats Row - Start at same position as icon */}
           <div className="flex items-center gap-4 text-sm pl-3">
             <div className="flex items-center gap-1.5">
-              <Users className="h-3.5 w-3.5 text-[#9BB6CC99]" />
-              <span className="text-sm text-white font-medium">
+              <Users className="h-3.5 w-3.5 text-[#9BB6CC]" />
+              <span className="text-[12px] text-[#9BB6CC] font-medium">
                 {circle.memberCount}
               </span>
               <span className="text-xs text-[#9BB6CC99]">members</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-2 h-2 bg-[#4bd865] rounded-full flex-shrink-0" />
-              <span className="text-sm text-white font-medium">
+              <div className="w-2 h-2 bg-[#45D4A7] rounded-full flex-shrink-0" />
+              <span className="text-[12px] text-[#45D4A7] font-medium">
                 {circle.onlineMembers}
               </span>
               <span className="text-xs text-[#9BB6CC99]">Online</span>
             </div>
             {circle.isJoined && (
               <Badge
-                className="text-xs h-5 px-2 bg-[rgba(76,216,101,0.2)] text-[#4bd865] border-0 font-normal ml-auto"
+                className="text-xs h-5 px-2 bg-[#FADEFD0A] text-[#FADEFD] border-0 font-normal ml-auto"
               >
                 Joined
               </Badge>

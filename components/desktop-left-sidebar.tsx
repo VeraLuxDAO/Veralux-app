@@ -85,8 +85,8 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
     "our-space": "bg-pink-500/10 text-pink-400",
   };
 
-  // Use shared circles data - show first 4 joined circles in sidebar
-  const circles = joinedCircles.slice(0, 4).map((circle) => ({
+  // Use shared circles data - show ALL joined circles in sidebar
+  const circles = joinedCircles.map((circle) => ({
     name: circle.name,
     members: circle.memberCount,
     icon: circle.icon,
