@@ -24,6 +24,7 @@ export function MobileAITab({ className }: MobileAITabProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [backdropProgress, setBackdropProgress] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -36,6 +37,17 @@ export function MobileAITab({ className }: MobileAITabProps) {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  // Prevent animation on initial mount - delay to ensure no flash
+  useEffect(() => {
+    // Use a longer delay to ensure the component is fully rendered and styled before enabling transitions
+    // Only set mounted after a delay to prevent any flash on page load
+    // Increased delay to ensure page is fully loaded
+    const timer = setTimeout(() => {
+      setIsMounted(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleToggle = () => {
     if (isAnimating) return;
@@ -186,28 +198,27 @@ export function MobileAITab({ className }: MobileAITabProps) {
         </Button>
       </div>
 
-      {/* AI Chat Modal - Centered on Mobile */}
-      <div
-        className={cn(
-          "ai-chat-panel fixed z-[120] md:hidden flex flex-col",
-          "bg-[#080E1199] backdrop-blur-md border border-white/10 rounded-2xl",
-          "shadow-[0_0_40px_rgba(0,0,0,0.5)]",
-          "transition-all duration-300 ease-out transform-gpu",
-          isOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
-        )}
-        style={{
-          top: "50%",
-          left: "50%",
-          width: "98vw",
-          maxWidth: "700px",
-          transform: isOpen 
-            ? "translate(-50%, -50%)" 
-            : "translate(-50%, -50%) scale(0.95)",
-          maxHeight: "95vh",
-          height: "auto",
-          willChange: "transform, opacity",
-        }}
-      >
+      {/* AI Chat Modal - Centered on Mobile - Only render when mounted AND user opens it */}
+      {isMounted && isOpen && (
+        <div
+          className={cn(
+            "ai-chat-panel fixed z-[120] md:hidden flex flex-col",
+            "bg-[#080E1199] backdrop-blur-md border border-white/10 rounded-2xl",
+            "shadow-[0_0_40px_rgba(0,0,0,0.5)]",
+            "transition-all duration-300 ease-out transform-gpu",
+            "opacity-100 scale-100"
+          )}
+          style={{
+            top: "50%",
+            left: "50%",
+            width: "98vw",
+            maxWidth: "700px",
+            transform: "translate(-50%, -50%)",
+            maxHeight: "95vh",
+            height: "auto",
+            willChange: "transform, opacity",
+          }}
+        >
         {/* Header - With Close Button */}
         <div className="flex-shrink-0 p-4 border-b border-white/5 bg-[#080E1199] backdrop-blur-sm rounded-t-2xl">
           <div className="flex items-center justify-between">
@@ -426,21 +437,25 @@ export function MobileAITab({ className }: MobileAITabProps) {
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      )}
 
-      {/* Overlay - Behind Modal */}
-      <div
-        className={cn(
-          "ai-overlay fixed inset-0 z-[115] md:hidden transition-all duration-300 ease-out",
-          isOpen ? "pointer-events-auto" : "pointer-events-none"
-        )}
-        style={{
-          background: `rgba(0, 0, 0, ${0.6 * backdropProgress})`,
-          backdropFilter: `blur(${8 * backdropProgress}px)`,
-          opacity: backdropProgress,
-        }}
-        onClick={handleClose}
-      />
+      {/* Overlay - Behind Modal - Only render when mounted AND modal is open */}
+      {isMounted && isOpen && (
+        <div
+          className={cn(
+            "ai-overlay fixed inset-0 z-[115] md:hidden",
+            "transition-all duration-300 ease-out",
+            "pointer-events-auto"
+          )}
+          style={{
+            background: `rgba(0, 0, 0, ${0.6 * backdropProgress})`,
+            backdropFilter: `blur(${8 * backdropProgress}px)`,
+            opacity: backdropProgress,
+          }}
+          onClick={handleClose}
+        />
+      )}
     </>
   );
 }

@@ -17,6 +17,7 @@ import {
   Users,
   Plus,
   MoreHorizontal,
+  ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
@@ -26,14 +27,7 @@ import {
   type ChatMessage,
 } from "@/components/chat/chat-message";
 import { ChatInput } from "@/components/chat/chat-input";
-
-interface Circle {
-  id: string;
-  name: string;
-  icon: string;
-  memberCount: number;
-  onlineCount: number;
-}
+import { joinedCircles, getCirclesRecord, type Circle } from "@/lib/circles-data";
 
 interface Channel {
   id: string;
@@ -63,30 +57,8 @@ interface CirclesSlidingPanelProps {
   onClose: () => void;
 }
 
-// Mock data
-const mockCircles: Record<string, Circle> = {
-  "defi-builders": {
-    id: "defi-builders",
-    name: "DeFi Builders",
-    icon: "🏗️",
-    memberCount: 1247,
-    onlineCount: 47,
-  },
-  "gaming-alpha": {
-    id: "gaming-alpha",
-    name: "Gaming Alpha",
-    icon: "🎮",
-    memberCount: 856,
-    onlineCount: 23,
-  },
-  "nft-collectors": {
-    id: "nft-collectors",
-    name: "NFT Collectors",
-    icon: "💎",
-    memberCount: 2341,
-    onlineCount: 31,
-  },
-};
+// Use shared circles data
+const mockCircles = getCirclesRecord();
 
 const mockChannelCategories: ChannelCategory[] = [
   {
@@ -238,7 +210,10 @@ export function CirclesSlidingPanel({
   const [searchQuery, setSearchQuery] = useState("");
   const [isMembersVisible, setIsMembersVisible] = useState(true);
   const [mobileView, setMobileView] = useState<"channel" | "chatting">("channel"); // Mobile view state
+  const [isSwitchCircleOpen, setIsSwitchCircleOpen] = useState(false);
+  const [switchCircleSearch, setSwitchCircleSearch] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const switchCircleRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -266,8 +241,7 @@ export function CirclesSlidingPanel({
     const channelSlug = searchParams.get("channel");
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-    // On mobile, always check URL for circle selection
-    // On desktop, only check when panel is open
+    // Always check URL for circle selection when panel is open or on mobile
     if (isMobile || isOpen) {
       if (circleSlug) {
         const circle = Object.values(mockCircles).find(
@@ -294,11 +268,17 @@ export function CirclesSlidingPanel({
             setActiveChannelId("general");
           }
         } else {
+          // Circle not found - reset selection
           setSelectedCircle(null);
+          setActiveChannelId("general");
         }
       } else {
         setSelectedCircle(null);
+        setActiveChannelId("general");
       }
+    } else if (!isOpen && !isMobile) {
+      // On desktop, when panel closes, keep the selection but don't update URL
+      // This allows the circle to persist when navigating
     }
   }, [isOpen, searchParams, router]);
 
@@ -356,6 +336,7 @@ export function CirclesSlidingPanel({
         window.scrollTo(0, scrollY);
       };
     }
+    return undefined;
   }, [isOpen]);
 
   // Hide AI button when circles panel is open
@@ -397,6 +378,37 @@ export function CirclesSlidingPanel({
 
     setMessages([...messages, newMessage]);
   };
+
+  const handleSwitchCircle = (circle: Circle) => {
+    const circleSlug = slugifyCircleName(circle.name);
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    
+    if (isMobile) {
+      router.push(`/?circle=${circleSlug}&channel=general#channel`);
+    } else {
+      router.push(`/?circle=${circleSlug}&channel=general`);
+    }
+    
+    setIsSwitchCircleOpen(false);
+    setSwitchCircleSearch("");
+  };
+
+  // Close popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (switchCircleRef.current && !switchCircleRef.current.contains(event.target as Node)) {
+        setIsSwitchCircleOpen(false);
+      }
+    };
+
+    if (isSwitchCircleOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+    return undefined;
+  }, [isSwitchCircleOpen]);
 
   const handleChannelSelect = (channelId: string, e?: React.MouseEvent) => {
     // Prevent default button behavior and event propagation
@@ -523,7 +535,7 @@ export function CirclesSlidingPanel({
                         className="text-xs text-[#9BB6CC99] leading-tight"
                         style={{ fontFamily: "'Geist'" }}
                       >
-                        {selectedCircle.onlineCount} online
+                        {selectedCircle.onlineMembers} online
                       </p>
                     </div>
                   </div>
@@ -686,7 +698,7 @@ export function CirclesSlidingPanel({
 
                 {/* Input Area */}
                 <div 
-                  className="flex-shrink-0 px-6 pt-3 pb-8 border-t border-white/5"
+                  className="flex-shrink-0 pt-3 pb-8 border-t border-white/5"
                   style={{
                     background: "rgba(8, 14, 17, 0.6)",
                     backdropFilter: "blur(20px)",
@@ -736,7 +748,7 @@ export function CirclesSlidingPanel({
           <div className="flex h-full overflow-hidden relative">
             {/* Left Sidebar - Channels */}
             <div
-              className="flex-shrink-0 w-[240px] flex flex-col relative overflow-hidden"
+              className="flex-shrink-0 w-[240px] flex flex-col relative overflow-visible"
               style={{ 
                 borderRight: "1px solid rgba(255, 255, 255, 0.08)",
                 background: "#0000004A",
@@ -745,7 +757,7 @@ export function CirclesSlidingPanel({
               }}
             >
               {/* Circle Header */}
-              <div className="px-4 pt-5 pb-4 flex-shrink-0">
+              <div className="px-4 pt-5 pb-4 flex-shrink-0 relative">
                 <div className="flex items-center justify-between gap-2 mb-4">
                   <Button
                     variant="ghost"
@@ -772,20 +784,120 @@ export function CirclesSlidingPanel({
                         className="text-xs text-[#9BB6CC99] leading-tight"
                         style={{ fontFamily: "'Geist'" }}
                       >
-                        {selectedCircle.onlineCount} online
+                        {selectedCircle.onlineMembers} online
                       </p>
                     </div>
                   </div>
 
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 rounded-full text-white hover:bg-white/10 transition-all"
-                    title="Circle settings"
-                  >
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
+                  <div className="relative" ref={switchCircleRef}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsSwitchCircleOpen(!isSwitchCircleOpen)}
+                      className="h-8 w-8 p-0 rounded-full text-white hover:bg-white/10 transition-all"
+                      title="Switch circle"
+                    >
+                      {isSwitchCircleOpen ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
+
+                {/* Switch Circle Popup - Positioned in sidebar */}
+                {isSwitchCircleOpen && (
+                  <div
+                    className="absolute top-full left-0 right-0 mt-2 rounded-lg shadow-2xl z-[100]"
+                    style={{
+                      background: "rgba(8, 14, 17, 0.95)",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      backdropFilter: "blur(20px)",
+                      WebkitBackdropFilter: "blur(20px)",
+                    }}
+                  >
+                    {/* Header */}
+                    <div className="px-4 pt-4 pb-3 border-b border-white/10">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-[#4bd865]" />
+                          <h3 className="text-sm font-semibold text-white">Switch Circle</h3>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 rounded-full hover:bg-white/10 text-white"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // TODO: Open circles modal to create/join new circles
+                            console.log("Open circles modal");
+                          }}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <p className="text-xs text-[#9BB6CC99]">Connect with your communities</p>
+                    </div>
+
+                    {/* Search Bar */}
+                    <div className="px-4 py-3 border-b border-white/10">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9BB6CC99]" />
+                        <Input
+                          placeholder="Search circles.."
+                          value={switchCircleSearch}
+                          onChange={(e) => setSwitchCircleSearch(e.target.value)}
+                          className="pl-10 pr-3 h-9 bg-[rgba(229,247,253,0.06)] border border-white/10 rounded-full text-sm text-white placeholder:text-[#9BB6CC99] focus:ring-0 focus:border-white/30"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Circles List */}
+                    <ScrollArea className="max-h-[400px]">
+                      <div className="p-2">
+                        {Object.values(mockCircles)
+                          .filter((circle) =>
+                            circle.name.toLowerCase().includes(switchCircleSearch.toLowerCase())
+                          )
+                          .map((circle) => (
+                            <button
+                              key={circle.id}
+                              onClick={() => handleSwitchCircle(circle)}
+                              className={cn(
+                                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 transition-colors text-left",
+                                selectedCircle?.id === circle.id && "bg-white/5"
+                              )}
+                            >
+                              <div className="h-10 w-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0">
+                                {circle.icon}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <p className="text-sm font-medium text-white truncate">
+                                    {circle.name}
+                                  </p>
+                                  {circle.id === "ynx-dao" && (
+                                    <Badge className="h-4 min-w-4 px-1 text-xs bg-[rgba(255,255,255,0.15)] text-white">
+                                      3
+                                    </Badge>
+                                  )}
+                                  {circle.id === "defi-community" && (
+                                    <Badge className="h-4 min-w-4 px-1 text-xs bg-[rgba(255,255,255,0.15)] text-white">
+                                      3
+                                    </Badge>
+                                  )}
+                                </div>
+                                <p className="text-xs text-[#9BB6CC99] mt-0.5">
+                                  {circle.memberCount} • {circle.onlineMembers} Online
+                                </p>
+                              </div>
+                            </button>
+                          ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                )}
               </div>
 
               {/* Channels List */}
@@ -846,7 +958,7 @@ export function CirclesSlidingPanel({
             </div>
 
             {/* Main Chat Area */}
-            <div className="flex-1 flex flex-col min-w-0 relative">
+            <div className="flex-1 flex flex-col min-w-0 relative" style={{ background: "transparent" }}>
               {/* Chat Header */}
               <div className="flex-shrink-0 px-4 pt-6 pb-4 bg-[#0000004A] border-b border-[#FFFFFF14]">
                 <div className="flex items-center justify-between gap-3">
