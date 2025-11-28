@@ -3,7 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export function MarketplaceStats() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
-      <Card className="bg-card border-border">
+      <Card className="bg-card border-border"
+      style={{
+        background:
+          "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
+        border: "1px solid rgba(255, 255, 255, 0.08)",
+      }}
+      >
         <CardHeader className="pb-2">
           <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
             Total Volume
@@ -17,7 +23,13 @@ export function MarketplaceStats() {
         </CardContent>
       </Card>
 
-      <Card className="bg-card border-border">
+      <Card className="bg-card border-border"
+      style={{
+        background:
+          "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
+        border: "1px solid rgba(255, 255, 255, 0.08)",
+      }}
+      >
         <CardHeader className="pb-2">
           <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
             Active Listings
@@ -31,7 +43,13 @@ export function MarketplaceStats() {
         </CardContent>
       </Card>
 
-      <Card className="bg-card border-border">
+      <Card className="bg-card border-border"
+      style={{
+        background:
+          "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
+        border: "1px solid rgba(255, 255, 255, 0.08)",
+      }}
+      >
         <CardHeader className="pb-2">
           <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
             Verified Sellers
@@ -45,7 +63,13 @@ export function MarketplaceStats() {
         </CardContent>
       </Card>
 
-      <Card className="bg-card border-border">
+      <Card className="bg-card border-border"
+      style={{
+        background:
+          "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
+        border: "1px solid rgba(255, 255, 255, 0.08)",
+      }}
+      >
         <CardHeader className="pb-2">
           <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
             Avg. Sale Price

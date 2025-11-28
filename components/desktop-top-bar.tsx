@@ -22,6 +22,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CirclesModal } from "@/components/circles-modal";
+import { CirclesPopover } from "@/components/circles-popover";
 import { RoomsSlidingPanel } from "@/components/rooms-sliding-panel";
 import { CirclesSlidingPanel } from "@/components/circles-sliding-panel";
 import { NotificationCenterPopover } from "@/components/notification-center-popover";
@@ -229,18 +230,13 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     </Badge>
                   </button>
 
-                  {/* Connections Button - Opens Random Circle */}
+                  {/* Connections Button - Opens Circles Popover */}
                   <button
-                    onClick={() => {
-                      // Select a random circle from user's joined circles
-                      const randomCircle = joinedCircles[Math.floor(Math.random() * joinedCircles.length)];
-                      
-                      // Navigate to the random circle using its ID
-                      router.push(`/?circle=${randomCircle.id}&channel=general`);
-                    }}
+                    data-circles-trigger
+                    onClick={() => setIsCirclesModalOpen(!isCirclesModalOpen)}
                     className={cn(
                       "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",
-                      isConnectionsPanelOpen || isCirclesPanelOpen
+                      isCirclesModalOpen || isConnectionsPanelOpen || isCirclesPanelOpen
                         ? "bg-[#FFFFFF14]"
                         : "hover:bg-white/5"
                     )}
@@ -336,18 +332,13 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     </Badge>
                   </button>
 
-                  {/* Connections Button - Opens Random Circle */}
+                  {/* Connections Button - Opens Circles Popover */}
                   <button
-                    onClick={() => {
-                      // Select a random circle from user's joined circles
-                      const randomCircle = joinedCircles[Math.floor(Math.random() * joinedCircles.length)];
-                      
-                      // Navigate to the random circle using its ID
-                      router.push(`/?circle=${randomCircle.id}&channel=general`);
-                    }}
+                    data-circles-trigger
+                    onClick={() => setIsCirclesModalOpen(!isCirclesModalOpen)}
                     className={cn(
                       "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",
-                      isConnectionsPanelOpen || isCirclesPanelOpen
+                      isCirclesModalOpen || isConnectionsPanelOpen || isCirclesPanelOpen
                         ? "bg-[#FFFFFF14]"
                         : "hover:bg-white/5"
                     )}
@@ -469,11 +460,13 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
         </div>
       </header>
 
-      {/* Circles Modal */}
-      <CirclesModal
-        isOpen={isCirclesModalOpen}
-        onClose={() => setIsCirclesModalOpen(false)}
-      />
+      {/* Circles Popover - Desktop Only */}
+      <div className="hidden md:block">
+        <CirclesPopover
+          isOpen={isCirclesModalOpen}
+          onClose={() => setIsCirclesModalOpen(false)}
+        />
+      </div>
 
       {/* Rooms Sliding Panel (desktop only, opened/closed based on /private_rooms path) */}
       <RoomsSlidingPanel
