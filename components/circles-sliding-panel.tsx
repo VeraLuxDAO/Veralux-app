@@ -16,6 +16,7 @@ import {
   Users,
   Plus,
   ChevronUp,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
@@ -206,6 +207,7 @@ export function CirclesSlidingPanel({
   const [channelCategories, setChannelCategories] = useState(mockChannelCategories);
   const [messages, setMessages] = useState<ChatMessage[]>(mockMessages);
   const [searchQuery, setSearchQuery] = useState("");
+  const [memberSearchQuery, setMemberSearchQuery] = useState("");
   const [isMembersVisible, setIsMembersVisible] = useState(true);
   const [mobileView, setMobileView] = useState<"channel" | "chatting">("channel"); // Mobile view state
   const [isSwitchCircleOpen, setIsSwitchCircleOpen] = useState(false);
@@ -1065,7 +1067,7 @@ export function CirclesSlidingPanel({
                                 <Lock className="h-3 w-3 flex-shrink-0" />
                               )}
                               {channel.unreadCount && channel.unreadCount > 0 && (
-                                <Badge className="h-4 min-w-4 px-1 text-xs bg-[#ED4245] text-white">
+                                <Badge className="h-4 min-w-4 px-1 text-xs bg-[#FADEFD] text-[#000205]">
                                   {channel.unreadCount}
                                 </Badge>
                               )}
@@ -1233,55 +1235,145 @@ export function CirclesSlidingPanel({
               }}
             >
               {/* Members Header */}
-              <div className="px-4 pt-5 pb-4 flex-shrink-0">
-                <div className="flex items-center justify-between mb-4">
-                  <h3
-                    className="text-xs font-semibold text-[#9BB6CC] uppercase tracking-wide"
-                    style={{ fontFamily: "'Geist'" }}
+              <div className="px-4 py-6 flex-shrink-0">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {/* Icon - colorful geometric shape */}
+                    <div className="w-5 h-5 rounded bg-gradient-to-br from-[#5865F2] via-[#8B5CF6] to-[#EC4899] flex items-center justify-center">
+                      <Users className="h-3 w-3 text-white" />
+                    </div>
+                    <h3
+                      className="text-[16px] font-semibold text-white"
+                      style={{ fontFamily: "'Geist'" }}
+                    >
+                      Members
+                    </h3>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsMembersVisible(false)}
+                    className="h-6 w-6 p-0 rounded-full hover:bg-white/10 text-[#9BB6CC]"
+                    title="Close members panel"
                   >
-                    Members — {selectedCircle.memberCount}
-                  </h3>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-[12px] text-[#9BB6CC] ml-7">
+                {selectedCircle.memberCount}&nbsp; • <span className="text-[#45D4A7]">{selectedCircle.onlineMembers}</span>&nbsp;Online
+                </p>
+              </div>
+
+              {/* Search Bar */}
+              <div className="px-4 flex-shrink-0">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9BB6CC99]" />
+                  <Input
+                    placeholder="Search Members"
+                    value={memberSearchQuery}
+                    onChange={(e) => setMemberSearchQuery(e.target.value)}
+                    className="pl-10 pr-3 h-9 bg-[rgba(229,247,253,0.06)] border border-white/10 rounded-full text-sm text-white placeholder:text-[#9BB6CC99] focus:ring-0 focus:border-white/30"
+                    style={{ fontFamily: "'Geist'" }}
+                  />
                 </div>
               </div>
 
               {/* Members List */}
               <ScrollArea className="flex-1 overflow-hidden">
-                <div className="px-2 pb-4 space-y-1">
-                  {mockMembers.map((member) => (
-                    <div
-                      key={member.id}
-                      className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-white/5 transition-colors cursor-pointer"
-                    >
-                      <div className="relative">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={member.avatar} />
-                          <AvatarFallback className="bg-[#2b3642] text-white text-xs">
-                            {member.name[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div
-                          className={cn(
-                            "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#2b3642]",
-                            member.status === "online"
-                              ? "bg-[#3ba55d]"
-                              : member.status === "idle"
-                              ? "bg-[#faa81a]"
-                              : "bg-[#747f8d]"
-                          )}
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-white truncate">
-                          {member.name}
-                        </p>
-                        {member.role && (
-                          <p className="text-xs text-[#9BB6CC] truncate">
-                            {member.role}
-                          </p>
+                <div className="px-2 py-6">
+                  {/* Filter members by search and status */}
+                  {(() => {
+                    const filteredMembers = mockMembers.filter((member) =>
+                      member.name.toLowerCase().includes(memberSearchQuery.toLowerCase())
+                    );
+                    const onlineMembers = filteredMembers.filter(
+                      (member) => member.status === "online" || member.status === "idle"
+                    );
+                    const offlineMembers = filteredMembers.filter(
+                      (member) => member.status === "offline"
+                    );
+
+                    return (
+                      <>
+                        {/* ONLINE Section */}
+                        {onlineMembers.length > 0 && (
+                          <div className="mb-4">
+                            <h4 className="text-[10px] font-semibold text-[#E5F7FD66] uppercase tracking-wide px-2 mb-2">
+                              ONLINE
+                            </h4>
+                            <div className="space-y-0.5">
+                              {onlineMembers.map((member) => (
+                                <div
+                                  key={member.id}
+                                  className="flex items-center gap-2 px-2 py-[6px] rounded-[30px] hover:bg-white/5 transition-colors cursor-pointer"
+                                >
+                                  <div className="relative">
+                                    <Avatar className="h-9 w-9">
+                                      <AvatarImage src={member.avatar} />
+                                      <AvatarFallback className="bg-[#2b3642] text-white text-sm">
+                                        {member.name[0]}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div
+                                      className={cn(
+                                        "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2",
+                                        member.status === "online"
+                                          ? "bg-[#3ba55d] border-[#2b3642]"
+                                          : "bg-[#faa81a] border-[#2b3642]"
+                                      )}
+                                    />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-[14px] text-[#9BB6CC] truncate">
+                                      {member.name}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         )}
-                      </div>
-                    </div>
-                  ))}
+
+                        {/* OFFLINE Section */}
+                        {offlineMembers.length > 0 && (
+                          <div>
+                            <h4 className="text-[10px] font-semibold text-[#E5F7FD66] uppercase tracking-wide px-2 mb-2">
+                              OFFLINE
+                            </h4>
+                            <div className="space-y-0.5">
+                              {offlineMembers.map((member) => (
+                                <div
+                                  key={member.id}
+                                  className="flex items-center gap-2 px-2 py-1.5 rounded-[30px] hover:bg-white/5 transition-colors cursor-pointer"
+                                >
+                                  <div className="relative">
+                                    <Avatar className="h-9 w-9">
+                                      <AvatarImage src={member.avatar} />
+                                      <AvatarFallback className="bg-[#2b3642] text-white text-sm">
+                                        {member.name[0]}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-[14px] text-[#9BB6CC99] truncate">
+                                      {member.name}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* No results */}
+                        {filteredMembers.length === 0 && (
+                          <div className="px-2 py-4 text-center">
+                            <p className="text-xs text-[#9BB6CC]">No members found</p>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </ScrollArea>
             </div>
