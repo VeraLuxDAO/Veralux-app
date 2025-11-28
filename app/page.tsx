@@ -170,10 +170,10 @@ export default function HomePage() {
                 </div>
                 <div className="flex items-center gap-1.5 rounded-md py-0.5 px-2 max-[390px]:px-1.5 bg-[rgba(155,182,204,0.08)]">
                   <span className="text-[13px] max-[390px]:text-[12px] md:text-lg font-bold text-teal-700">
-                    0.12
+                    204
                   </span>
                   <span className="text-[11px] max-[390px]:text-[10px] md:text-sm text-gray-400">
-                    ETH
+                    SUI
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 rounded-md py-0.5 px-2 max-[390px]:px-1.5 bg-[rgba(155,182,204,0.08)]">
