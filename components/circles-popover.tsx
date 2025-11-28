@@ -1,54 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { useState, useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Search, Users, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { joinedCircles, discoverCircles, type Circle } from "@/lib/circles-data";
+import { cn } from "@/lib/utils";
 
-interface CirclesModalProps {
+interface CirclesPopoverProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-// Re-export for backward compatibility
-export const mockJoinedCircles = joinedCircles;
-const mockDiscoverCircles = discoverCircles;
-
-export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
+export function CirclesPopover({ isOpen, onClose }: CirclesPopoverProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("joined");
   const router = useRouter();
-
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      const scrollY = window.scrollY;
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
-      document.body.style.overflow = "hidden";
-      
-      return () => {
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.width = "";
-        document.body.style.overflow = "";
-        window.scrollTo(0, scrollY);
-      };
-    }
-    return undefined;
-  }, [isOpen]);
+  const popoverRef = useRef<HTMLDivElement>(null);
 
   const slugifyCircleName = (name: string) =>
     name
@@ -72,17 +45,37 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
     }
   };
 
-  const filteredJoinedCircles = mockJoinedCircles.filter(
+  const filteredJoinedCircles = joinedCircles.filter(
     (circle) =>
       circle.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (circle.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
   );
 
-  const filteredDiscoverCircles = mockDiscoverCircles.filter(
+  const filteredDiscoverCircles = discoverCircles.filter(
     (circle) =>
       circle.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (circle.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
   );
+
+  // Close when clicking outside
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
+        const target = event.target as HTMLElement;
+        // Don't close if clicking on the trigger button
+        if (!target.closest('[data-circles-trigger]')) {
+          onClose();
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
 
   const CircleCard = ({ circle }: { circle: Circle }) => (
     <Card
@@ -152,65 +145,82 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
     </Card>
   );
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent
-        className="w-[95vw] max-w-2xl h-[85vh] max-h-[600px] bg-[#080E1199] p-0 gap-0 border-[0.4px] border-[rgba(255,255,255,0.08)] rounded-[16px]"
+    <>
+      {/* Circles Popover - Desktop Only */}
+      <div
+        ref={popoverRef}
+        className={cn(
+          "circles-popover",
+          "fixed z-[60]",
+          "shadow-2xl",
+          "transform transition-all duration-200 ease-out",
+          "hidden md:block",
+          "w-[420px]",
+          isOpen
+            ? "opacity-100 scale-100 translate-y-0"
+            : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+        )}
         style={{
+          top: "4.5rem",
+          right: "1.5rem",
+          height: "488px",
+          maxHeight: "488px",
+          background: "rgba(8, 14, 17, 0.6)",
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          borderRadius: "16px",
         }}
-        showCloseButton={false}
       >
-        <DialogHeader className="p-4 sm:p-4 pb-3">
-          <div className="flex items-center justify-between gap-3">
-            {/* Left: Icon + Title + Tagline */}
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(76, 216, 101, 0.2)" }}>
-                <Users className="h-5 w-5" style={{ color: "#4bd865" }} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <DialogTitle className="text-lg font-semibold text-white text-left mb-0.5">
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="px-4 py-3 flex-shrink-0">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(76, 216, 101, 0.2)" }}>
+                  <Users className="h-3 w-3" style={{ color: "#4bd865" }} />
+                </div>
+                <h2 className="text-[15px] font-semibold text-white">
                   Circles
-                </DialogTitle>
-                <p className="text-xs text-[#9BB6CC99] text-left">
-                  Connect with your communities
-                </p>
+                </h2>
               </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+                className="h-7 w-7 p-0 hover:bg-white/10 text-[#9BB6CC] hover:text-white rounded-md transition-all"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-
-            {/* Right: Close Button */}
-            <Button
-              onClick={onClose}
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0 rounded-full hover:bg-white/10 text-[#9BB6CC99] hover:text-white transition-colors flex-shrink-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <p className="text-xs text-[#9BB6CC99] ml-7">
+              Connect with your communities
+            </p>
           </div>
-        </DialogHeader>
 
-        <div className="flex flex-col h-full overflow-hidden">
           {/* Search Bar */}
-          <div className="px-4 sm:px-4">
-            <div className="relative flex flex-row items-center pl-3 w-full h-10 bg-[rgba(229,247,253,0.06)] rounded-full">
-              {/* Search Icon - Inside Left */}
-              <Search className="w-4 h-4 text-[rgba(255,255,255,0.4)] mr-2 flex-shrink-0" />
+          <div className="px-4 py-3 flex-shrink-0">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9BB6CC99] pointer-events-none z-10" />
               <Input
+                type="text"
                 placeholder="Search circles"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                autoFocus={false}
-                className="w-full h-full border-0 bg-transparent font-medium text-sm text-left text-white placeholder:text-[rgba(255,255,255,0.4)] focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
+                className="w-full h-9 pl-10 pr-10 bg-[rgba(229,247,253,0.06)] border border-white/10 rounded-full text-sm text-white placeholder:text-[#9BB6CC99] focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-white/30 transition-colors"
+                style={{
+                  fontFamily: "'Geist'",
+                }}
               />
-              {/* Clear Button (if searching) */}
               {searchQuery && (
                 <Button
                   onClick={() => setSearchQuery("")}
                   variant="ghost"
                   size="sm"
-                  className="h-6 w-6 p-0 rounded-full hover:bg-white/10 text-[#9BB6CC99] hover:text-white transition-colors flex-shrink-0"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0 rounded-full hover:bg-white/10 text-[#9BB6CC99] hover:text-white transition-colors z-10"
                 >
                   <X className="h-3 w-3" />
                 </Button>
@@ -225,7 +235,7 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
             className="flex-1 flex flex-col overflow-hidden"
           >
             <TabsList
-              className="mx-4 sm:mx-4 grid w-auto grid-cols-2 gap-1"
+              className="mx-4 grid w-auto grid-cols-2 gap-1"
               style={{
                 background: "rgba(229, 247, 253, 0.04)",
                 borderRadius: "22px",
@@ -265,14 +275,16 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
             {/* Joined Circles Tab */}
             <TabsContent
               value="joined"
-              className="flex-1 px-4 sm:px-4 pb-3 sm:pb-4 mt-3 overflow-hidden"
+              className="flex-1 px-4 pb-3 mt-3 overflow-hidden flex flex-col min-h-0"
             >
-              <div className="h-full overflow-y-auto space-y-0">
-                {filteredJoinedCircles.length > 0 ? (
-                  filteredJoinedCircles.map((circle) => (
-                    <CircleCard key={circle.id} circle={circle} />
-                  ))
-                ) : (
+              <div className="flex-1 min-h-0">
+                <ScrollArea className="h-full">
+                  <div className="space-y-0">
+                    {filteredJoinedCircles.length > 0 ? (
+                      filteredJoinedCircles.map((circle) => (
+                        <CircleCard key={circle.id} circle={circle} />
+                      ))
+                    ) : (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center py-12 text-muted-foreground max-w-sm mx-auto">
                       <div className="w-16 h-16 bg-gradient-to-br from-muted/50 to-muted/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -288,21 +300,25 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
                       </p>
                     </div>
                   </div>
-                )}
+                    )}
+                  </div>
+                </ScrollArea>
               </div>
             </TabsContent>
 
             {/* Discover Circles Tab */}
             <TabsContent
               value="discover"
-              className="flex-1 px-4 sm:px-5 pb-3 sm:pb-5 mt-3 overflow-hidden"
+              className="flex-1 px-4 pb-3 mt-3 overflow-hidden flex flex-col min-h-0"
             >
-              <div className="h-full overflow-y-auto space-y-0 pr-1 sm:pr-2">
-                {filteredDiscoverCircles.length > 0 ? (
-                  filteredDiscoverCircles.map((circle) => (
-                    <CircleCard key={circle.id} circle={circle} />
-                  ))
-                ) : (
+              <div className="flex-1 min-h-0">
+                <ScrollArea className="h-full">
+                  <div className="space-y-0 pr-1">
+                    {filteredDiscoverCircles.length > 0 ? (
+                      filteredDiscoverCircles.map((circle) => (
+                        <CircleCard key={circle.id} circle={circle} />
+                      ))
+                    ) : (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center py-12 text-muted-foreground max-w-sm mx-auto">
                       <div className="w-16 h-16 bg-gradient-to-br from-blue-100 via-violet-100 to-cyan-100 dark:from-blue-900/30 dark:via-violet-900/30 dark:to-cyan-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -317,12 +333,15 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
                       </p>
                     </div>
                   </div>
-                )}
+                    )}
+                  </div>
+                </ScrollArea>
               </div>
             </TabsContent>
           </Tabs>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </>
   );
 }
+

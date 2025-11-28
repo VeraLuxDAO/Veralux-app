@@ -334,6 +334,7 @@ export function NotificationCenterPopover({
         style={{
           top: "4.5rem",
           right: "1.5rem",
+          height: "480px",
           maxHeight: "calc(100vh - 6rem)",
           background: "rgba(8, 14, 17, 0.6)",
           backdropFilter: "blur(20px)",
@@ -342,9 +343,9 @@ export function NotificationCenterPopover({
           borderRadius: "16px",
         }}
       >
-        <div className="flex flex-col h-full max-h-[calc(100vh-6rem)]">
+        <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="px-4 py-3 border-b border-border/50 flex-shrink-0">
+          <div className="px-4 pt-3 pb-2 flex-shrink-0">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-[15px] font-semibold text-foreground">
                 Notifications
@@ -430,8 +431,9 @@ export function NotificationCenterPopover({
           </div>
 
           {/* Notifications List */}
-          <ScrollArea className="flex-1 overflow-hidden">
-            <div className="pt-4 px-5 pb-4">
+          <div className="flex-1 min-h-0">
+            <ScrollArea className="h-full">
+            <div className="px-5 pb-4">
               {filteredNotifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 px-4">
                   <div className="h-12 w-12 rounded-full bg-muted/30 flex items-center justify-center mb-2">
@@ -490,7 +492,7 @@ export function NotificationCenterPopover({
                         {/* Content - Middle Section */}
                         <div className="flex-1 min-w-0 text-left flex flex-col gap-1">
                           <p
-                            className="text-[15px] font-semibold line-clamp-1"
+                            className="text-[14px] font-semibold line-clamp-1"
                             style={{ 
                               color: "#FFFFFF",
                               fontFamily: "'Geist'",
@@ -500,7 +502,7 @@ export function NotificationCenterPopover({
                             {notification.title}
                           </p>
                           <p
-                            className="text-[14px] line-clamp-2 leading-relaxed"
+                            className="text-[12px] line-clamp-2 leading-relaxed"
                             style={{ 
                               color: "#9BB6CC",
                               fontFamily: "'Geist'",
@@ -513,12 +515,7 @@ export function NotificationCenterPopover({
                         {/* Time Badge - Far Right, Top Aligned */}
                         <div className="flex-shrink-0 flex items-start pt-0.5">
                           <span
-                            className="px-2.5 py-1 rounded-lg text-[12px] font-medium whitespace-nowrap"
-                            style={{
-                              background: "rgba(31, 41, 55, 0.8)",
-                              color: "#FFFFFF",
-                              fontFamily: "'Geist'",
-                            }}
+                            className="px-1 py-[2px] rounded-lg text-[10px] font-medium whitespace-nowrap bg-[#9BB6CC1A] text-[#9BB6CC]"
                           >
                             {formatTime(notification.timestamp)}
                           </span>
@@ -529,28 +526,8 @@ export function NotificationCenterPopover({
                 </div>
               )}
             </div>
-          </ScrollArea>
-
-          {/* Footer */}
-          {filteredNotifications.length > 0 && (
-            <div className="px-6 py-4 border-t border-border/50 flex-shrink-0 flex justify-center">
-              <button
-                onClick={() => {
-                  router.push("/notifications");
-                  onClose();
-                }}
-                className="py-2.5 px-4 text-[13px] font-medium transition-all hover:opacity-80 flex items-center justify-center gap-2"
-                style={{
-                  background: "rgba(229, 247, 253, 0.06)",
-                  borderRadius: "10px",
-                  color: "#9BB6CC",
-                }}
-              >
-                <span>•••</span>
-                <span>View all Notifications</span>
-              </button>
-            </div>
-          )}
+            </ScrollArea>
+          </div>
         </div>
       </div>
     </>
