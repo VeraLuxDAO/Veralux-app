@@ -1154,13 +1154,12 @@ export function CirclesSlidingPanel({
 
               {/* Messages Area */}
               <div
-                className="flex-1 overflow-y-auto px-4 pt-6 pb-3"
+                className="flex-1 overflow-y-auto px-4 pt-4 pb-3"
                 style={{
-                  background:
-                    "radial-gradient(circle at top, rgba(61,80,120,0.25), transparent 45%), #05080d",
+                  background: "#05080d",
                 }}
               >
-                <div className="space-y-3">
+                <div className="space-y-1">
                   {messages.map((message, index) => {
                     const showAvatar =
                       index === 0 ||
