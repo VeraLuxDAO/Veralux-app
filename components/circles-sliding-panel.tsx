@@ -210,8 +210,14 @@ export function CirclesSlidingPanel({
   const [mobileView, setMobileView] = useState<"channel" | "chatting">("channel"); // Mobile view state
   const [isSwitchCircleOpen, setIsSwitchCircleOpen] = useState(false);
   const [switchCircleSearch, setSwitchCircleSearch] = useState("");
+  const [leftSidebarWidth, setLeftSidebarWidth] = useState(300);
+  const [rightSidebarWidth, setRightSidebarWidth] = useState(240);
+  const [isResizingLeft, setIsResizingLeft] = useState(false);
+  const [isResizingRight, setIsResizingRight] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const switchCircleRef = useRef<HTMLDivElement>(null);
+  const leftResizeRef = useRef<HTMLDivElement>(null);
+  const rightResizeRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -232,6 +238,97 @@ export function CirclesSlidingPanel({
       setTimeout(scrollToBottom, 100);
     }
   }, [messages]);
+
+  // Load saved sidebar widths from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedLeftWidth = localStorage.getItem('circle-left-sidebar-width');
+      const savedRightWidth = localStorage.getItem('circle-right-sidebar-width');
+      if (savedLeftWidth) {
+        setLeftSidebarWidth(parseInt(savedLeftWidth, 10));
+      }
+      if (savedRightWidth) {
+        setRightSidebarWidth(parseInt(savedRightWidth, 10));
+      }
+    }
+  }, []);
+
+  // Save sidebar widths to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('circle-left-sidebar-width', leftSidebarWidth.toString());
+    }
+  }, [leftSidebarWidth]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('circle-right-sidebar-width', rightSidebarWidth.toString());
+    }
+  }, [rightSidebarWidth]);
+
+  // Handle left sidebar resize
+  useEffect(() => {
+    if (!isResizingLeft) return;
+
+    const panel = leftResizeRef.current?.closest('.circles-sliding-panel') as HTMLElement;
+    if (!panel) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const panelLeft = panel.getBoundingClientRect().left;
+      const newWidth = e.clientX - panelLeft;
+      // Min width: 200px, Max width: 500px
+      const clampedWidth = Math.max(200, Math.min(500, newWidth));
+      setLeftSidebarWidth(clampedWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizingLeft(false);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isResizingLeft]);
+
+  // Handle right sidebar resize
+  useEffect(() => {
+    if (!isResizingRight) return;
+
+    const panel = rightResizeRef.current?.closest('.circles-sliding-panel') as HTMLElement;
+    if (!panel) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const panelRight = panel.getBoundingClientRect().right;
+      const newWidth = panelRight - e.clientX;
+      // Min width: 180px, Max width: 400px
+      const clampedWidth = Math.max(180, Math.min(400, newWidth));
+      setRightSidebarWidth(clampedWidth);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizingRight(false);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isResizingRight]);
 
   // Sync selectedCircle and activeChannelId with URL
   useEffect(() => {
@@ -754,8 +851,9 @@ export function CirclesSlidingPanel({
           <div className="flex h-full overflow-hidden relative">
             {/* Left Sidebar - Channels */}
             <div
-              className="flex-shrink-0 w-[300px] flex flex-col relative overflow-visible"
+              className="flex-shrink-0 flex flex-col relative overflow-visible"
               style={{ 
+                width: `${leftSidebarWidth}px`,
                 borderRight: "1px solid rgba(255, 255, 255, 0.08)",
                 background: "#0000004A",
                 backdropFilter: "blur(20px)",
@@ -974,6 +1072,32 @@ export function CirclesSlidingPanel({
               </ScrollArea>
             </div>
 
+            {/* Left Resize Border */}
+            <div
+              ref={leftResizeRef}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setIsResizingLeft(true);
+              }}
+              className="absolute top-0 bottom-0 z-20 hover:cursor-col-resize"
+              style={{
+                left: `${leftSidebarWidth}px`,
+                transform: 'translateX(-50%)',
+                width: '4px',
+                cursor: 'col-resize',
+              }}
+            >
+              <div
+                className={cn(
+                  "absolute top-0 bottom-0 left-1/2 -translate-x-1/2 transition-all pointer-events-none",
+                  "w-[1px] hover:w-[2px]",
+                  isResizingLeft
+                    ? "bg-[#5865F2] opacity-100 w-[2px]"
+                    : "bg-transparent hover:bg-[#5865F2]/50"
+                )}
+              />
+            </div>
+
             {/* Main Chat Area */}
             <div className="flex-1 flex flex-col min-w-0 relative" style={{ background: "transparent" }}>
               {/* Chat Header */}
@@ -1061,11 +1185,40 @@ export function CirclesSlidingPanel({
               </div>
             </div>
 
+            {/* Right Resize Border */}
+            {isMembersVisible && (
+              <div
+                ref={rightResizeRef}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  setIsResizingRight(true);
+                }}
+                className="absolute top-0 bottom-0 z-20 hover:cursor-col-resize"
+                style={{
+                  right: `${rightSidebarWidth}px`,
+                  transform: 'translateX(50%)',
+                  width: '4px',
+                  cursor: 'col-resize',
+                }}
+              >
+                <div
+                  className={cn(
+                    "absolute top-0 bottom-0 left-1/2 -translate-x-1/2 transition-all pointer-events-none",
+                    "w-[1px] hover:w-[2px]",
+                    isResizingRight
+                      ? "bg-[#5865F2] opacity-100 w-[2px]"
+                      : "bg-transparent hover:bg-[#5865F2]/50"
+                  )}
+                />
+              </div>
+            )}
+
             {/* Right Sidebar - Members */}
             {isMembersVisible && (
             <div
-              className="flex-shrink-0 w-[240px] flex flex-col relative overflow-hidden"
+              className="flex-shrink-0 flex flex-col relative overflow-hidden"
               style={{ 
+                width: `${rightSidebarWidth}px`,
                 borderLeft: "1px solid rgba(255, 255, 255, 0.08)",
                 background: "#0000004A",
                 backdropFilter: "blur(20px)",
