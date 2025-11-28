@@ -216,6 +216,7 @@ export function CirclesSlidingPanel({
   const [isResizingRight, setIsResizingRight] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const switchCircleRef = useRef<HTMLDivElement>(null);
+  const switchCirclePopupRef = useRef<HTMLDivElement>(null);
   const leftResizeRef = useRef<HTMLDivElement>(null);
   const rightResizeRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -492,21 +493,25 @@ export function CirclesSlidingPanel({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      // Don't close if clicking on scrollable areas or if it's a scroll event
-      if (switchCircleRef.current && !switchCircleRef.current.contains(target)) {
-        // Check if the click is on a scrollable element (ScrollArea or its children)
-        const isScrollableElement = (target as Element)?.closest('[data-slot="scroll-area"]') || 
-                                    (target as Element)?.closest('[data-slot="scroll-area-viewport"]');
-        // Only close on actual clicks, not scroll interactions
-        if (!isScrollableElement && event.type === 'mousedown') {
-          setIsSwitchCircleOpen(false);
-        }
+      
+      // Check if click is inside the popup or the button that opens it
+      const isInsidePopup = switchCirclePopupRef.current?.contains(target);
+      const isInsideButton = switchCircleRef.current?.contains(target);
+      
+      // Only close if click is outside both the popup and the button
+      if (!isInsidePopup && !isInsideButton) {
+        setIsSwitchCircleOpen(false);
       }
     };
 
     if (isSwitchCircleOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      // Use a small delay to avoid closing immediately when opening
+      const timeoutId = setTimeout(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+      }, 0);
+      
       return () => {
+        clearTimeout(timeoutId);
         document.removeEventListener("mousedown", handleClickOutside);
       };
     }
@@ -913,7 +918,8 @@ export function CirclesSlidingPanel({
                 {/* Switch Circle Popup - Positioned in sidebar */}
                 {isSwitchCircleOpen && (
                   <div
-                    className="absolute top-full left-0 right-0 mt-2 rounded-lg shadow-2xl z-[100] flex flex-col"
+                    ref={switchCirclePopupRef}
+                    className="absolute top-full left-0 right-0 mt-1 rounded-lg shadow-2xl z-[100] flex flex-col"
                     style={{
                       background: "rgba(8, 14, 17, 0.95)",
                       border: "1px solid rgba(255, 255, 255, 0.1)",
@@ -923,6 +929,7 @@ export function CirclesSlidingPanel({
                       overflow: "hidden",
                     }}
                     onClick={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
                   >
                     {/* Header */}
                     <div className="px-4 pt-4 pb-3 border-b border-white/10 flex-shrink-0">
