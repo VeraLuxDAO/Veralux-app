@@ -315,7 +315,7 @@ export default function HomePage() {
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-[10px] md:space-y-4 px-0  pt-0 md:pt-6">
-                        <div className="flex items-center space-x-3 p-2 md:p-3 rounded-lg hover:bg-muted/50 cursor-pointer">
+                        <div className="flex items-center space-x-3  rounded-lg hover:bg-muted/50 cursor-pointer">
                           <div className="w-10 h-10 bg-electric-blue/20 rounded-full flex items-center justify-center">
                             <span className="text-electric-blue text-sm">
                               🔒
@@ -331,7 +331,7 @@ export default function HomePage() {
                           </div>
                           <div className="w-2 h-2 bg-veralux-green rounded-full"></div>
                         </div>
-                        <div className="flex items-center space-x-3 p-2 md:p-3 rounded-lg hover:bg-muted/50 cursor-pointer">
+                        <div className="flex items-center space-x-3 rounded-lg hover:bg-muted/50 cursor-pointer">
                           <div className="w-10 h-10 bg-veralux-yellow/20 rounded-full flex items-center justify-center">
                             <span className="text-veralux-yellow text-sm">
                               🎮
@@ -347,7 +347,7 @@ export default function HomePage() {
                           </div>
                           <div className="w-2 h-2 bg-veralux-green rounded-full"></div>
                         </div>
-                        <div className="flex items-center space-x-3 p-2 md:p-3 rounded-lg hover:bg-muted/50 cursor-pointer">
+                        <div className="flex items-center space-x-3 rounded-lg hover:bg-muted/50 cursor-pointer">
                           <div className="w-10 h-10 bg-veralux-green/20 rounded-full flex items-center justify-center">
                             <span className="text-veralux-green text-sm">
                               💎
@@ -368,13 +368,13 @@ export default function HomePage() {
 
                     {/* Popular Communities */}
                     <Card className="bg-transparent border-none">
-                      <CardHeader className="pb-4">
+                      <CardHeader >
                         <CardTitle className="font-semibold text-[rgba(229,247,253,0.4)] text-xs">
                           Popular Communities
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        <div className="flex items-center space-x-3 p-2 md:p-3 rounded-lg hover:bg-muted/50 cursor-pointer">
+                        <div className="flex items-center space-x-3 rounded-lg hover:bg-muted/50 cursor-pointer">
                           <div className="w-10 h-10 bg-electric-blue/20 rounded-full flex items-center justify-center">
                             <span className="text-electric-blue text-sm">
                               🏗️
@@ -392,7 +392,7 @@ export default function HomePage() {
                             Join
                           </button>
                         </div>
-                        <div className="flex items-center space-x-3 p-2 md:p-3 rounded-lg hover:bg-muted/50 cursor-pointer">
+                        <div className="flex items-center space-x-3 rounded-lg hover:bg-muted/50 cursor-pointer">
                           <div className="w-10 h-10 bg-veralux-yellow/20 rounded-full flex items-center justify-center">
                             <span className="text-veralux-yellow text-sm">
                               🎮

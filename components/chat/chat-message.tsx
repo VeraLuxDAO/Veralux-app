@@ -57,7 +57,7 @@ export function ChatMessageComponent({
       {/* Avatar */}
       <div className="flex-shrink-0">
         {showAvatar && !isGrouped ? (
-          <Avatar className="w-10 h-10">
+          <Avatar className="w-9 h-9">
             <AvatarImage src={message.authorAvatar} />
             <AvatarFallback className="bg-[#2b3642] text-white text-sm font-medium">
               {message.authorName

@@ -753,9 +753,10 @@ export function CirclesSlidingPanel({
                         placeholder="Search in channel"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="mobile-search-input pr-4 h-9 bg-[#E5F7FD0A] rounded-full text-[#9BB6CC99] text-sm placeholder:text-[#9BB6CC99] focus:ring-0 border-0"
+                        className="mobile-search-input pr-4 bg-[#E5F7FD0A] rounded-full text-[#9BB6CC99] text-sm placeholder:text-[#9BB6CC99] focus:ring-0 border-0"
                         style={{ 
-                          fontFamily: "'Geist'"
+                          fontFamily: "'Geist'",
+                          maxHeight: "36px !important"
                         }}
                       />
                     </div>
@@ -764,7 +765,7 @@ export function CirclesSlidingPanel({
                       variant="ghost"
                       size="sm"
                       onClick={() => setIsMembersVisible(!isMembersVisible)}
-                      className="h-9 w-9 p-0 rounded-full text-white hover:bg-white/10 transition-all bg-gradient-to-b from-[#45D4A7] to-[#4DF3FF]"
+                      className="h-6 w-6 p-0 rounded-full text-white hover:bg-white/10 transition-all bg-gradient-to-b from-[#45D4A7] to-[#4DF3FF]"
                       title={isMembersVisible ? "Hide members" : "Show members"}
                     >
                       <Users className={cn(
@@ -1249,15 +1250,6 @@ export function CirclesSlidingPanel({
                       Members
                     </h3>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsMembersVisible(false)}
-                    className="h-6 w-6 p-0 rounded-full hover:bg-white/10 text-[#9BB6CC]"
-                    title="Close members panel"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
                 </div>
                 <p className="text-[12px] text-[#9BB6CC] ml-7">
                 {selectedCircle.memberCount}&nbsp; • <span className="text-[#45D4A7]">{selectedCircle.onlineMembers}</span>&nbsp;Online
