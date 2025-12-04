@@ -193,7 +193,7 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
 
         <div className="flex flex-col h-full overflow-hidden">
           {/* Search Bar */}
-          <div className="px-4 sm:px-4">
+          <div className="px-4 sm:px-4 mb-4">
             <div className="relative flex flex-row items-center pl-3 w-full h-10 bg-[rgba(229,247,253,0.06)] rounded-full">
               {/* Search Icon - Inside Left */}
               <Search className="w-4 h-4 text-[rgba(255,255,255,0.4)] mr-2 flex-shrink-0" />

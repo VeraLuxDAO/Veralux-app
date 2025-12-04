@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Wallet, ExternalLink, Download } from "lucide-react";
+import { Wallet, ExternalLink, Download, X } from "lucide-react";
 
 interface Wallet {
   name: string;
@@ -156,40 +156,50 @@ export function WalletSelectionModal({
 
       {/* Modal */}
       <Card className="relative w-full max-w-md md:max-w-lg lg:max-w-xl mx-auto bg-[#080E11]/95 border border-[#E5F7FD]/20 shadow-2xl animate-in zoom-in-95 duration-300 max-h-[90vh] md:max-h-[85vh] flex flex-col overflow-hidden">
-        <CardHeader className="text-center pb-3 md:pb-4 pt-4 md:pt-6 px-4 md:px-6 flex-shrink-0">
-          <div className="flex items-center justify-center mb-3 md:mb-4">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-[#FADEFD] to-[#9BB6CC] flex items-center justify-center">
-              <Wallet className="w-5 h-5 md:w-6 md:h-6 text-[#080E11]" />
+        <CardHeader className="pb-3 md:pb-4 pt-4 md:pt-6 px-4 md:px-6 flex-shrink-0">
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 md:top-6 md:right-6 w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors z-10"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5 md:w-6 md:h-6 text-white" />
+          </button>
+          
+          {/* Header with icon and title */}
+          <div className="flex items-center gap-3 md:gap-4 mb-2 md:mb-3">
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-white flex items-center justify-center flex-shrink-0">
+              <Wallet className="w-4 h-4 md:w-5 md:h-5 text-[#080E11]" />
             </div>
+            <CardTitle className="text-xl md:text-2xl font-bold text-white">
+              Connect Wallet
+            </CardTitle>
           </div>
-          <CardTitle className="text-xl md:text-2xl font-bold text-white">
-            Connect Wallet
-          </CardTitle>
-          <p className="text-xs md:text-sm text-gray-400 mt-1 md:mt-2">
+          <p className="text-xs md:text-sm text-gray-400 ml-11 md:ml-14">
             Choose a wallet to connect to VeraLux
           </p>
         </CardHeader>
 
-        <CardContent className="space-y-3 md:space-y-4 px-4 md:px-6 pb-4 md:pb-6 overflow-y-auto flex-1">
+        <CardContent className="space-y-4 md:space-y-5 px-4 md:px-6 pb-4 md:pb-6 overflow-y-auto flex-1">
           {/* Popular Wallets */}
           <div>
-            <h3 className="text-xs md:text-sm font-semibold text-gray-400 mb-2 md:mb-3 uppercase tracking-wide">
+            <h3 className="text-xs md:text-sm font-semibold text-white mb-3 md:mb-4 uppercase tracking-wide">
               Popular
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-2 md:space-y-2.5">
               {wallets.slice(0, 4).map((wallet) => (
                 <button
                   key={wallet.name}
-                  className="w-full p-3 md:p-4 rounded-lg md:rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#FADEFD]/40 transition-all duration-200 cursor-pointer group"
+                  className="w-full p-3 md:p-4 rounded-lg md:rounded-xl bg-transparent hover:bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-200 cursor-pointer group"
                   onClick={() => handleWalletClick(wallet)}
                 >
-                  <div className="flex items-center space-x-2 md:space-x-3 w-full">
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-br from-[#FADEFD] to-[#9BB6CC] flex items-center justify-center text-xl md:text-2xl flex-shrink-0">
+                  <div className="flex items-center gap-3 md:gap-4 w-full">
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-lg md:rounded-xl bg-white flex items-center justify-center text-xl md:text-2xl flex-shrink-0">
                       {wallet.icon}
                     </div>
                     <div className="flex-1 text-left min-w-0">
-                      <div className="flex items-center space-x-1.5 md:space-x-2 mb-0.5 md:mb-1 flex-wrap">
-                        <span className="text-sm md:text-base font-semibold text-white group-hover:text-[#FADEFD] transition-colors">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <span className="text-sm md:text-base font-medium text-white">
                           {wallet.name}
                         </span>
                         {wallet.installed && (
@@ -205,12 +215,12 @@ export function WalletSelectionModal({
                           </Badge>
                         )}
                       </div>
-                      <p className="text-[10px] md:text-xs text-gray-400">
+                      <p className="text-xs md:text-sm text-gray-400">
                         {wallet.description}
                       </p>
                     </div>
                     {!wallet.installed && (
-                      <Download className="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:text-[#FADEFD] transition-colors flex-shrink-0" />
+                      <Download className="w-5 h-5 md:w-6 md:h-6 text-gray-400 group-hover:text-white transition-colors flex-shrink-0" />
                     )}
                   </div>
                 </button>
@@ -220,23 +230,23 @@ export function WalletSelectionModal({
 
           {/* More Wallets */}
           <div>
-            <h3 className="text-xs md:text-sm font-semibold text-gray-400 mb-2 md:mb-3 uppercase tracking-wide">
+            <h3 className="text-xs md:text-sm font-semibold text-white mb-3 md:mb-4 uppercase tracking-wide">
               More
             </h3>
-            <div className="space-y-2">
+            <div className="space-y-2 md:space-y-2.5">
               {wallets.slice(4).map((wallet) => (
                 <button
                   key={wallet.name}
-                  className="w-full p-3 md:p-4 rounded-lg md:rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#FADEFD]/40 transition-all duration-200 cursor-pointer group"
+                  className="w-full p-3 md:p-4 rounded-lg md:rounded-xl bg-transparent hover:bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-200 cursor-pointer group"
                   onClick={() => handleWalletClick(wallet)}
                 >
-                  <div className="flex items-center space-x-2 md:space-x-3 w-full">
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-gradient-to-br from-[#FADEFD] to-[#9BB6CC] flex items-center justify-center text-xl md:text-2xl flex-shrink-0">
+                  <div className="flex items-center gap-3 md:gap-4 w-full">
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-lg md:rounded-xl bg-white flex items-center justify-center text-xl md:text-2xl flex-shrink-0">
                       {wallet.icon}
                     </div>
                     <div className="flex-1 text-left min-w-0">
-                      <div className="flex items-center space-x-1.5 md:space-x-2 mb-0.5 md:mb-1 flex-wrap">
-                        <span className="text-sm md:text-base font-semibold text-white group-hover:text-[#FADEFD] transition-colors">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <span className="text-sm md:text-base font-medium text-white">
                           {wallet.name}
                         </span>
                         {wallet.installed && (
@@ -252,12 +262,12 @@ export function WalletSelectionModal({
                           </Badge>
                         )}
                       </div>
-                      <p className="text-[10px] md:text-xs text-gray-400">
+                      <p className="text-xs md:text-sm text-gray-400">
                         {wallet.description}
                       </p>
                     </div>
                     {!wallet.installed && (
-                      <Download className="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:text-[#FADEFD] transition-colors flex-shrink-0" />
+                      <Download className="w-5 h-5 md:w-6 md:h-6 text-gray-400 group-hover:text-white transition-colors flex-shrink-0" />
                     )}
                   </div>
                 </button>
@@ -266,14 +276,14 @@ export function WalletSelectionModal({
           </div>
 
           {/* Footer */}
-          <div className="pt-3 md:pt-4 border-t border-white/10 flex-shrink-0">
-            <p className="text-[10px] md:text-xs text-center text-gray-400">
+          <div className="pt-4 md:pt-5 border-t border-white/10 flex-shrink-0">
+            <p className="text-xs md:text-sm text-center text-white">
               New to Sui?{" "}
               <a
                 href="https://docs.sui.io/learn"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#FADEFD] hover:text-[#FADEFD]/80 hover:underline transition-colors"
+                className="text-white hover:underline transition-colors"
               >
                 Learn more here
               </a>

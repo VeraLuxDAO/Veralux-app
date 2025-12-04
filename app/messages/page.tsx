@@ -562,8 +562,8 @@ function MessagesPageContent() {
                     <div className="flex items-center justify-end gap-1 mt-1">
                       <span
                         className={cn(
-                          "text-[11px]",
-                          message.isOwn ? "text-white/70" : "text-gray-400"
+                          "text-[10px]",
+                          message.isOwn ? "text-[#080E11]" : "text-[#9BB6CC]"
                         )}
                       >
                         {formatMessageTime(message.timestamp)}
@@ -571,9 +571,9 @@ function MessagesPageContent() {
                       {message.isOwn && (
                         <>
                           {message.isRead ? (
-                            <CheckCheck className="h-3.5 w-3.5 text-white/70" />
+                            <CheckCheck className="h-3.5 w-3.5 text-[#080E11]" />
                           ) : (
-                            <Check className="h-3.5 w-3.5 text-white/70" />
+                            <Check className="h-3.5 w-3.5 text-[#080E11]" />
                           )}
                         </>
                       )}
