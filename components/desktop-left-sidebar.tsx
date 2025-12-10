@@ -291,7 +291,7 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
                 <button
                   key={index}
                   onClick={() => handleNavigation(`/?circle=${slugifyCircleName(circle.name)}`)}
-                  className="w-full flex items-center gap-2 p-1 rounded-lg hover:bg-white/5 transition-colors group"
+                  className="w-full flex items-center gap-2 pb-3 rounded-lg hover:bg-white/5 transition-colors group"
                 >
                   <div
                     className={cn(
