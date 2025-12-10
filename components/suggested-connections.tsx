@@ -33,7 +33,7 @@ export function SuggestedConnections() {
 
   return (
     <Card className="bg-transparent border-none py-0 md:py-4">
-      <CardHeader >
+      <CardHeader className="md:px-3">
         <CardTitle
           className="font-semibold"
           style={{ color: "rgba(229, 247, 253, 0.4)", fontSize: "12px", paddingRight:"0px !important" }}
@@ -44,7 +44,7 @@ export function SuggestedConnections() {
       <CardContent className="space-y-[10px] md:space-y-5 px-0 md:px-3 pt-0 md:pt-6">
         {suggestions.map((person, index) => (
           <div key={index} className="space-y-3">
-            <div className="flex items-start gap-3">
+            <div className="flex items-start md:gap-3 gap-6">
               <Avatar className="w-9 h-9 flex-shrink-0">
                 <AvatarImage src={person.avatar || "/placeholder.svg"} />
                 <AvatarFallback className="text-sm">

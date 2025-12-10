@@ -248,7 +248,7 @@ export default function HomePage() {
                       </CardHeader>
                       <CardContent className="space-y-[10px] md:space-y-4 px-0 md:px-6 pt-0 md:pt-6">
                         <div className="flex items-center space-x-3">
-                          <Avatar className="w-10 h-10">
+                          <Avatar className="w-10 h-10 md:w-9 md:h-9">
                             <AvatarImage src="/diverse-user-avatars.png" />
                             <AvatarFallback>VB</AvatarFallback>
                           </Avatar>
@@ -265,7 +265,7 @@ export default function HomePage() {
                           </button>
                         </div>
                         <div className="flex items-center space-x-3">
-                          <Avatar className="w-10 h-10">
+                          <Avatar className="w-10 h-10 md:w-9 md:h-9">
                             <AvatarImage src="/diverse-female-avatar.png" />
                             <AvatarFallback>SM</AvatarFallback>
                           </Avatar>
@@ -463,7 +463,7 @@ export default function HomePage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <Avatar className="w-12 h-12">
+                    <Avatar className="w-10 h-10 md:w-9 md:h-9">
                       <AvatarImage src="/diverse-user-avatars.png" />
                       <AvatarFallback>VB</AvatarFallback>
                     </Avatar>
@@ -480,7 +480,7 @@ export default function HomePage() {
                     </button>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Avatar className="w-12 h-12">
+                    <Avatar className="w-12 h-12 md:w-9 md:h-9">
                       <AvatarImage src="/diverse-female-avatar.png" />
                       <AvatarFallback>SM</AvatarFallback>
                     </Avatar>

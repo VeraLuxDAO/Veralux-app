@@ -220,12 +220,12 @@ export function MobileAITab({ className }: MobileAITabProps) {
           }}
         >
         {/* Header - With Close Button */}
-        <div className="flex-shrink-0 p-4 border-b border-white/5 bg-[#080E1199] backdrop-blur-sm rounded-t-2xl">
+        <div className="flex-shrink-0 p-3 border-b border-white/5 bg-[#080E1199] backdrop-blur-sm rounded-t-2xl">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-3">
               <div className="relative">
-                <Avatar className="h-10 w-10 ring-1 ring-border/30">
-                  <AvatarFallback className="bg-gradient-to-br from-primary/80 via-primary to-primary/90 text-primary-foreground">
+                <Avatar className="h-8 w-8 ring-1 ring-border/30">
+                  <AvatarFallback className="bg-[#FADEFD] text-[#080E11]">
                     <Bot className="h-5 w-5" />
                   </AvatarFallback>
                 </Avatar>
@@ -236,7 +236,6 @@ export function MobileAITab({ className }: MobileAITabProps) {
                   VeraLux AI
                 </h3>
                 <div className="flex items-center space-x-1.5">
-                  <div className="h-1.5 w-1.5 bg-veralux-green rounded-full" />
                   <p className="text-xs text-[#9BB6CC99]">Online</p>
                 </div>
               </div>
@@ -286,10 +285,10 @@ export function MobileAITab({ className }: MobileAITabProps) {
                   <div className="flex items-center justify-between mt-1.5">
                     <p
                       className={cn(
-                        "text-xs opacity-60 transition-opacity duration-200",
+                        "text-[12px] opacity-60 transition-opacity duration-200",
                         message.sender === "user"
-                          ? "text-primary-foreground/60"
-                          : "text-muted-foreground"
+                          ? "text-[#080E11]"
+                          : "text-[#9BB6CC99]"
                       )}
                     >
                       {message.timestamp.toLocaleTimeString([], {

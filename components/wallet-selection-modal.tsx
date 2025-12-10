@@ -10,15 +10,20 @@ import { Wallet, ExternalLink, Download, X } from "lucide-react";
 interface Wallet {
   name: string;
   icon: string;
+  iconUrl?: string;
   description: string;
   installed: boolean;
   downloadUrl: string;
 }
 
+// Wallet logos: You can download official wallet logos and place them in /public/wallets/
+// For example: /public/wallets/suiet.png, /public/wallets/phantom.png, etc.
+// The component will try to load local images first, then fall back to CDN URLs, then emoji
 const SUPPORTED_WALLETS: Wallet[] = [
   {
     name: "Suiet Wallet",
     icon: "🌊",
+    iconUrl: "/wallets/suiet.png", // Try local first, falls back to emoji if not found
     description: "The most popular Sui wallet",
     installed: false,
     downloadUrl:
@@ -27,6 +32,7 @@ const SUPPORTED_WALLETS: Wallet[] = [
   {
     name: "Phantom",
     icon: "👻",
+    iconUrl: "/wallets/phantom.png",
     description: "Multi-chain wallet with Sui support",
     installed: false,
     downloadUrl: "https://phantom.app/",
@@ -34,6 +40,7 @@ const SUPPORTED_WALLETS: Wallet[] = [
   {
     name: "Martian Sui Wallet",
     icon: "🚀",
+    iconUrl: "/wallets/martian.png",
     description: "Fast and secure Sui wallet",
     installed: false,
     downloadUrl:
@@ -42,6 +49,7 @@ const SUPPORTED_WALLETS: Wallet[] = [
   {
     name: "OKX Wallet",
     icon: "⚡",
+    iconUrl: "/wallets/okx.png",
     description: "Global crypto wallet",
     installed: false,
     downloadUrl: "https://www.okx.com/web3",
@@ -49,6 +57,7 @@ const SUPPORTED_WALLETS: Wallet[] = [
   {
     name: "Glass Wallet",
     icon: "💎",
+    iconUrl: "/wallets/glass.png",
     description: "Premium Sui wallet experience",
     installed: false,
     downloadUrl: "https://glass.xyz/",
@@ -56,6 +65,7 @@ const SUPPORTED_WALLETS: Wallet[] = [
   {
     name: "Slush Wallet",
     icon: "❄️",
+    iconUrl: "/wallets/slush.png",
     description: "Community-driven Sui wallet",
     installed: false,
     downloadUrl: "https://slushwallet.com/",
@@ -90,6 +100,7 @@ export function WalletSelectionModal({
         window.scrollTo(0, scrollY);
       };
     }
+    return undefined;
   }, [isOpen]);
   const [wallets, setWallets] = useState<Wallet[]>(SUPPORTED_WALLETS);
   const [mounted, setMounted] = useState(false);
@@ -147,7 +158,7 @@ export function WalletSelectionModal({
   if (!mounted || !isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center animate-in fade-in duration-300 p-4 md:p-6">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center animate-in fade-in duration-300 p-3 sm:p-4 md:p-6">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-md"
@@ -155,56 +166,76 @@ export function WalletSelectionModal({
       />
 
       {/* Modal */}
-      <Card className="relative w-full max-w-md md:max-w-lg lg:max-w-xl mx-auto bg-[#080E11]/95 border border-[#E5F7FD]/20 shadow-2xl animate-in zoom-in-95 duration-300 max-h-[90vh] md:max-h-[85vh] flex flex-col overflow-hidden">
-        <CardHeader className="pb-3 md:pb-4 pt-4 md:pt-6 px-4 md:px-6 flex-shrink-0">
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 md:top-6 md:right-6 w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors z-10"
-            aria-label="Close"
-          >
-            <X className="w-5 h-5 md:w-6 md:h-6 text-white" />
-          </button>
-          
+      <Card className="relative w-full max-w-[90vw] sm:max-w-[420px] md:max-w-[480px] lg:max-w-[520px] mx-auto bg-[#080E11]/95 border border-[#E5F7FD]/20 shadow-2xl animate-in zoom-in-95 duration-300 max-h-[90vh] flex flex-col overflow-hidden">
+        <CardHeader className="px-3 sm:px-4 pt-3 sm:pt-4 pb-2 sm:pb-3 flex-shrink-0">
           {/* Header with icon and title */}
-          <div className="flex items-center gap-3 md:gap-4 mb-2 md:mb-3">
-            <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-white flex items-center justify-center flex-shrink-0">
-              <Wallet className="w-4 h-4 md:w-5 md:h-5 text-[#080E11]" />
+          <div className="flex items-start justify-between gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#FADEFD] flex items-center justify-center flex-shrink-0">
+                <Wallet className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-black" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <CardTitle className="text-[14px] sm:text-[16px] font-medium text-white">
+                  Connect Wallet
+                </CardTitle>
+                <p className="text-[11px] sm:text-[12px] text-gray-400">
+                  Choose a wallet to connect to VeraLux
+                </p>
+              </div>
             </div>
-            <CardTitle className="text-xl md:text-2xl font-bold text-white">
-              Connect Wallet
-            </CardTitle>
+            <button
+              onClick={onClose}
+              className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full transition-colors hover:bg-white/10 flex-shrink-0"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4 sm:w-5 sm:h-5 text-[#9BB6CC]" />
+            </button>
           </div>
-          <p className="text-xs md:text-sm text-gray-400 ml-11 md:ml-14">
-            Choose a wallet to connect to VeraLux
-          </p>
         </CardHeader>
 
-        <CardContent className="space-y-4 md:space-y-5 px-4 md:px-6 pb-4 md:pb-6 overflow-y-auto flex-1">
+        <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-4 overflow-y-auto flex-1">
           {/* Popular Wallets */}
           <div>
-            <h3 className="text-xs md:text-sm font-semibold text-white mb-3 md:mb-4 uppercase tracking-wide">
+            <p className="text-[11px] sm:text-[12px] font-medium text-[#9BB6CC99] mb-2 sm:mb-3">
               Popular
-            </h3>
-            <div className="space-y-2 md:space-y-2.5">
+            </p>
+            <div className="space-y-1.5 sm:space-y-2">
               {wallets.slice(0, 4).map((wallet) => (
                 <button
                   key={wallet.name}
-                  className="w-full p-3 md:p-4 rounded-lg md:rounded-xl bg-transparent hover:bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-200 cursor-pointer group"
+                  className="w-full p-2.5 sm:p-3 rounded-lg bg-transparent hover:bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-200 cursor-pointer group"
                   onClick={() => handleWalletClick(wallet)}
                 >
-                  <div className="flex items-center gap-3 md:gap-4 w-full">
-                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-lg md:rounded-xl bg-white flex items-center justify-center text-xl md:text-2xl flex-shrink-0">
-                      {wallet.icon}
+                  <div className="flex items-center gap-2.5 sm:gap-3 w-full">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9  flex items-center justify-center flex-shrink-0 overflow-hidden relative">
+                      {wallet.iconUrl ? (
+                        <img
+                          src={wallet.iconUrl}
+                          alt={wallet.name}
+                          className="w-full h-full object-contain rounded-lg"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = "none";
+                            const fallback = target.nextElementSibling as HTMLElement;
+                            if (fallback) fallback.style.display = "block";
+                          }}
+                        />
+                      ) : null}
+                      <span 
+                        className={`text-lg sm:text-xl md:text-2xl ${wallet.iconUrl ? "hidden" : ""}`}
+                        style={{ display: wallet.iconUrl ? "none" : "block" }}
+                      >
+                        {wallet.icon}
+                      </span>
                     </div>
                     <div className="flex-1 text-left min-w-0">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className="text-sm md:text-base font-medium text-white">
+                      <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1 flex-wrap">
+                        <span className="text-[13px] sm:text-[14px] font-medium text-white">
                           {wallet.name}
                         </span>
                         {wallet.installed && (
                           <Badge
-                            className="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5"
+                            className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0.5"
                             style={{
                               backgroundColor: "rgba(250, 222, 253, 0.2)",
                               color: "rgba(250, 222, 253, 1)",
@@ -215,12 +246,12 @@ export function WalletSelectionModal({
                           </Badge>
                         )}
                       </div>
-                      <p className="text-xs md:text-sm text-gray-400">
+                      <p className="text-[11px] sm:text-[12px] text-gray-400">
                         {wallet.description}
                       </p>
                     </div>
                     {!wallet.installed && (
-                      <Download className="w-5 h-5 md:w-6 md:h-6 text-gray-400 group-hover:text-white transition-colors flex-shrink-0" />
+                      <Download className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 group-hover:text-white transition-colors flex-shrink-0" />
                     )}
                   </div>
                 </button>
@@ -230,28 +261,46 @@ export function WalletSelectionModal({
 
           {/* More Wallets */}
           <div>
-            <h3 className="text-xs md:text-sm font-semibold text-white mb-3 md:mb-4 uppercase tracking-wide">
+            <p className="text-[11px] sm:text-[12px] font-medium text-[#9BB6CC99] mb-2 sm:mb-3">
               More
-            </h3>
-            <div className="space-y-2 md:space-y-2.5">
+            </p>
+            <div className="space-y-1.5 sm:space-y-2">
               {wallets.slice(4).map((wallet) => (
                 <button
                   key={wallet.name}
-                  className="w-full p-3 md:p-4 rounded-lg md:rounded-xl bg-transparent hover:bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-200 cursor-pointer group"
+                  className="w-full p-2.5 sm:p-3 rounded-lg bg-transparent hover:bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-200 cursor-pointer group"
                   onClick={() => handleWalletClick(wallet)}
                 >
-                  <div className="flex items-center gap-3 md:gap-4 w-full">
-                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-lg md:rounded-xl bg-white flex items-center justify-center text-xl md:text-2xl flex-shrink-0">
-                      {wallet.icon}
+                  <div className="flex items-center gap-2.5 sm:gap-3 w-full">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden relative">
+                      {wallet.iconUrl ? (
+                        <img
+                          src={wallet.iconUrl}
+                          alt={wallet.name}
+                          className="w-full h-full object-contain rounded-lg"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = "none";
+                            const fallback = target.nextElementSibling as HTMLElement;
+                            if (fallback) fallback.style.display = "block";
+                          }}
+                        />
+                      ) : null}
+                      <span 
+                        className={`text-lg sm:text-xl md:text-2xl ${wallet.iconUrl ? "hidden" : ""}`}
+                        style={{ display: wallet.iconUrl ? "none" : "block" }}
+                      >
+                        {wallet.icon}
+                      </span>
                     </div>
                     <div className="flex-1 text-left min-w-0">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className="text-sm md:text-base font-medium text-white">
+                      <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1 flex-wrap">
+                        <span className="text-[13px] sm:text-[14px] font-medium text-white whitespace-nowrap">
                           {wallet.name}
                         </span>
                         {wallet.installed && (
                           <Badge
-                            className="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5"
+                            className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0.5"
                             style={{
                               backgroundColor: "rgba(250, 222, 253, 0.2)",
                               color: "rgba(250, 222, 253, 1)",
@@ -262,12 +311,12 @@ export function WalletSelectionModal({
                           </Badge>
                         )}
                       </div>
-                      <p className="text-xs md:text-sm text-gray-400">
+                      <p className="text-[11px] sm:text-[12px] text-gray-400">
                         {wallet.description}
                       </p>
                     </div>
                     {!wallet.installed && (
-                      <Download className="w-5 h-5 md:w-6 md:h-6 text-gray-400 group-hover:text-white transition-colors flex-shrink-0" />
+                      <Download className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 group-hover:text-white transition-colors flex-shrink-0" />
                     )}
                   </div>
                 </button>
@@ -276,8 +325,8 @@ export function WalletSelectionModal({
           </div>
 
           {/* Footer */}
-          <div className="pt-4 md:pt-5 border-t border-white/10 flex-shrink-0">
-            <p className="text-xs md:text-sm text-center text-white">
+          <div className="pt-3 sm:pt-4 border-t border-white/10 flex-shrink-0">
+            <p className="text-[10px] sm:text-xs md:text-sm text-center text-white">
               New to Sui?{" "}
               <a
                 href="https://docs.sui.io/learn"

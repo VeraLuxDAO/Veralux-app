@@ -922,12 +922,12 @@ export function CirclesSlidingPanel({
                 {isSwitchCircleOpen && (
                   <div
                     ref={switchCirclePopupRef}
-                    className="absolute top-full left-0 right-0 mt-1 rounded-lg shadow-2xl z-[100] flex flex-col"
+                    className="absolute top-full left-4 right-4 -mt-4 rounded-2xl z-[100] flex flex-col border border-white/8 backdrop-blur-[40px]"
                     style={{
                       background: "rgba(8, 14, 17, 0.95)",
-                      border: "1px solid rgba(255, 255, 255, 0.1)",
-                      backdropFilter: "blur(20px)",
-                      WebkitBackdropFilter: "blur(20px)",
+                      boxShadow: "0px 334px 94px rgba(0, 0, 0, 0.01), 0px 214px 86px rgba(0, 0, 0, 0.04), 0px 120px 72px rgba(0, 0, 0, 0.15), 0px 53px 53px rgba(0, 0, 0, 0.26), 0px 13px 29px rgba(0, 0, 0, 0.29)",
+                      backdropFilter: "blur(40px)",
+                      WebkitBackdropFilter: "blur(40px)",
                       maxHeight: "400px",
                       overflow: "hidden",
                     }}
@@ -935,38 +935,55 @@ export function CirclesSlidingPanel({
                     onMouseDown={(e) => e.stopPropagation()}
                   >
                     {/* Header */}
-                    <div className="px-4 pt-4 pb-3 border-b border-white/10 flex-shrink-0">
+                    <div className="px-4 pt-4 pb-3 flex-shrink-0">
                       <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <Users className="h-4 w-4 text-[#4bd865]" />
-                          <h3 className="text-sm font-semibold text-white">Switch Circle</h3>
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 md:w-9 md:h-9 rounded-full flex items-center justify-center flex-shrink-0 border border-[rgba(76,216,101,0.3)]" style={{ background: "rgba(76, 216, 101, 0.2)" }}>
+                            <Users className="w-6 h-6 md:w-5 md:h-5" style={{ color: "#4bd865" }} />
+                          </div>
+                          <div className="flex flex-col">
+                            <h3 className="text-base md:text-[16px] font-semibold text-white">Switch Circle</h3>
+                            <p className="text-[12px] text-[#9BB6CC99]" style={{ fontFamily: "'Geist'" }}>Connect with your communities</p>
+                          </div>
                         </div>
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-6 w-6 p-0 rounded-full hover:bg-white/10 text-white"
+                          className="h-8 w-8 md:h-7 md:w-7 p-0 rounded-md hover:bg-white/10 text-white flex-shrink-0 border border-white/10 bg-white/5"
                           onClick={(e) => {
                             e.stopPropagation();
                             // TODO: Open circles modal to create/join new circles
                             console.log("Open circles modal");
                           }}
                         >
-                          <Plus className="h-4 w-4" />
+                          <Plus className="h-5 w-5 md:h-4 md:w-4" />
                         </Button>
                       </div>
-                      <p className="text-xs text-[#9BB6CC99]">Connect with your communities</p>
                     </div>
 
                     {/* Search Bar */}
-                    <div className="px-4 py-3 border-b border-white/10 flex-shrink-0">
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9BB6CC99]" />
+                    <div className="px-4 pb-6 flex-shrink-0">
+                      <div className="relative flex flex-row items-center pl-3 w-full h-10 bg-[rgba(229,247,253,0.06)] rounded-full">
+                        {/* Search Icon - Inside Left */}
+                        <Search className="w-4 h-4 text-[rgba(255,255,255,0.4)] mr-2 flex-shrink-0" />
                         <Input
                           placeholder="Search circles.."
                           value={switchCircleSearch}
                           onChange={(e) => setSwitchCircleSearch(e.target.value)}
-                          className="pl-10 pr-3 h-9 bg-[rgba(229,247,253,0.06)] border border-white/10 rounded-full text-sm text-white placeholder:text-[#9BB6CC99] focus:ring-0 focus:border-white/30"
+                          autoFocus={false}
+                          className="w-full h-full border-0 bg-transparent font-medium text-sm text-left text-white placeholder:text-[rgba(255,255,255,0.4)] focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
                         />
+                        {/* Clear Button (if searching) */}
+                        {switchCircleSearch && (
+                          <Button
+                            onClick={() => setSwitchCircleSearch("")}
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 rounded-full hover:bg-white/10 text-[#9BB6CC99] hover:text-white transition-colors flex-shrink-0 mr-2"
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        )}
                       </div>
                     </div>
 
@@ -978,7 +995,7 @@ export function CirclesSlidingPanel({
                         height: "400px"
                       }}
                     >
-                      <div className="p-2">
+                      <div >
                         {Object.values(mockCircles)
                           .filter((circle) =>
                             circle.name.toLowerCase().includes(switchCircleSearch.toLowerCase())
@@ -992,7 +1009,7 @@ export function CirclesSlidingPanel({
                                 selectedCircle?.id === circle.id && "bg-white/5"
                               )}
                             >
-                              <div className="h-10 w-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0">
+                              <div className="h-12 w-12 md:h-9 md:w-9 rounded-lg flex items-center justify-center text-xl md:text-lg flex-shrink-0">
                                 {circle.icon}
                               </div>
                               <div className="flex-1 min-w-0">
