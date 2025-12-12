@@ -22,8 +22,6 @@ interface MobileAITabProps {
 
 export function MobileAITab({ className }: MobileAITabProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [backdropProgress, setBackdropProgress] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -50,41 +48,11 @@ export function MobileAITab({ className }: MobileAITabProps) {
   }, []);
 
   const handleToggle = () => {
-    if (isAnimating) return;
-
-    setIsAnimating(true);
-
-    if (!isOpen) {
-      // Opening animation
-      setIsOpen(true);
-      // Progressive backdrop blur - faster
-      let progress = 0;
-      const intervalId = setInterval(() => {
-        progress += 0.15;
-        setBackdropProgress(progress);
-        if (progress >= 1) {
-          clearInterval(intervalId);
-          setIsAnimating(false);
-        }
-      }, 20);
-    } else {
-      // Closing animation - faster
-      let progress = 1;
-      const intervalId = setInterval(() => {
-        progress -= 0.15;
-        setBackdropProgress(progress);
-        if (progress <= 0) {
-          clearInterval(intervalId);
-          setIsOpen(false);
-          setIsAnimating(false);
-        }
-      }, 15);
-    }
+    setIsOpen(!isOpen);
   };
 
   const handleClose = () => {
-    if (isAnimating) return;
-    handleToggle();
+    setIsOpen(false);
   };
 
   // Prevent body scroll when panel is open
@@ -161,39 +129,64 @@ export function MobileAITab({ className }: MobileAITabProps) {
       {/* AI Tab Button with Transform Animation */}
       <div
         className={cn(
-          "ai-tab-container fixed right-0 top-1/2 transform -translate-y-1/2 z-50 md:hidden",
-          "transition-all duration-300 ease-out",
+          "ai-tab-container fixed right-4 z-50 md:hidden",
+          "transition-all duration-300 ease-out transform-gpu",
           isOpen && "opacity-0 pointer-events-none",
           className
         )}
         data-open={isOpen}
         style={{
-          transform: `translateY(-50%) ${
-            isOpen ? "translateX(-75vw) scale(0.8)" : "translateX(0px) scale(1)"
-          }`,
+          top: "50%",
+          transform: isOpen ? "translateY(-50%) scale(0.8)" : "translateY(-50%) scale(1)",
+          willChange: "transform, opacity",
           opacity: isOpen ? 0 : 1,
         }}
       >
         <Button
           onClick={handleToggle}
-          disabled={isAnimating}
           className={cn(
-            "ai-tab-button group relative cursor-pointer transition-all duration-300 ease-out transform-gpu",
-            "bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-600",
-            "hover:from-blue-400 hover:via-purple-500 hover:to-indigo-500",
-            "text-white shadow-lg border-2 border-white/20",
+            "ai-tab-button group relative cursor-pointer transform-gpu",
+            "text-[#080E11] shadow-xl",
             "flex items-center justify-center backdrop-blur-sm",
-            "hover:scale-110 active:scale-95 disabled:cursor-not-allowed hover:shadow-xl hover:shadow-purple-500/30",
-            "h-16 w-8 rounded-l-3xl rounded-r-none",
-            "before:absolute before:inset-0 before:rounded-l-3xl before:bg-gradient-to-br before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300"
+            "h-12 w-12 rounded-2xl bg-[#FADEFD]",
+            "overflow-visible",
+            "transition-all duration-300 hover:scale-110 active:scale-95"
           )}
         >
-          <div className="relative z-10 flex flex-col items-center justify-center space-y-0.5">
-            <Bot className="h-4 w-4 transition-transform duration-200 group-hover:scale-110 text-white drop-shadow-sm" />
-            <span className="text-[9px] font-bold transition-all duration-200 leading-none text-white drop-shadow-sm">
-              AI
-            </span>
-            <div className="absolute -top-0.5 -right-0.5 h-2 w-2 bg-green-400 rounded-full animate-pulse shadow-sm" />
+          {/* Glowing background effect */}
+          <div 
+            className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            style={{
+              background: "radial-gradient(circle at center, rgba(229, 247, 253, 0.2) 0%, transparent 70%)",
+              filter: "blur(8px)",
+            }}
+          />
+          
+          {/* Main content */}
+          <div className="relative z-10 flex items-center justify-center">
+            <Bot 
+              className="h-3 w-3 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 text-[#080E11]" 
+            />
+            
+            {/* Status indicator with pulsing animation */}
+            <div 
+              className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 shadow-lg"
+              style={{
+                backgroundColor: "#22C55E",
+                borderColor: "rgba(8, 14, 17, 0.8)",
+                boxShadow: "0 0 8px rgba(34, 197, 94, 0.6), 0 0 12px rgba(34, 197, 94, 0.4)",
+                animation: "pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+              }}
+            >
+              {/* Inner pulse ring */}
+              <div 
+                className="absolute inset-0 rounded-full"
+                style={{
+                  backgroundColor: "rgba(34, 197, 94, 0.4)",
+                  animation: "ping 2s cubic-bezier(0, 0, 0.2, 1) infinite",
+                }}
+              />
+            </div>
           </div>
         </Button>
       </div>
@@ -204,9 +197,7 @@ export function MobileAITab({ className }: MobileAITabProps) {
           className={cn(
             "ai-chat-panel fixed z-[120] md:hidden flex flex-col",
             "bg-[#080E1199] backdrop-blur-md border border-white/10 rounded-2xl",
-            "shadow-[0_0_40px_rgba(0,0,0,0.5)]",
-            "transition-all duration-300 ease-out transform-gpu",
-            "opacity-100 scale-100"
+            "shadow-[0_0_40px_rgba(0,0,0,0.5)]"
           )}
           style={{
             top: "50%",
@@ -216,7 +207,6 @@ export function MobileAITab({ className }: MobileAITabProps) {
             transform: "translate(-50%, -50%)",
             maxHeight: "95vh",
             height: "auto",
-            willChange: "transform, opacity",
           }}
         >
         {/* Header - With Close Button */}
@@ -444,14 +434,8 @@ export function MobileAITab({ className }: MobileAITabProps) {
         <div
           className={cn(
             "ai-overlay fixed inset-0 z-[115] md:hidden",
-            "transition-all duration-300 ease-out",
-            "pointer-events-auto"
+            "bg-black/60 backdrop-blur-sm pointer-events-auto"
           )}
-          style={{
-            background: `rgba(0, 0, 0, ${0.6 * backdropProgress})`,
-            backdropFilter: `blur(${8 * backdropProgress}px)`,
-            opacity: backdropProgress,
-          }}
           onClick={handleClose}
         />
       )}
