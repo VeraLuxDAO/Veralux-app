@@ -101,17 +101,24 @@ export function ChatInput({
             <div
               className={cn(
                 "relative rounded-2xl md:rounded-3xl transition-all duration-200",
-                "bg-muted/30 hover:bg-muted/40",
-                "border border-border/30 hover:border-border/50",
-                "focus-within:border-primary/50 focus-within:bg-background/90",
-                "focus-within:shadow-sm focus-within:shadow-primary/10"
+                "focus-within:bg-[rgba(229,247,253,0.06)]"
               )}
+              style={{
+                backgroundColor: "rgba(229, 247, 253, 0.04)",
+              }}
             >
               {/* Left: Emoji Picker - Inside input field */}
-              <div className="absolute left-1.5 md:left-2 lg:left-3 top-1/2 -translate-y-1/2 z-10">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
                 <EmojiPicker
                   onEmojiSelect={handleEmojiSelect}
-                  className="w-7 h-7 md:w-8 md:h-8 lg:w-9 lg:h-9"
+                  trigger={
+                    <button
+                      className="w-4 h-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex items-center justify-center transition-colors cursor-pointer"
+                      title="Emoji"
+                    >
+                      <Smile className="h-4 w-4" />
+                    </button>
+                  }
                 />
               </div>
 
@@ -124,54 +131,86 @@ export function ChatInput({
                 placeholder={placeholder}
                 disabled={disabled}
                 className={cn(
-                  "w-full min-h-[44px] md:min-h-[48px] lg:min-h-[52px] max-h-40 resize-none border-0 bg-transparent",
+                  "w-full min-h-[36px] max-h-40 resize-none border-0 bg-transparent",
                   "focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
-                  "placeholder:text-muted-foreground/60 text-sm md:text-base lg:text-lg leading-relaxed",
-                  "py-2.5 md:py-3 lg:py-4 pl-11 md:pl-12 lg:pl-14 pr-12 md:pr-14 lg:pr-16 font-medium",
-                  "scrollbar-thin scrollbar-thumb-muted-foreground/20 rounded-2xl md:rounded-3xl"
+                  "leading-relaxed",
+                  "py-[10px] pl-10 pr-20 font-medium",
+                  "scrollbar-thin scrollbar-thumb-muted-foreground/20 rounded-2xl md:rounded-3xl",
+                  "placeholder:text-[#9BB6CC99]"
                 )}
                 rows={1}
                 style={{
-                  fontSize: "clamp(14px, 1.5vw, 16px)",
+                  fontSize: "14px",
                   wordWrap: "break-word",
                   overflowWrap: "break-word",
+                  color: "#9BB6CC99",
+                  fontFamily: "'Geist'",
                 }}
               />
 
-              {/* Right: Send Button - Inside input field */}
-              <div className="absolute right-1.5 md:right-2 lg:right-3 top-1/2 -translate-y-1/2 z-10">
-                <Button
+              {/* Right: Action Buttons - Inside input field */}
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center gap-2">
+                {/* Voice Message Button */}
+                <button
+                  onClick={() => {
+                    // Handle voice message recording
+                    console.log("Voice message recording");
+                    // TODO: Implement voice recording logic
+                  }}
+                  className="w-4 h-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex items-center justify-center transition-colors cursor-pointer"
+                  title="Voice message"
+                >
+                  <Mic className="h-4 w-4" />
+                </button>
+
+                {/* Upload File Button - Telegram style Paperclip */}
+                <button
+                  onClick={() => {
+                    // Handle file upload
+                    const input = document.createElement("input");
+                    input.type = "file";
+                    input.multiple = true;
+                    input.onchange = (e) => {
+                      const files = (e.target as HTMLInputElement).files;
+                      if (files && files.length > 0) {
+                        // Handle file upload logic here
+                        console.log("Files selected:", files);
+                      }
+                    };
+                    input.click();
+                  }}
+                  className="w-4 h-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex items-center justify-center transition-colors cursor-pointer"
+                  title="Attach file"
+                >
+                  <Paperclip className="h-4 w-4" />
+                </button>
+
+                {/* Send Button */}
+                <button
                   onClick={handleSend}
                   disabled={!message.trim() || disabled}
-                  size="sm"
                   className={cn(
-                    "w-7 h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 p-0 rounded-full transition-all duration-300",
+                    "w-4 h-4 p-0 rounded-full transition-all duration-300",
                     "hover:scale-105 active:scale-95",
                     message.trim()
                       ? [
-                          "bg-gradient-to-br from-primary via-primary to-primary/90",
-                          "hover:from-primary/95 hover:via-primary/90 hover:to-primary/80",
-                          "text-primary-foreground border-0",
-                          "hover:rotate-12",
-                          "shadow-primary/25 hover:shadow-primary/40",
+                          "bg-transparent hover:bg-white/10",
+                          "text-[#9BB6CC99]",
                         ]
                       : [
-                          "bg-muted/60",
-                          "text-muted-foreground/60 cursor-not-allowed",
-                          "border border-border/20 opacity-60",
+                          "bg-transparent",
+                          "text-[#9BB6CC99] opacity-60 cursor-not-allowed",
                         ],
                     disabled && "opacity-50 cursor-not-allowed"
                   )}
+                  title="Send message"
                 >
                   <Send
                     className={cn(
-                      "h-3.5 w-3.5 md:h-4 md:w-4 lg:h-5 lg:w-5 transition-all duration-200",
-                      message.trim()
-                        ? "text-primary-foreground"
-                        : "text-muted-foreground/50"
+                      "h-4 w-4 transition-all duration-200"
                     )}
                   />
-                </Button>
+                </button>
               </div>
             </div>
           </div>

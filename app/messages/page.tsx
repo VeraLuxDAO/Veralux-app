@@ -10,6 +10,7 @@ import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { RoomInfoView } from "@/components/room-info-view";
 import { AvatarViewer } from "@/components/avatar-viewer";
+import { ChatInput } from "@/components/chat/chat-input";
 import {
   ArrowLeft,
   Search,
@@ -212,13 +213,11 @@ function MessagesPageContent() {
       : null;
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [messageInput, setMessageInput] = useState("");
   const [messages, setMessages] = useState<Message[]>(mockMessages);
   const [showSearch, setShowSearch] = useState(false);
   const [isMobileRoomInfoOpen, setIsMobileRoomInfoOpen] = useState(false);
   const [isAvatarViewerOpen, setIsAvatarViewerOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -230,29 +229,20 @@ function MessagesPageContent() {
     }
   }, [messages, selectedRoom]);
 
-  const handleEmojiSelect = (emoji: string) => {
-    setMessageInput((prev) => prev + emoji);
-    // Focus back to input after selecting emoji
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 100);
-  };
-
-  const handleSendMessage = () => {
-    if (!messageInput.trim()) return;
+  const handleSendMessage = (content: string) => {
+    if (!content.trim()) return;
 
     const newMessage: Message = {
       id: Date.now().toString(),
       senderId: "me",
       senderName: "You",
-      content: messageInput,
+      content: content,
       timestamp: new Date(),
       isRead: false,
       isOwn: true,
     };
 
     setMessages([...messages, newMessage]);
-    setMessageInput("");
   };
 
   const formatTime = (date: Date) => {
@@ -604,69 +594,12 @@ function MessagesPageContent() {
       </div>
 
       {/* Input Area */}
-      <div className="flex-shrink-0 px-6 pt-3 pb-8 bg-[#080E1199] border-t border-white/5">
-        <div className="flex items-center">
-          <div className="flex w-full items-center rounded-full bg-[#E5F7FD0A] border border-white/10 px-3 gap-2">
-            {/* Emoji */}
-            <EmojiPicker
-              onEmojiSelect={handleEmojiSelect}
-              trigger={
-                <div
-                  className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0"
-                  title="Emoji"
-                >
-                  <Smile className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
-                </div>
-              }
-            />
-
-            {/* Input Field */}
-            <Input
-              ref={inputRef}
-              placeholder="Send Message"
-              value={messageInput}
-              onChange={(e) => setMessageInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSendMessage();
-                }
-              }}
-              className="flex-1 h-6 bg-[#E5F7FD0A] border-none text-[#9BB6CC99] text-[14px] placeholder:text-[#9BB6CC99] focus:ring-0 focus-visible:ring-0 px-2 py-0 shadow-none"
-              autoComplete="off"
-              style={{ fontFamily: "'Geist'", fontSize:"14px !important" }}
-            />
-
-            {/* Right icon group: Mic, Pin, Send (in this order) */}
-            <div className="flex items-center gap-3 flex-shrink-0">
-              {/* Mic */}
-              <div
-                className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 flex items-center justify-center"
-                title="Voice message"
-                style={{maxWidth:"16px !important", maxHeight:"16px !important"}}
-              >
-                <Mic className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
-              </div>
-
-              {/* Pin / Attach */}
-              <div
-                className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 flex items-center justify-center"
-                title="Attach file"
-              >
-                <Paperclip className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
-              </div>
-
-              {/* Send (paper airplane) */}
-              <div
-                onClick={handleSendMessage}
-                className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 flex items-center justify-center"
-                title="Send message"
-              >
-                <Send className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="flex-shrink-0 px-6 pt-3 pb-8">
+        <ChatInput
+          onSendMessage={handleSendMessage}
+          placeholder="Send Message"
+          className="bg-[#080E1199] border-t border-white/5"
+        />
       </div>
 
       {/* Mobile Room Info Sheet - Full Screen */}
