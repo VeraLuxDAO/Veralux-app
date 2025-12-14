@@ -1,8 +1,9 @@
 "use client";
 
-import { memo, useState, useEffect } from "react";
+import { memo, useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 interface FlowPost {
   id: string;
@@ -31,14 +32,76 @@ interface PostCardProps {
 
 export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
   const [isMounted, setIsMounted] = useState(false);
+  const [isVisible, setIsVisible] = useState(true); // Start visible by default
+  const cardRef = useRef<HTMLDivElement>(null);
+  const hasAnimated = useRef(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
+  // Intersection Observer for scroll-based animation (only for posts below viewport)
+  useEffect(() => {
+    const currentRef = cardRef.current;
+    if (!currentRef || hasAnimated.current) return;
+
+    // Check after a short delay to ensure DOM is ready
+    const checkAndAnimate = () => {
+      const rect = currentRef.getBoundingClientRect();
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+      
+      // If post is already in or near viewport, keep it visible
+      if (rect.top < viewportHeight + 400) {
+        setIsVisible(true);
+        hasAnimated.current = true;
+        return;
+      }
+
+      // If post is far below viewport, hide it first then animate in on scroll
+      setIsVisible(false);
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && !hasAnimated.current) {
+              setIsVisible(true);
+              hasAnimated.current = true;
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        {
+          threshold: 0.1,
+          rootMargin: "400px",
+        }
+      );
+
+      observer.observe(currentRef);
+
+      return () => {
+        observer.unobserve(currentRef);
+      };
+    };
+
+    // Use both setTimeout and requestAnimationFrame for reliability
+    const timeoutId = setTimeout(() => {
+      requestAnimationFrame(checkAndAnimate);
+    }, 150);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
   return (
     <Card
-      className="border-none transition-all duration-300 rounded-xl py-[0px] shadow-lg w-full cursor-pointer hover:shadow-xl group relative overflow-hidden"
+      ref={cardRef}
+      className={cn(
+        "border-none transition-all duration-500 rounded-xl py-[0px] shadow-lg w-full cursor-pointer hover:shadow-xl group relative overflow-hidden",
+        isVisible 
+          ? "opacity-100 translate-y-0" 
+          : "opacity-0 translate-y-8"
+      )}
       style={{
         background:
           "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",

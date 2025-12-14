@@ -196,6 +196,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
         window.scrollTo(0, scrollY);
       };
     }
+    return undefined;
   }, [isOpen]);
 
   // Resizable divider state
@@ -395,7 +396,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
           "rooms-sliding-panel",
           "fixed h-[calc(100vh-5rem)] z-[70]",
           "shadow-[0_20px_45px_rgba(0,0,0,0.45)]",
-          "transform transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
+          "transform transition-all duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)]",
           "hidden md:block",
           "overflow-hidden",
           // Position from left sidebar edge to right edge
@@ -403,7 +404,9 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
           "md:right-[24px]",
           // Width auto to fill space between left and right
           "w-[90vw] md:w-auto",
-          isOpen ? "translate-x-0" : "translate-x-full"
+          isOpen 
+            ? "translate-x-0 opacity-100 scale-100" 
+            : "translate-x-full opacity-0 scale-95"
         )}
         style={{
           top: "5rem",
@@ -490,7 +493,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
             {/* Rooms List */}
             <ScrollArea className="flex-1 overflow-hidden w-full">
               <div className="w-full max-w-full overflow-hidden pt-2 px-4">
-                {filteredRooms.map((room) => (
+                {filteredRooms.map((room, index) => (
                   <button
                     key={room.id}
                     onClick={() => {
@@ -500,12 +503,13 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
               );
                     }}
                     className={cn(
-                      "w-full flex items-start gap-3 px-0 py-4 transition-all duration-150",
-                      "hover:opacity-90 cursor-pointer",
-                      "group relative",
-                      selectedRoom?.id === room.id ? "opacity-100" : ""
+                      "w-full flex items-start gap-3 px-0 py-4 transition-all duration-300 ease-out",
+                      "hover:opacity-90 hover:translate-x-1 cursor-pointer",
+                      "group relative animate-in fade-in-0 slide-in-from-left-2",
+                      selectedRoom?.id === room.id ? "opacity-100 bg-white/5 rounded-lg" : ""
                     )}
                     style={{
+                      animationDelay: `${index * 30}ms`,
                       borderBottom: "1px solid rgba(255, 255, 255, 0.06)",
                     }}
                   >
@@ -633,7 +637,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
           {/* Chat Area - Right Side */}
           {selectedRoom ? (
             <div 
-              className="flex-1 flex flex-col min-w-0 relative z-0"
+              className="flex-1 flex flex-col min-w-0 relative z-0 animate-in fade-in-0 slide-in-from-right-4 duration-300"
               style={{
                 background: "rgba(0, 0, 0, 0.2)",
                 backdropFilter: "blur(20px)",
@@ -642,7 +646,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
             >
               {/* Chat Header */}
               <div 
-                className="flex-shrink-0 px-4 lg:px-4 pt-6 border-b border-[#FFFFFF14]"
+                className="flex-shrink-0 px-4 lg:px-4 pt-6 border-b border-[#FFFFFF14] animate-in fade-in-0 slide-in-from-top-2 duration-300"
                 style={{
                   background: "rgba(0, 0, 0, 0.3)",
                   backdropFilter: "blur(20px)",
@@ -734,9 +738,16 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                       <div
                         key={message.id}
                         className={cn(
-                          "flex gap-1 animate-in fade-in slide-in-from-bottom-1 duration-200",
-                          message.isOwn ? "flex-row-reverse" : "flex-row"
+                          "flex gap-1 transition-all duration-300 ease-out",
+                          message.isOwn ? "flex-row-reverse" : "flex-row",
+                          "animate-in fade-in-0",
+                          message.isOwn 
+                            ? "slide-in-from-right-4" 
+                            : "slide-in-from-left-4"
                         )}
+                        style={{
+                          animationDelay: `${index * 50}ms`,
+                        }}
                       >
                         {/* Avatar */}
                         <div className="flex-shrink-0 w-6 md:w-7 lg:w-8 mt-auto">
@@ -760,6 +771,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                           <div
                             className={cn(
                               "px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg shadow-sm",
+                              "transition-all duration-300 ease-out hover:scale-[1.02]",
                               message.isOwn
                                 ? "bg-[#FADEFD] text-[#080E11] rounded-br-sm"
                                 : "bg-[#9BB6CC0A] text-[#9BB6CC] rounded-bl-sm"
@@ -809,7 +821,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
 
               {/* Input Area */}
               <div 
-                className="flex-shrink-0 px-2 md:px-3 lg:px-4 py-2 md:py-2.5 lg:py-3 border-t border-[#2b3642]/50 relative z-0"
+                className="flex-shrink-0 px-2 md:px-3 lg:px-4 py-2 md:py-2.5 lg:py-3 border-t border-[#2b3642]/50 relative z-0 animate-in fade-in-0 slide-in-from-bottom-2 duration-300"
                 style={{
                   background: "rgba(0, 0, 0, 0.3)",
                   backdropFilter: "blur(20px)",
@@ -888,14 +900,14 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
             </div>
           ) : (
             <div 
-              className="flex-1 flex items-center justify-center px-4 relative z-0"
+              className="flex-1 flex items-center justify-center px-4 relative z-0 animate-in fade-in-0 zoom-in-95 duration-[400ms]"
               style={{
                 background: "rgba(0, 0, 0, 0.3)",
                 backdropFilter: "blur(20px)",
                 WebkitBackdropFilter: "blur(20px)",
               }}
             >
-              <div className="text-center relative flex flex-col items-center justify-center gap-6">
+              <div className="text-center relative flex flex-col items-center justify-center gap-6 animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
                 <svg 
                   width="200" 
                   height="162" 

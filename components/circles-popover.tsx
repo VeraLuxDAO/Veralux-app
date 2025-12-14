@@ -77,10 +77,13 @@ export function CirclesPopover({ isOpen, onClose }: CirclesPopoverProps) {
     };
   }, [isOpen, onClose]);
 
-  const CircleCard = ({ circle }: { circle: Circle }) => (
+  const CircleCard = ({ circle, index }: { circle: Circle; index?: number }) => (
     <Card
-      className="group border-none py-[0] mb-[16px] transition-all duration-200 cursor-pointer hover:bg-white/5 active:scale-[0.98] rounded-lg overflow-hidden bg-[#9BB6CC0A] px-3"
+      className="group border-none py-[0] mb-[16px] transition-all duration-300 ease-out cursor-pointer hover:bg-white/10 active:scale-[0.98] rounded-lg overflow-hidden bg-[#9BB6CC0A] px-3"
       onClick={() => handleCircleClick(circle)}
+      style={{
+        animation: `slideInNotification 0.5s ease-out ${index !== undefined ? index * 80 : 0}ms both`,
+      }}
     >
       <CardContent className="p-0">
         <div className="flex flex-col gap-3 py-3">
@@ -156,12 +159,12 @@ export function CirclesPopover({ isOpen, onClose }: CirclesPopoverProps) {
           "circles-popover",
           "fixed z-[60]",
           "shadow-2xl",
-          "transform transition-all duration-200 ease-out",
           "hidden md:block",
           "w-[420px]",
+          "transition-all duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)]",
           isOpen
-            ? "opacity-100 scale-100 translate-y-0"
-            : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+            ? "opacity-100 scale-100 translate-y-0 animate-in fade-in-0 zoom-in-95 slide-in-from-top-2"
+            : "opacity-0 scale-90 -translate-y-4 pointer-events-none"
         )}
         style={{
           top: "4.5rem",
@@ -281,8 +284,8 @@ export function CirclesPopover({ isOpen, onClose }: CirclesPopoverProps) {
                 <ScrollArea className="h-full">
                   <div className="space-y-0">
                     {filteredJoinedCircles.length > 0 ? (
-                      filteredJoinedCircles.map((circle) => (
-                        <CircleCard key={circle.id} circle={circle} />
+                      filteredJoinedCircles.map((circle, index) => (
+                        <CircleCard key={circle.id} circle={circle} index={index} />
                       ))
                     ) : (
                   <div className="flex items-center justify-center h-full">
@@ -315,8 +318,8 @@ export function CirclesPopover({ isOpen, onClose }: CirclesPopoverProps) {
                 <ScrollArea className="h-full">
                   <div className="space-y-0 pr-1">
                     {filteredDiscoverCircles.length > 0 ? (
-                      filteredDiscoverCircles.map((circle) => (
-                        <CircleCard key={circle.id} circle={circle} />
+                      filteredDiscoverCircles.map((circle, index) => (
+                        <CircleCard key={circle.id} circle={circle} index={index} />
                       ))
                     ) : (
                   <div className="flex items-center justify-center h-full">
