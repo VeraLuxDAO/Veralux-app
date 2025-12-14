@@ -27,6 +27,7 @@ import {
 } from "@/components/chat/chat-message";
 import { ChatInput } from "@/components/chat/chat-input";
 import { getCirclesRecord, type Circle } from "@/lib/circles-data";
+import { MemberProfileView } from "@/components/member-profile-view";
 
 interface Channel {
   id: string;
@@ -210,6 +211,8 @@ export function CirclesSlidingPanel({
   const [memberSearchQuery, setMemberSearchQuery] = useState("");
   const [isMembersVisible, setIsMembersVisible] = useState(true);
   const [mobileView, setMobileView] = useState<"channel" | "chatting" | "members">("channel"); // Mobile view state
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+  const [isMemberProfileOpen, setIsMemberProfileOpen] = useState(false);
   const [isSwitchCircleOpen, setIsSwitchCircleOpen] = useState(false);
   const [switchCircleSearch, setSwitchCircleSearch] = useState("");
   const [leftSidebarWidth, setLeftSidebarWidth] = useState(300);
@@ -797,14 +800,14 @@ export function CirclesSlidingPanel({
                           setIsMembersVisible(!isMembersVisible);
                         }
                       }}
-                      className="mobile-members-button p-0 rounded-full text-white hover:bg-white/10 transition-all bg-gradient-to-b from-[#45D4A7] to-[#4DF3FF] flex-shrink-0 md:h-6 md:w-6"
+                      className="mobile-members-button p-0 rounded-full text-white hover:bg-white/10 transition-all bg-gradient-to-b from-[#45D4A7] to-[#4DF3FF] flex-shrink-0 h-9 w-9"
                       style={{
-                        height: "36px !important",
-                        width: "36px !important",
-                        minHeight: "36px !important",
-                        minWidth: "36px !important",
-                        maxHeight: "36px !important",
-                        maxWidth: "36px !important"
+                        height: "36px",
+                        width: "36px",
+                        minHeight: "36px",
+                        minWidth: "36px",
+                        maxHeight: "36px",
+                        maxWidth: "36px"
                       }}
                       title={isMembersVisible ? "Hide members" : "Show members"}
                     >
@@ -947,7 +950,11 @@ export function CirclesSlidingPanel({
                               {onlineMembers.map((member) => (
                                 <div
                                   key={member.id}
-                                  className="flex items-center gap-2 px-2 py-[6px] rounded-[30px] hover:bg-white/5 transition-colors cursor-pointer"
+                                  onClick={() => {
+                                    setSelectedMember(member);
+                                    setIsMemberProfileOpen(true);
+                                  }}
+                                  className="flex items-center gap-2 px-2 py-[6px] rounded-[30px] hover:bg-white/5 transition-colors cursor-pointer active:bg-white/10"
                                 >
                                   <div className="relative">
                                     <Avatar className="h-9 w-9">
@@ -986,7 +993,11 @@ export function CirclesSlidingPanel({
                               {offlineMembers.map((member) => (
                                 <div
                                   key={member.id}
-                                  className="flex items-center gap-2 px-2 py-1.5 rounded-[30px] hover:bg-white/5 transition-colors cursor-pointer"
+                                  onClick={() => {
+                                    setSelectedMember(member);
+                                    setIsMemberProfileOpen(true);
+                                  }}
+                                  className="flex items-center gap-2 px-2 py-1.5 rounded-[30px] hover:bg-white/5 transition-colors cursor-pointer active:bg-white/10"
                                 >
                                   <div className="relative">
                                     <Avatar className="h-9 w-9">
@@ -1382,14 +1393,14 @@ export function CirclesSlidingPanel({
                           setIsMembersVisible(!isMembersVisible);
                         }
                       }}
-                      className="mobile-members-button p-0 rounded-full text-white hover:bg-white/10 transition-all bg-gradient-to-b from-[#45D4A7] to-[#4DF3FF] flex-shrink-0 md:h-6 md:w-6"
+                      className="mobile-members-button p-0 rounded-full text-white hover:bg-white/10 transition-all bg-gradient-to-b from-[#45D4A7] to-[#4DF3FF] flex-shrink-0 h-9 w-9"
                       style={{
-                        height: "36px !important",
-                        width: "36px !important",
-                        minHeight: "36px !important",
-                        minWidth: "36px !important",
-                        maxHeight: "36px !important",
-                        maxWidth: "36px !important"
+                        height: "36px",
+                        width: "36px",
+                        minHeight: "36px",
+                        minWidth: "36px",
+                        maxHeight: "36px",
+                        maxWidth: "36px"
                       }}
                       title={isMembersVisible ? "Hide members" : "Show members"}
                     >
@@ -1544,7 +1555,11 @@ export function CirclesSlidingPanel({
                               {onlineMembers.map((member) => (
                                 <div
                                   key={member.id}
-                                  className="flex items-center gap-2 px-2 py-[6px] rounded-[30px] hover:bg-white/5 transition-colors cursor-pointer"
+                                  onClick={() => {
+                                    setSelectedMember(member);
+                                    setIsMemberProfileOpen(true);
+                                  }}
+                                  className="flex items-center gap-2 px-2 py-[6px] rounded-[30px] hover:bg-white/5 transition-colors cursor-pointer active:bg-white/10"
                                 >
                                   <div className="relative">
                                     <Avatar className="h-9 w-9">
@@ -1583,7 +1598,11 @@ export function CirclesSlidingPanel({
                               {offlineMembers.map((member) => (
                                 <div
                                   key={member.id}
-                                  className="flex items-center gap-2 px-2 py-1.5 rounded-[30px] hover:bg-white/5 transition-colors cursor-pointer"
+                                  onClick={() => {
+                                    setSelectedMember(member);
+                                    setIsMemberProfileOpen(true);
+                                  }}
+                                  className="flex items-center gap-2 px-2 py-1.5 rounded-[30px] hover:bg-white/5 transition-colors cursor-pointer active:bg-white/10"
                                 >
                                   <div className="relative">
                                     <Avatar className="h-9 w-9">
@@ -1635,6 +1654,17 @@ export function CirclesSlidingPanel({
           </div>
         )}
       </div>
+
+      {/* Member Profile View */}
+      <MemberProfileView
+        member={selectedMember}
+        isOpen={isMemberProfileOpen}
+        onClose={() => {
+          setIsMemberProfileOpen(false);
+          setSelectedMember(null);
+        }}
+        isMobile={typeof window !== 'undefined' && window.innerWidth < 768}
+      />
     </>
   );
 }
