@@ -155,10 +155,10 @@ export function AIChat({ className = "" }: AIChatProps) {
           disabled={isAnimating}
           className={cn(
             "desktop-ai-tab-button group relative cursor-pointer transform-gpu",
-            "text-white shadow-xl",
+            "text-[#080E11] shadow-xl",
             "flex items-center justify-center backdrop-blur-sm",
             "disabled:cursor-not-allowed",
-            "h-14 w-14 rounded-2xl",
+            "h-12 w-12 rounded-2xl bg-[#FADEFD]",
             "overflow-visible",
             // Conditional hover effects - disable during animation
             !isAnimating &&
@@ -166,23 +166,6 @@ export function AIChat({ className = "" }: AIChatProps) {
           )}
           style={{
             willChange: isAnimating ? "none" : "transform",
-            background: "linear-gradient(135deg, rgba(229, 247, 253, 0.15) 0%, rgba(250, 222, 253, 0.2) 50%, rgba(155, 182, 204, 0.15) 100%)",
-            border: "1px solid rgba(229, 247, 253, 0.3)",
-            boxShadow: "0 4px 20px rgba(229, 247, 253, 0.15), 0 0 0 1px rgba(250, 222, 253, 0.1) inset",
-          }}
-          onMouseEnter={(e) => {
-            if (!isAnimating) {
-              e.currentTarget.style.background = "linear-gradient(135deg, rgba(229, 247, 253, 0.25) 0%, rgba(250, 222, 253, 0.3) 50%, rgba(155, 182, 204, 0.25) 100%)";
-              e.currentTarget.style.boxShadow = "0 8px 30px rgba(229, 247, 253, 0.25), 0 0 0 1px rgba(250, 222, 253, 0.2) inset, 0 0 40px rgba(229, 247, 253, 0.1)";
-              e.currentTarget.style.border = "1px solid rgba(229, 247, 253, 0.4)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!isAnimating) {
-              e.currentTarget.style.background = "linear-gradient(135deg, rgba(229, 247, 253, 0.15) 0%, rgba(250, 222, 253, 0.2) 50%, rgba(155, 182, 204, 0.15) 100%)";
-              e.currentTarget.style.boxShadow = "0 4px 20px rgba(229, 247, 253, 0.15), 0 0 0 1px rgba(250, 222, 253, 0.1) inset";
-              e.currentTarget.style.border = "1px solid rgba(229, 247, 253, 0.3)";
-            }
           }}
         >
           {/* Glowing background effect */}
@@ -197,11 +180,7 @@ export function AIChat({ className = "" }: AIChatProps) {
           {/* Main content */}
           <div className="relative z-10 flex items-center justify-center">
             <Bot 
-              className="h-6 w-6 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" 
-              style={{ 
-                color: "#E5F7FD",
-                filter: "drop-shadow(0 2px 4px rgba(229, 247, 253, 0.3))",
-              }} 
+              className="h-3 w-3 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 text-[#080E11]" 
             />
             
             {/* Status indicator with pulsing animation */}
