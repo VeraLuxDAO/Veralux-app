@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import {
   ArrowLeft,
+  ArrowRight,
   Bell,
   Heart,
   UserPlus,
@@ -206,7 +207,27 @@ export default function NotificationsPage() {
   const [activeTab, setActiveTab] = useState<"personal" | "social" | "system">(
     "personal"
   );
+  const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
   const router = useRouter();
+
+  const tabs: Array<"personal" | "social" | "system"> = ["personal", "social", "system"];
+  const currentTabIndex = tabs.indexOf(activeTab);
+
+  const handleNextTab = () => {
+    if (currentTabIndex < tabs.length - 1) {
+      setSlideDirection("left");
+      setActiveTab(tabs[currentTabIndex + 1]);
+      setTimeout(() => setSlideDirection(null), 300);
+    }
+  };
+
+  const handlePrevTab = () => {
+    if (currentTabIndex > 0) {
+      setSlideDirection("right");
+      setActiveTab(tabs[currentTabIndex - 1]);
+      setTimeout(() => setSlideDirection(null), 300);
+    }
+  };
 
   const formatTime = (date: Date) => {
     const now = new Date();
@@ -287,14 +308,94 @@ export default function NotificationsPage() {
               </h1>
             </div>
 
-            {/* Tabs Row - Three-section pill, matching sample design */}
+            {/* Tabs Row - Three-section pill with arrow navigation on mobile */}
             <Tabs
               value={activeTab}
-              onValueChange={(v) => setActiveTab(v as any)}
+              onValueChange={(v) => {
+                const newIndex = tabs.indexOf(v as any);
+                const oldIndex = tabs.indexOf(activeTab);
+                setSlideDirection(newIndex > oldIndex ? "left" : "right");
+                setActiveTab(v as any);
+                setTimeout(() => setSlideDirection(null), 300);
+              }}
               className="w-full"
             >
+              <div className="flex items-center gap-2 md:hidden">
+                {/* Left Arrow Button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handlePrevTab}
+                  disabled={currentTabIndex === 0}
+                  className="h-8 w-8 p-0 rounded-full hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  <ArrowLeft className="h-4 w-4 text-white" />
+                </Button>
+
+                <TabsList
+                  className="flex-1 grid grid-cols-3 gap-1"
+                  style={{
+                    background: "rgba(229, 247, 253, 0.04)",
+                    borderRadius: "22px",
+                    padding: "4px",
+                  }}
+                >
+                <TabsTrigger
+                  value="personal"
+                  className="text-[13px] font-medium text-muted-foreground relative transition-all py-1.5"
+                  style={{
+                    ...(activeTab === "personal" && {
+                      background: "rgba(229, 247, 253, 0.2)",
+                      borderRadius: "18px",
+                      color: "white",
+                    }),
+                  }}
+                >
+                  Personal
+                </TabsTrigger>
+                <TabsTrigger
+                  value="social"
+                  className="text-[13px] font-medium text-muted-foreground relative transition-all py-1.5"
+                  style={{
+                    ...(activeTab === "social" && {
+                      background: "rgba(229, 247, 253, 0.2)",
+                      borderRadius: "18px",
+                      color: "white",
+                    }),
+                  }}
+                >
+                  Social
+                </TabsTrigger>
+                <TabsTrigger
+                  value="system"
+                  className="text-[13px] font-medium text-muted-foreground relative transition-all py-1.5"
+                  style={{
+                    ...(activeTab === "system" && {
+                      background: "rgba(229, 247, 253, 0.2)",
+                      borderRadius: "18px",
+                      color: "white",
+                    }),
+                  }}
+                >
+                  System
+                </TabsTrigger>
+              </TabsList>
+
+                {/* Right Arrow Button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleNextTab}
+                  disabled={currentTabIndex === tabs.length - 1}
+                  className="h-8 w-8 p-0 rounded-full hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  <ArrowRight className="h-4 w-4 text-white" />
+                </Button>
+              </div>
+
+              {/* Desktop TabsList (no arrows) */}
               <TabsList
-                className="w-full grid grid-cols-3 gap-1"
+                className="hidden md:grid w-full grid-cols-3 gap-1"
                 style={{
                   background: "rgba(229, 247, 253, 0.04)",
                   borderRadius: "22px",
@@ -348,9 +449,17 @@ export default function NotificationsPage() {
         {/* Spacer for Fixed Header */}
         <div className="h-[108px]" />
 
-        {/* Mobile Notifications List - Match compact card design */}
-        <div>
-          {filteredNotifications.length === 0 ? (
+        {/* Mobile Notifications List - Match compact card design with slide animation */}
+        <div className="relative overflow-hidden">
+          <div
+            key={activeTab}
+            className={cn(
+              "transition-all duration-300 ease-out",
+              slideDirection === "left" && "animate-slide-in-from-right",
+              slideDirection === "right" && "animate-slide-in-from-left"
+            )}
+          >
+            {filteredNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20">
               <div className="relative mb-6">
                 <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
@@ -455,6 +564,7 @@ export default function NotificationsPage() {
               })}
             </div>
           )}
+          </div>
         </div>
 
         {/* Mobile Bottom Spacing so content doesn't sit under bottom bar */}

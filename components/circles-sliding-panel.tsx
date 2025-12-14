@@ -209,7 +209,7 @@ export function CirclesSlidingPanel({
   const [searchQuery, setSearchQuery] = useState("");
   const [memberSearchQuery, setMemberSearchQuery] = useState("");
   const [isMembersVisible, setIsMembersVisible] = useState(true);
-  const [mobileView, setMobileView] = useState<"channel" | "chatting">("channel"); // Mobile view state
+  const [mobileView, setMobileView] = useState<"channel" | "chatting" | "members">("channel"); // Mobile view state
   const [isSwitchCircleOpen, setIsSwitchCircleOpen] = useState(false);
   const [switchCircleSearch, setSwitchCircleSearch] = useState("");
   const [leftSidebarWidth, setLeftSidebarWidth] = useState(300);
@@ -385,10 +385,15 @@ export function CirclesSlidingPanel({
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     if (isMobile && selectedCircle) {
       const hash = window.location.hash;
-      if (hash === "#chatting") {
+      if (hash === "#members") {
+        setMobileView("members");
+        setIsMembersVisible(true);
+      } else if (hash === "#chatting") {
         setMobileView("chatting");
+        setIsMembersVisible(false);
       } else {
         setMobileView("channel");
+        setIsMembersVisible(false);
         // If no hash and circle is selected, set default hash to #channel
         if (!hash) {
           const currentUrl = new URL(window.location.href);
@@ -406,10 +411,15 @@ export function CirclesSlidingPanel({
 
     const handleHashChange = () => {
       const hash = window.location.hash;
-      if (hash === "#chatting") {
+      if (hash === "#members") {
+        setMobileView("members");
+        setIsMembersVisible(true);
+      } else if (hash === "#chatting") {
         setMobileView("chatting");
+        setIsMembersVisible(false);
       } else {
         setMobileView("channel");
+        setIsMembersVisible(false);
       }
     };
 
@@ -756,21 +766,51 @@ export function CirclesSlidingPanel({
                         className="mobile-search-input pr-4 bg-[#E5F7FD0A] rounded-full text-[#9BB6CC99] text-sm placeholder:text-[#9BB6CC99] focus:ring-0 border-0"
                         style={{ 
                           fontFamily: "'Geist'",
-                          maxHeight: "36px !important"
+                          height: "36px !important",
+                          maxHeight: "36px !important",
+                          minHeight: "36px !important"
                         }}
                       />
                     </div>
-                    {/* User List Toggle Button */}
+                    {/* User List Toggle Button - Mobile: 36x36 */}
                     <Button
                       variant="ghost"
-                      size="sm"
-                      onClick={() => setIsMembersVisible(!isMembersVisible)}
-                      className="h-6 w-6 p-0 rounded-full text-white hover:bg-white/10 transition-all bg-gradient-to-b from-[#45D4A7] to-[#4DF3FF]"
+                      onClick={() => {
+                        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+                        if (isMobile && selectedCircle) {
+                          const currentUrl = new URL(window.location.href);
+                          if (window.location.hash === "#members") {
+                            // Close members - go back to channel view
+                            currentUrl.hash = "#channel";
+                            router.replace(currentUrl.pathname + currentUrl.search + currentUrl.hash, { scroll: false });
+                            setMobileView("channel");
+                            setIsMembersVisible(false);
+                          } else {
+                            // Open members - set hash to #members
+                            currentUrl.hash = "#members";
+                            router.replace(currentUrl.pathname + currentUrl.search + currentUrl.hash, { scroll: false });
+                            setMobileView("members");
+                            setIsMembersVisible(true);
+                          }
+                        } else {
+                          // Desktop: toggle sidebar
+                          setIsMembersVisible(!isMembersVisible);
+                        }
+                      }}
+                      className="mobile-members-button p-0 rounded-full text-white hover:bg-white/10 transition-all bg-gradient-to-b from-[#45D4A7] to-[#4DF3FF] flex-shrink-0 md:h-6 md:w-6"
+                      style={{
+                        height: "36px !important",
+                        width: "36px !important",
+                        minHeight: "36px !important",
+                        minWidth: "36px !important",
+                        maxHeight: "36px !important",
+                        maxWidth: "36px !important"
+                      }}
                       title={isMembersVisible ? "Hide members" : "Show members"}
                     >
                       <Users className={cn(
-                        "h-5 w-5 transition-colors",
-                        isMembersVisible ? "text-white" : "text-[#9BB6CC]"
+                        "h-5 w-5 md:h-4 md:w-4 transition-colors",
+                        (isMembersVisible || mobileView === "members") ? "text-white" : "text-[#9BB6CC]"
                       )} />
                     </Button>
                   </div>
@@ -824,6 +864,163 @@ export function CirclesSlidingPanel({
               </div>
             )}
           </div>
+
+          {/* Members Full Page - Show when hash is #members */}
+          {mobileView === "members" && selectedCircle && (
+            <div className="flex flex-col relative overflow-hidden w-full flex-shrink-0 transition-all duration-300 animate-in fade-in slide-in-from-right-2">
+              {/* Members Header */}
+              <div className="px-4 pt-5 pb-4 flex-shrink-0 border-b border-white/10">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const currentUrl = new URL(window.location.href);
+                        currentUrl.hash = "#channel";
+                        router.replace(currentUrl.pathname + currentUrl.search + currentUrl.hash, { scroll: false });
+                        setMobileView("channel");
+                        setIsMembersVisible(false);
+                      }}
+                      className="h-8 w-8 p-0 rounded-full text-white hover:bg-white/10 transition-all mr-2"
+                      title="Back to channels"
+                    >
+                      <ArrowLeft className="h-5 w-5" />
+                    </Button>
+                    <div className="flex items-center gap-2">
+                      {/* Icon - colorful geometric shape */}
+                      <div className="w-5 h-5 rounded bg-gradient-to-br from-[#5865F2] via-[#8B5CF6] to-[#EC4899] flex items-center justify-center">
+                        <Users className="h-3 w-3 text-white" />
+                      </div>
+                      <h3
+                        className="text-[16px] font-semibold text-white"
+                        style={{ fontFamily: "'Geist'" }}
+                      >
+                        Members
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-[12px] text-[#9BB6CC] ml-11">
+                  {selectedCircle.memberCount}&nbsp; • <span className="text-[#45D4A7]">{selectedCircle.onlineMembers}</span>&nbsp;Online
+                </p>
+              </div>
+
+              {/* Search Bar */}
+              <div className="px-4 py-3 flex-shrink-0 border-b border-white/10">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9BB6CC99]" />
+                  <Input
+                    placeholder="Search Members"
+                    value={memberSearchQuery}
+                    onChange={(e) => setMemberSearchQuery(e.target.value)}
+                    className="pl-10 pr-3 h-9 bg-[rgba(229,247,253,0.06)] border border-white/10 rounded-full text-sm text-white placeholder:text-[#9BB6CC99] focus:ring-0 focus:border-white/30"
+                    style={{ fontFamily: "'Geist'" }}
+                  />
+                </div>
+              </div>
+
+              {/* Members List */}
+              <ScrollArea className="flex-1 overflow-hidden">
+                <div className="px-2 py-6">
+                  {/* Filter members by search and status */}
+                  {(() => {
+                    const filteredMembers = mockMembers.filter((member) =>
+                      member.name.toLowerCase().includes(memberSearchQuery.toLowerCase())
+                    );
+                    const onlineMembers = filteredMembers.filter(
+                      (member) => member.status === "online" || member.status === "idle"
+                    );
+                    const offlineMembers = filteredMembers.filter(
+                      (member) => member.status === "offline"
+                    );
+
+                    return (
+                      <>
+                        {/* ONLINE Section */}
+                        {onlineMembers.length > 0 && (
+                          <div className="mb-4">
+                            <h4 className="text-[10px] font-semibold text-[#E5F7FD66] uppercase tracking-wide px-2 mb-2">
+                              ONLINE
+                            </h4>
+                            <div className="space-y-0.5">
+                              {onlineMembers.map((member) => (
+                                <div
+                                  key={member.id}
+                                  className="flex items-center gap-2 px-2 py-[6px] rounded-[30px] hover:bg-white/5 transition-colors cursor-pointer"
+                                >
+                                  <div className="relative">
+                                    <Avatar className="h-9 w-9">
+                                      <AvatarImage src={member.avatar} />
+                                      <AvatarFallback className="bg-[#2b3642] text-white text-sm">
+                                        {member.name[0]}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div
+                                      className={cn(
+                                        "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2",
+                                        member.status === "online"
+                                          ? "bg-[#3ba55d] border-[#2b3642]"
+                                          : "bg-[#faa81a] border-[#2b3642]"
+                                      )}
+                                    />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-[14px] text-[#9BB6CC] truncate">
+                                      {member.name}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* OFFLINE Section */}
+                        {offlineMembers.length > 0 && (
+                          <div>
+                            <h4 className="text-[10px] font-semibold text-[#E5F7FD66] uppercase tracking-wide px-2 mb-2">
+                              OFFLINE
+                            </h4>
+                            <div className="space-y-0.5">
+                              {offlineMembers.map((member) => (
+                                <div
+                                  key={member.id}
+                                  className="flex items-center gap-2 px-2 py-1.5 rounded-[30px] hover:bg-white/5 transition-colors cursor-pointer"
+                                >
+                                  <div className="relative">
+                                    <Avatar className="h-9 w-9">
+                                      <AvatarImage src={member.avatar} />
+                                      <AvatarFallback className="bg-[#2b3642] text-white text-sm">
+                                        {member.name[0]}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-[14px] text-[#9BB6CC99] truncate">
+                                      {member.name}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* No results */}
+                        {filteredMembers.length === 0 && (
+                          <div className="px-2 py-4 text-center">
+                            <p className="text-xs text-[#9BB6CC]">No members found</p>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </ScrollArea>
+            </div>
+          )}
+
           {/* Mobile Bottom Bar - Only show when hash is #channel */}
           {mobileView === "channel" && (
             <div className="fixed bottom-0 left-0 right-0 z-[120] md:hidden">
@@ -922,7 +1119,7 @@ export function CirclesSlidingPanel({
                 {isSwitchCircleOpen && (
                   <div
                     ref={switchCirclePopupRef}
-                    className="absolute top-full left-4 right-4 -mt-4 rounded-2xl z-[100] flex flex-col border border-white/8 backdrop-blur-[40px]"
+                    className="absolute top-full left-0 right-0 -mt-2 rounded-2xl z-[100] flex flex-col border border-white/8 backdrop-blur-[40px]"
                     style={{
                       background: "rgba(8, 14, 17, 0.95)",
                       boxShadow: "0px 334px 94px rgba(0, 0, 0, 0.01), 0px 214px 86px rgba(0, 0, 0, 0.04), 0px 120px 72px rgba(0, 0, 0, 0.15), 0px 53px 53px rgba(0, 0, 0, 0.26), 0px 13px 29px rgba(0, 0, 0, 0.29)",
@@ -1151,21 +1348,54 @@ export function CirclesSlidingPanel({
                         placeholder="Search in channel"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 pr-4 h-9 bg-[#E5F7FD0A] rounded-full text-[#9BB6CC99] text-sm placeholder:text-[#9BB6CC99] focus:ring-0 border-0"
-                        style={{ fontFamily: "'Geist'" }}
+                        className="pl-10 pr-4 bg-[#E5F7FD0A] rounded-full text-[#9BB6CC99] text-sm placeholder:text-[#9BB6CC99] focus:ring-0 border-0"
+                        style={{ 
+                          fontFamily: "'Geist'",
+                          height: "36px !important",
+                          maxHeight: "36px !important",
+                          minHeight: "36px !important"
+                        }}
                       />
                     </div>
-                    {/* User List Toggle Button */}
+                    {/* User List Toggle Button - Mobile: 36x36 */}
                     <Button
                       variant="ghost"
-                      size="sm"
-                      onClick={() => setIsMembersVisible(!isMembersVisible)}
-                      className="h-9 w-9 p-0 rounded-full text-white hover:bg-white/10 transition-all bg-gradient-to-b from-[#45D4A7] to-[#4DF3FF]"
+                      onClick={() => {
+                        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+                        if (isMobile && selectedCircle) {
+                          const currentUrl = new URL(window.location.href);
+                          if (window.location.hash === "#members") {
+                            // Close members - go back to channel view
+                            currentUrl.hash = "#channel";
+                            router.replace(currentUrl.pathname + currentUrl.search + currentUrl.hash, { scroll: false });
+                            setMobileView("channel");
+                            setIsMembersVisible(false);
+                          } else {
+                            // Open members - set hash to #members
+                            currentUrl.hash = "#members";
+                            router.replace(currentUrl.pathname + currentUrl.search + currentUrl.hash, { scroll: false });
+                            setMobileView("members");
+                            setIsMembersVisible(true);
+                          }
+                        } else {
+                          // Desktop: toggle sidebar
+                          setIsMembersVisible(!isMembersVisible);
+                        }
+                      }}
+                      className="mobile-members-button p-0 rounded-full text-white hover:bg-white/10 transition-all bg-gradient-to-b from-[#45D4A7] to-[#4DF3FF] flex-shrink-0 md:h-6 md:w-6"
+                      style={{
+                        height: "36px !important",
+                        width: "36px !important",
+                        minHeight: "36px !important",
+                        minWidth: "36px !important",
+                        maxHeight: "36px !important",
+                        maxWidth: "36px !important"
+                      }}
                       title={isMembersVisible ? "Hide members" : "Show members"}
                     >
                       <Users className={cn(
-                        "h-5 w-5 transition-colors",
-                        isMembersVisible ? "text-white" : "text-[#9BB6CC]"
+                        "h-5 w-5 md:h-4 md:w-4 transition-colors",
+                        (isMembersVisible || mobileView === "members") ? "text-white" : "text-[#9BB6CC]"
                       )} />
                     </Button>
                   </div>
@@ -1239,10 +1469,10 @@ export function CirclesSlidingPanel({
               </div>
             )}
 
-            {/* Right Sidebar - Members */}
+            {/* Right Sidebar - Members (Desktop Only) */}
             {isMembersVisible && (
             <div
-              className="flex-shrink-0 flex flex-col relative overflow-hidden"
+              className="hidden md:flex flex-shrink-0 flex flex-col relative overflow-hidden"
               style={{ 
                 width: `${rightSidebarWidth}px`,
                 borderLeft: "1px solid rgba(255, 255, 255, 0.08)",

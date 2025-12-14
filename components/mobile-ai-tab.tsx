@@ -23,6 +23,7 @@ interface MobileAITabProps {
 export function MobileAITab({ className }: MobileAITabProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -49,10 +50,12 @@ export function MobileAITab({ className }: MobileAITabProps) {
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
+    setIsVisible(!isOpen);
   };
 
   const handleClose = () => {
     setIsOpen(false);
+    setIsVisible(false);
   };
 
   // Prevent body scroll when panel is open

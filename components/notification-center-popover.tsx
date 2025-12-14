@@ -324,12 +324,12 @@ export function NotificationCenterPopover({
           "notification-center-dropdown",
           "fixed z-[60]",
           "shadow-2xl",
-          "transform transition-all duration-200 ease-out",
           "hidden md:block",
           "w-[420px]",
+          "transition-all duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)]",
           isOpen
-            ? "opacity-100 scale-100 translate-y-0"
-            : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+            ? "opacity-100 scale-100 translate-y-0 animate-in fade-in-0 zoom-in-95 slide-in-from-top-2"
+            : "opacity-0 scale-90 -translate-y-4 pointer-events-none"
         )}
         style={{
           top: "4.5rem",
@@ -448,7 +448,7 @@ export function NotificationCenterPopover({
                 </div>
               ) : (
                 <div>
-                  {filteredNotifications.map((notification) => {
+                  {filteredNotifications.map((notification, index) => {
                     const Icon = getNotificationIcon(notification.type);
                     const colorClass = getNotificationColor(notification.type);
 
@@ -457,12 +457,13 @@ export function NotificationCenterPopover({
                         key={notification.id}
                         onClick={() => handleNotificationClick(notification)}
                         className={cn(
-                          "w-full flex items-start gap-3 px-0 py-4 transition-all duration-150",
-                          "hover:opacity-90 cursor-pointer",
+                          "w-full flex items-start gap-3 px-0 py-4 transition-all duration-500 ease-out",
+                          "hover:opacity-90 hover:translate-x-2 cursor-pointer",
                           "group relative"
                         )}
                         style={{
                           borderBottom: "1px solid rgba(255, 255, 255, 0.06)",
+                          animation: `slideInNotification 0.5s ease-out ${index * 80}ms both`,
                         }}
                       >
                         {/* Avatar or Icon */}
