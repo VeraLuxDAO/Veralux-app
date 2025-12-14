@@ -29,6 +29,7 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
+  ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -149,6 +150,18 @@ export function MemberProfileView({
       {/* Header with Avatar */}
       <div className="relative">
         <div className="bg-gradient-to-br from-[#45D4A7]/20 via-[#4DF3FF]/20 to-purple-500/20 p-6 pb-16">
+          {/* Back Button - Mobile Only */}
+          {isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="absolute top-4 left-4 z-10 h-9 w-9 rounded-full text-white hover:bg-white/20 transition-all"
+              title="Back"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          )}
           <div className="flex flex-col items-center text-center space-y-4">
             <div className="relative">
               <Avatar className="h-24 w-24 md:h-32 md:w-32 border-4 border-white/20 shadow-xl">
@@ -300,6 +313,7 @@ export function MemberProfileView({
         <SheetContent
           side="right"
           className="w-full sm:w-[400px] p-0 bg-[#1a1f2e] border-l border-white/10 overflow-hidden"
+          showCloseButton={false}
         >
           <SheetHeader className="sr-only">
             <SheetTitle>{member.name}'s Profile</SheetTitle>

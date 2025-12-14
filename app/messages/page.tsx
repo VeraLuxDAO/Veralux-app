@@ -7,6 +7,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { EmojiPicker } from "@/components/ui/emoji-picker";
 import { MobileBottomBar } from "@/components/mobile-bottom-bar";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { RoomInfoView } from "@/components/room-info-view";
+import { AvatarViewer } from "@/components/avatar-viewer";
 import {
   ArrowLeft,
   Search,
@@ -212,6 +215,8 @@ function MessagesPageContent() {
   const [messageInput, setMessageInput] = useState("");
   const [messages, setMessages] = useState<Message[]>(mockMessages);
   const [showSearch, setShowSearch] = useState(false);
+  const [isMobileRoomInfoOpen, setIsMobileRoomInfoOpen] = useState(false);
+  const [isAvatarViewerOpen, setIsAvatarViewerOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -456,7 +461,14 @@ function MessagesPageContent() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
 
-            <div className="relative flex-shrink-0">
+            {/* Avatar - Clickable for avatar viewer */}
+            <div 
+              className="relative flex-shrink-0 cursor-pointer transition-transform hover:scale-105 active:scale-95"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsAvatarViewerOpen(true);
+              }}
+            >
               <Avatar className="h-9 w-9">
                 <AvatarImage src={selectedRoom.avatar} />
                 <AvatarFallback className="bg-[#2b3642] text-white text-sm">
@@ -468,7 +480,11 @@ function MessagesPageContent() {
               )}
             </div>
 
-            <div className="flex flex-col min-w-0">
+            {/* Name and status - Clickable for room info */}
+            <button
+              onClick={() => setIsMobileRoomInfoOpen(true)}
+              className="flex flex-col min-w-0 text-left active:opacity-80 transition-opacity flex-1"
+            >
               <div className="flex items-center gap-1 truncate">
                 <p className="text-white truncate leading-tight text-[14px]">
                   {selectedRoom.name} 
@@ -484,7 +500,7 @@ function MessagesPageContent() {
                     : "offline"
                   : `${selectedRoom.members} members`}
               </p>
-            </div>
+            </button>
           </div>
 
           {/* Search button on the right */}
@@ -652,6 +668,37 @@ function MessagesPageContent() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Room Info Sheet - Full Screen */}
+      <div className="md:hidden">
+        <Sheet open={isMobileRoomInfoOpen} onOpenChange={setIsMobileRoomInfoOpen}>
+          <SheetContent
+            side="right"
+            className="w-full p-0 bg-[#05080d] border-0 overflow-hidden"
+            showCloseButton={false}
+          >
+            {selectedRoom && (
+              <RoomInfoView
+                room={selectedRoom}
+                isOpen={true}
+                onClose={() => setIsMobileRoomInfoOpen(false)}
+                isMobile={true}
+              />
+            )}
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      {/* Avatar Viewer Popup */}
+      {selectedRoom && (
+        <AvatarViewer
+          isOpen={isAvatarViewerOpen}
+          onClose={() => setIsAvatarViewerOpen(false)}
+          {...(selectedRoom.avatar ? { avatarUrl: selectedRoom.avatar } : {})}
+          fallbackText={selectedRoom.type === "group" ? "👥" : selectedRoom.name[0] || "👤"}
+          userName={selectedRoom.name}
+        />
+      )}
     </div>
   );
 }
