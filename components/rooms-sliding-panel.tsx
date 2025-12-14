@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { RoomInfoView } from "@/components/room-info-view";
 
 interface Message {
   id: string;
@@ -175,6 +176,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [messageInput, setMessageInput] = useState("");
   const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const [isRoomInfoOpen, setIsRoomInfoOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -492,27 +494,41 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
 
             {/* Rooms List */}
             <ScrollArea className="flex-1 overflow-hidden w-full">
-              <div className="w-full max-w-full overflow-hidden pt-2 px-4">
-                {filteredRooms.map((room, index) => (
-                  <button
+              <div className="w-full max-w-full overflow-hidden pt-2">
+                {filteredRooms.map((room, index) => {
+                  const isSelected = selectedRoom?.id === room.id;
+                  return (
+                  <div
                     key={room.id}
-                    onClick={() => {
-                      setSelectedRoom(room);
-              router.push(
-                `/private_rooms?room=${slugifyRoomName(room.name)}`
-              );
-                    }}
                     className={cn(
-                      "w-full flex items-start gap-3 px-0 py-4 transition-all duration-300 ease-out",
-                      "hover:opacity-90 hover:translate-x-1 cursor-pointer",
-                      "group relative animate-in fade-in-0 slide-in-from-left-2",
-                      selectedRoom?.id === room.id ? "opacity-100 bg-white/5 rounded-lg" : ""
+                      "w-full",
+                      isSelected ? "" : "px-4"
                     )}
-                    style={{
-                      animationDelay: `${index * 30}ms`,
-                      borderBottom: "1px solid rgba(255, 255, 255, 0.06)",
-                    }}
                   >
+                    <button
+                      onClick={() => {
+                        setSelectedRoom(room);
+                        router.push(
+                          `/private_rooms?room=${slugifyRoomName(room.name)}`
+                        );
+                      }}
+                      className={cn(
+                        "w-full flex items-start gap-3 py-4 cursor-pointer",
+                        "hover:opacity-90",
+                        "group relative",
+                        "[transition:none!important] [transform:none!important]",
+                        isSelected 
+                          ? "opacity-100 bg-white/5 rounded-lg px-4" 
+                          : "px-0"
+                      )}
+                      style={{
+                        borderBottom: isSelected 
+                          ? "none" 
+                          : "1px solid rgba(255, 255, 255, 0.06)",
+                        transition: "none",
+                        transform: "none",
+                      }}
+                    >
                     {/* Avatar */}
                     <div className="relative flex-shrink-0 mt-0.5">
                       <Avatar className="h-9 w-9">
@@ -605,7 +621,9 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                       </div>
                     </div>
                   </button>
-                ))}
+                  </div>
+                  );
+                })}
               </div>
             </ScrollArea>
           </div>
@@ -637,13 +655,15 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
           {/* Chat Area - Right Side */}
           {selectedRoom ? (
             <div 
-              className="flex-1 flex flex-col min-w-0 relative z-0 animate-in fade-in-0 slide-in-from-right-4 duration-300"
+              className="flex-1 flex min-w-0 relative z-0 animate-in fade-in-0 slide-in-from-right-4 duration-300"
               style={{
                 background: "rgba(0, 0, 0, 0.2)",
                 backdropFilter: "blur(20px)",
                 WebkitBackdropFilter: "blur(20px)",
               }}
             >
+              {/* Main Chat Content */}
+              <div className="flex-1 flex flex-col min-w-0">
               {/* Chat Header */}
               <div 
                 className="flex-shrink-0 px-4 lg:px-4 pt-6 border-b border-[#FFFFFF14] animate-in fade-in-0 slide-in-from-top-2 duration-300"
@@ -655,13 +675,19 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
               >
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 lg:gap-3 flex-1 min-w-0">
+                    <button
+                      onClick={() => setIsRoomInfoOpen(true)}
+                      className="flex items-center gap-2 lg:gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity cursor-pointer text-left"
+                    >
                       {/* Back button - mobile */}
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setSelectedRoom(null)}
-                        className="h-9 w-9 p-0 hover:bg-white/10 text-white rounded-full transition-all lg:hidden"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedRoom(null);
+                        }}
+                        className="h-9 w-9 p-0 hover:bg-white/10 text-white rounded-full transition-all lg:hidden flex-shrink-0"
                       >
                         <ArrowLeft className="h-5 w-5" />
                       </Button>
@@ -694,7 +720,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                             : `${selectedRoom.members} members`}
                         </p>
                       </div>
-                    </div>
+                    </button>
 
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <div className="hidden lg:block">
@@ -897,6 +923,14 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                   )}
                 </div>
               </div>
+              </div>
+
+              {/* Room Info Panel - Right Sidebar */}
+              <RoomInfoView
+                room={selectedRoom}
+                isOpen={isRoomInfoOpen}
+                onClose={() => setIsRoomInfoOpen(false)}
+              />
             </div>
           ) : (
             <div 

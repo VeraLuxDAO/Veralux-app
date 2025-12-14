@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,12 +12,36 @@ import { SuggestedConnections } from "@/components/suggested-connections";
 import { cn } from "@/lib/utils";
 
 export default function HomePage() {
+  const router = useRouter();
   const [isSticky, setIsSticky] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [sidebarTop, setSidebarTop] = useState(0);
   const [sidebarWidth, setSidebarWidth] = useState('300px');
   const lockedScrollYRef = useRef<number | null>(null);
+
+  // Helper function to slugify circle name
+  const slugifyCircleName = (name: string) =>
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+  // Handle Join button click - open the circle
+  const handleJoinCircle = (circleName: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const slugifiedName = slugifyCircleName(circleName);
+    // On mobile, add #channel hash by default
+    if (isMobile) {
+      router.push(`/?circle=${slugifiedName}&channel=general#channel`);
+    } else {
+      router.push(`/?circle=${slugifiedName}&channel=general`);
+    }
+  };
 
   useEffect(() => {
     let rafId: number | null = null;
@@ -388,7 +413,10 @@ export default function HomePage() {
                               1.2k members
                             </p>
                           </div>
-                          <button className="flex items-center justify-center rounded-[10px] transition-all w-[63.88px] h-8 bg-[#fadefe] border border-[#001425] text-xs font-medium text-black">
+                          <button 
+                            onClick={(e) => handleJoinCircle("DeFi Builders", e)}
+                            className="flex items-center justify-center rounded-[10px] transition-all w-[63.88px] h-8 bg-[#fadefe] border border-[#001425] text-xs font-medium text-black hover:bg-[#fadefe]/90"
+                          >
                             Join
                           </button>
                         </div>
@@ -406,7 +434,10 @@ export default function HomePage() {
                               856 members
                             </p>
                           </div>
-                          <button className="flex items-center justify-center rounded-[10px] transition-all w-[63.88px] h-8 bg-[#fadefe] border border-[#001425] text-xs font-medium text-black">
+                          <button 
+                            onClick={(e) => handleJoinCircle("NFT Gaming", e)}
+                            className="flex items-center justify-center rounded-[10px] transition-all w-[63.88px] h-8 bg-[#fadefe] border border-[#001425] text-xs font-medium text-black hover:bg-[#fadefe]/90"
+                          >
                             Join
                           </button>
                         </div>
@@ -575,7 +606,10 @@ export default function HomePage() {
                         1.2k members
                       </p>
                     </div>
-                    <button className="flex items-center justify-center rounded-[10px] transition-all flex-shrink-0 w-[63.88px] h-8 bg-[#fadefe] border border-[#001425] text-xs font-medium text-black">
+                    <button 
+                      onClick={(e) => handleJoinCircle("DeFi Builders", e)}
+                      className="flex items-center justify-center rounded-[10px] transition-all flex-shrink-0 w-[63.88px] h-8 bg-[#fadefe] border border-[#001425] text-xs font-medium text-black hover:bg-[#fadefe]/90"
+                    >
                       Join
                     </button>
                   </div>
@@ -591,7 +625,10 @@ export default function HomePage() {
                         856 members
                       </p>
                     </div>
-                    <button className="flex items-center justify-center rounded-[10px] transition-all flex-shrink-0 w-[63.88px] h-8 bg-[#fadefe] border border-[#001425] text-xs font-medium text-black">
+                    <button 
+                      onClick={(e) => handleJoinCircle("NFT Gaming", e)}
+                      className="flex items-center justify-center rounded-[10px] transition-all flex-shrink-0 w-[63.88px] h-8 bg-[#fadefe] border border-[#001425] text-xs font-medium text-black hover:bg-[#fadefe]/90"
+                    >
                       Join
                     </button>
                   </div>

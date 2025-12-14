@@ -166,7 +166,7 @@ export function MobileAITab({ className }: MobileAITabProps) {
           />
           
           {/* Main content */}
-          <div className="relative z-10 flex items-center justify-center">
+          <div className="relative z-10 flex iteimage.pngms-center justify-center">
             <Bot 
               className="h-3 w-3 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12 text-[#080E11]" 
             />
