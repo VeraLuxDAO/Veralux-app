@@ -39,6 +39,7 @@ interface Message {
   timestamp: Date;
   isRead: boolean;
   isOwn: boolean;
+  images?: string[]; // Array of image URLs or data URLs
 }
 
 interface Room {
@@ -229,20 +230,49 @@ function MessagesPageContent() {
     }
   }, [messages, selectedRoom]);
 
-  const handleSendMessage = (content: string) => {
-    if (!content.trim()) return;
+  const handleSendMessage = (content: string, images?: File[]) => {
+    if (!content.trim() && (!images || images.length === 0)) return;
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      senderId: "me",
-      senderName: "You",
-      content: content,
-      timestamp: new Date(),
-      isRead: false,
-      isOwn: true,
-    };
+    // Convert images to data URLs
+    if (images && images.length > 0) {
+      const imagePromises = Array.from(images).map((file) => {
+        return new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            if (e.target?.result) {
+              resolve(e.target.result as string);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      });
 
-    setMessages([...messages, newMessage]);
+      Promise.all(imagePromises).then((imageUrls) => {
+        const newMessage: Message = {
+          id: Date.now().toString(),
+          senderId: "me",
+          senderName: "You",
+          content: content,
+          timestamp: new Date(),
+          isRead: false,
+          isOwn: true,
+          images: imageUrls,
+        };
+        setMessages((prev) => [...prev, newMessage]);
+      });
+    } else {
+      // No images, create message immediately
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        senderId: "me",
+        senderName: "You",
+        content: content,
+        timestamp: new Date(),
+        isRead: false,
+        isOwn: true,
+      };
+      setMessages([...messages, newMessage]);
+    }
   };
 
   const formatTime = (date: Date) => {
@@ -548,7 +578,7 @@ function MessagesPageContent() {
                 >
                   <div
                     className={cn(
-                      "px-3 py-2 rounded-lg shadow-sm",
+                      "rounded-lg shadow-sm overflow-hidden",
                       message.isOwn
                         ? "bg-[#FADEFD] text-[#080E11] rounded-br-sm"
                         : "bg-[#9BB6CC0A] text-[#9BB6CC] rounded-bl-sm"
@@ -557,15 +587,45 @@ function MessagesPageContent() {
                     {showAvatar &&
                       !message.isOwn &&
                       selectedRoom.type === "group" && (
-                        <p className="text-xs font-medium mb-1 text-[#4bd865]">
+                        <p className="text-xs font-medium mb-1 px-3 pt-2 text-[#4bd865]">
                           {message.senderName}
                         </p>
                       )}
-                    <p className="text-[15px] break-words leading-[1.4] whitespace-pre-wrap">
-                      {message.content}
-                    </p>
+                    
+                    {/* Images */}
+                    {message.images && message.images.length > 0 && (
+                      <div className={cn(
+                        "grid gap-1 p-1",
+                        message.images.length === 1 ? "grid-cols-1" : message.images.length === 2 ? "grid-cols-2" : "grid-cols-2"
+                      )}>
+                        {message.images.map((imageUrl, index) => (
+                          <div
+                            key={index}
+                            className={cn(
+                              "relative rounded-lg overflow-hidden bg-[#2b3642]",
+                              message.images!.length === 1 ? "w-full max-w-[400px]" : "w-full"
+                            )}
+                          >
+                            <img
+                              src={imageUrl}
+                              alt={`Image ${index + 1}`}
+                              className="w-full h-auto object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                              loading="lazy"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Message Text */}
+                    {message.content && (
+                      <p className="text-[15px] break-words leading-[1.4] whitespace-pre-wrap px-3 py-2">
+                        {message.content}
+                      </p>
+                    )}
+                    
                     {/* Time inside bubble - Telegram style */}
-                    <div className="flex items-center justify-end gap-1 mt-1">
+                    <div className="flex items-center justify-end gap-1 mt-1 px-3 pb-2">
                       <span
                         className={cn(
                           "text-[10px]",

@@ -18,7 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 
 interface ChatInputProps {
-  onSendMessage: (content: string) => void;
+  onSendMessage: (content: string, images?: File[]) => void;
   placeholder?: string;
   disabled?: boolean;
   className?: string;
@@ -33,10 +33,13 @@ export function ChatInput({
   forceDesktop = false,
 }: ChatInputProps) {
   const [message, setMessage] = useState("");
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Detect mobile device (for any mobile-specific logic if needed)
   useEffect(() => {
@@ -51,14 +54,59 @@ export function ChatInput({
 
   const handleSend = () => {
     const trimmedMessage = message.trim();
-    if (trimmedMessage && !disabled) {
-      onSendMessage(trimmedMessage);
+    if ((trimmedMessage || selectedImages.length > 0) && !disabled) {
+      onSendMessage(trimmedMessage || "", selectedImages.length > 0 ? selectedImages : undefined);
       setMessage("");
+      setSelectedImages([]);
+      setImagePreviews([]);
       setIsExpanded(false);
       if (textareaRef.current) {
         textareaRef.current.style.height = "auto";
       }
     }
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const imageFiles: File[] = [];
+    Array.from(files).forEach((file) => {
+      // Only accept image files
+      if (file.type.startsWith("image/")) {
+        imageFiles.push(file);
+      }
+    });
+
+    if (imageFiles.length > 0) {
+      const newPreviews: string[] = [];
+      let loadedCount = 0;
+
+      imageFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            newPreviews.push(event.target.result as string);
+            loadedCount++;
+            if (loadedCount === imageFiles.length) {
+              setImagePreviews((prev) => [...prev, ...newPreviews]);
+              setSelectedImages((prev) => [...prev, ...imageFiles]);
+            }
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -88,6 +136,29 @@ export function ChatInput({
         padding: "0px !important",
       }}
     >
+      {/* Image Previews */}
+      {imagePreviews.length > 0 && (
+        <div className="px-3 pt-3 pb-2 flex gap-2 overflow-x-auto">
+          {imagePreviews.map((preview, index) => (
+            <div
+              key={index}
+              className="relative flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-lg overflow-hidden border border-white/10 group"
+            >
+              <img
+                src={preview}
+                alt={`Preview ${index + 1}`}
+                className="w-full h-full object-cover"
+              />
+              <button
+                onClick={() => removeImage(index)}
+                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <X className="h-3 w-3 text-white" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
       <div className="flex gap-2 md:gap-3 max-w-full items-center">
         {/* Desktop/Tablet Layout (>= 768px or forceDesktop) */}
         <div
@@ -164,35 +235,32 @@ export function ChatInput({
                 </button>
 
                 {/* Upload File Button - Telegram style Paperclip */}
-                <button
-                  onClick={() => {
-                    // Handle file upload
-                    const input = document.createElement("input");
-                    input.type = "file";
-                    input.multiple = true;
-                    input.onchange = (e) => {
-                      const files = (e.target as HTMLInputElement).files;
-                      if (files && files.length > 0) {
-                        // Handle file upload logic here
-                        console.log("Files selected:", files);
-                      }
-                    };
-                    input.click();
-                  }}
-                  className="w-4 h-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex items-center justify-center transition-colors cursor-pointer"
-                  title="Attach file"
-                >
-                  <Paperclip className="h-4 w-4" />
-                </button>
+                <>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageSelect}
+                    className="hidden"
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-4 h-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex items-center justify-center transition-colors cursor-pointer"
+                    title="Attach image"
+                  >
+                    <Paperclip className="h-4 w-4" />
+                  </button>
+                </>
 
                 {/* Send Button */}
                 <button
                   onClick={handleSend}
-                  disabled={!message.trim() || disabled}
+                  disabled={(!message.trim() && selectedImages.length === 0) || disabled}
                   className={cn(
                     "w-4 h-4 p-0 rounded-full transition-all duration-300",
                     "hover:scale-105 active:scale-95",
-                    message.trim()
+                    (message.trim() || selectedImages.length > 0)
                       ? [
                           "bg-transparent hover:bg-white/10",
                           "text-[#9BB6CC99]",
@@ -225,6 +293,15 @@ export function ChatInput({
         >
           {/* Input Container - Matching Private Room Style */}
           <div className="flex w-full items-center rounded-full bg-[#E5F7FD0A] border border-white/10 px-3 gap-2">
+            {/* Hidden file input for mobile */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageSelect}
+              className="hidden"
+            />
             {/* Emoji Picker */}
             <EmojiPicker
               onEmojiSelect={handleEmojiSelect}
@@ -272,10 +349,8 @@ export function ChatInput({
               {/* Paperclip */}
               <div
                 className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 flex items-center justify-center cursor-pointer"
-                title="Attach file"
-                onClick={() => {
-                  // Handle attachment click
-                }}
+                title="Attach image"
+                onClick={() => fileInputRef.current?.click()}
               >
                 <Paperclip className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
               </div>
@@ -285,7 +360,7 @@ export function ChatInput({
                 onClick={handleSend}
                 className={cn(
                   "h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 flex-shrink-0 flex items-center justify-center cursor-pointer",
-                  !message.trim() && "opacity-60 cursor-not-allowed",
+                  (!message.trim() && selectedImages.length === 0) && "opacity-60 cursor-not-allowed",
                   disabled && "opacity-50 cursor-not-allowed"
                 )}
                 title="Send message"

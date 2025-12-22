@@ -477,20 +477,49 @@ export function CirclesSlidingPanel({
     };
   }, [isOpen]);
 
-  const handleSendMessage = (content: string) => {
-    if (!content.trim()) return;
+  const handleSendMessage = (content: string, images?: File[]) => {
+    if (!content.trim() && (!images || images.length === 0)) return;
 
-    const newMessage: ChatMessage = {
-      id: Date.now().toString(),
-      content,
-      authorId: "current-user",
-      authorName: "You",
-      timestamp: new Date(),
-      type: "text",
-      isOwn: true,
-    };
+    // Convert images to data URLs
+    if (images && images.length > 0) {
+      const imagePromises = Array.from(images).map((file) => {
+        return new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            if (e.target?.result) {
+              resolve(e.target.result as string);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      });
 
-    setMessages([...messages, newMessage]);
+      Promise.all(imagePromises).then((imageUrls) => {
+        const newMessage: ChatMessage = {
+          id: Date.now().toString(),
+          content,
+          authorId: "current-user",
+          authorName: "You",
+          timestamp: new Date(),
+          type: imageUrls.length > 0 ? "image" : "text",
+          isOwn: true,
+          images: imageUrls,
+        };
+        setMessages((prev) => [...prev, newMessage]);
+      });
+    } else {
+      // No images, create message immediately
+      const newMessage: ChatMessage = {
+        id: Date.now().toString(),
+        content,
+        authorId: "current-user",
+        authorName: "You",
+        timestamp: new Date(),
+        type: "text",
+        isOwn: true,
+      };
+      setMessages((prev) => [...prev, newMessage]);
+    }
   };
 
   const handleSwitchCircle = (circle: Circle) => {

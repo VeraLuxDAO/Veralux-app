@@ -15,6 +15,7 @@ export interface ChatMessage {
   timestamp: Date;
   type: "text" | "image" | "file" | "system";
   isOwn: boolean;
+  images?: string[]; // Array of image URLs or data URLs
   reactions?: { emoji: string; count: number; hasReacted: boolean }[];
   replyTo?: {
     id: string;
@@ -105,20 +106,54 @@ export function ChatMessageComponent({
           </div>
         )}
 
-        {/* Message Text */}
+        {/* Message Content Container */}
         <div
           className={cn(
-            "text-sm leading-relaxed whitespace-pre-wrap break-words",
             message.isOwn
-              ? "bg-[#FADEFD] text-[#080E11] rounded-2xl rounded-br-sm px-4 py-2.5 shadow-sm max-w-[75%] inline-block"
-              : "text-[#9BB6CC]"
+              ? "bg-[#FADEFD] text-[#080E11] rounded-2xl rounded-br-sm px-0 py-0 shadow-sm max-w-[75%] inline-block overflow-hidden"
+              : "text-[#9BB6CC] max-w-[75%]"
           )}
-          style={{
-            wordWrap: "break-word",
-            overflowWrap: "anywhere",
-          }}
         >
-          {message.content}
+          {/* Images */}
+          {message.images && message.images.length > 0 && (
+            <div className={cn(
+              "grid gap-1 p-1",
+              message.images.length === 1 ? "grid-cols-1" : message.images.length === 2 ? "grid-cols-2" : "grid-cols-2"
+            )}>
+              {message.images.map((imageUrl, index) => (
+                <div
+                  key={index}
+                  className={cn(
+                    "relative rounded-lg overflow-hidden bg-[#2b3642]",
+                    message.images!.length === 1 ? "w-full max-w-[400px]" : "w-full"
+                  )}
+                >
+                  <img
+                    src={imageUrl}
+                    alt={`Image ${index + 1}`}
+                    className="w-full h-auto object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {/* Message Text */}
+          {message.content && (
+            <div
+              className={cn(
+                "text-sm leading-relaxed whitespace-pre-wrap break-words",
+                message.isOwn ? "px-4 py-2.5" : ""
+              )}
+              style={{
+                wordWrap: "break-word",
+                overflowWrap: "anywhere",
+              }}
+            >
+              {message.content}
+            </div>
+          )}
         </div>
 
         {/* Reactions */}
