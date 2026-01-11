@@ -29,6 +29,9 @@ import { cn } from "@/lib/utils";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { RoomInfoView } from "@/components/room-info-view";
 import { ChatInput } from "@/components/chat/chat-input";
+import { shouldDisplayAsEmoticonOnly } from "@/lib/emoji-utils";
+import { ImageViewer } from "@/components/chat/image-viewer";
+import { TelegramEmoji } from "@/components/chat/telegram-emoji";
 
 interface Message {
   id: string;
@@ -178,6 +181,9 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [isRoomInfoOpen, setIsRoomInfoOpen] = useState(false);
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentImageList, setCurrentImageList] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
@@ -779,6 +785,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                     const showTime =
                       index === messages.length - 1 ||
                       messages[index + 1]?.senderId !== message.senderId;
+                    const isEmoticonOnly = shouldDisplayAsEmoticonOnly(message.content, message.images);
 
                     return (
                       <div
@@ -814,78 +821,98 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                             message.isOwn ? "items-end" : "items-start"
                           )}
                         >
-                          <div
-                            className={cn(
-                              "rounded-lg shadow-sm overflow-hidden",
-                              "transition-all duration-300 ease-out hover:scale-[1.02]",
-                              message.isOwn
-                                ? "bg-[#FADEFD] text-[#080E11] rounded-br-sm"
-                                : "bg-[#9BB6CC0A] text-[#9BB6CC] rounded-bl-sm"
-                            )}
-                          >
-                            {showAvatar &&
-                              !message.isOwn &&
-                              selectedRoom.type === "group" && (
-                                <p className="text-[11px] md:text-xs font-medium mb-0.5 md:mb-1 px-2.5 pt-1.5 md:px-3 md:pt-2 text-[#4bd865]">
-                                  {message.senderName}
+                          {isEmoticonOnly ? (
+                            /* Emoticon-Only Display - Large, Prominent (No Bubble) with Telegram Emojis */
+                            <div
+                              style={{
+                                fontSize: "4rem",
+                                lineHeight: "1.2",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <TelegramEmoji content={message.content.trim()} size={192} />
+                            </div>
+                          ) : (
+                            <div
+                              className={cn(
+                                "rounded-lg shadow-sm overflow-hidden",
+                                "transition-all duration-300 ease-out hover:scale-[1.02]",
+                                message.isOwn
+                                  ? "bg-[#FADEFD] text-[#080E11] rounded-br-sm"
+                                  : "bg-[#9BB6CC0A] text-[#9BB6CC] rounded-bl-sm"
+                              )}
+                            >
+                              {showAvatar &&
+                                !message.isOwn &&
+                                selectedRoom.type === "group" && (
+                                  <p className="text-[11px] md:text-xs font-medium mb-0.5 md:mb-1 px-2.5 pt-1.5 md:px-3 md:pt-2 text-[#4bd865]">
+                                    {message.senderName}
+                                  </p>
+                                )}
+                              
+                              {/* Images */}
+                              {message.images && message.images.length > 0 && (
+                                <div className={cn(
+                                  "grid gap-1 p-1",
+                                  message.images.length === 1 ? "grid-cols-1" : message.images.length === 2 ? "grid-cols-2" : "grid-cols-2"
+                                )}>
+                                  {message.images.map((imageUrl, index) => (
+                                    <div
+                                      key={index}
+                                      className={cn(
+                                        "relative rounded-lg overflow-hidden bg-[#2b3642]",
+                                        message.images!.length === 1 ? "w-full max-w-[400px]" : "w-full"
+                                      )}
+                                    >
+                                      <img
+                                        src={imageUrl}
+                                        alt={`Image ${index + 1}`}
+                                        className="w-full h-auto object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                        loading="lazy"
+                                        onClick={() => {
+                                          setCurrentImageList(message.images!);
+                                          setCurrentImageIndex(index);
+                                          setImageViewerOpen(true);
+                                        }}
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              
+                              {/* Message Text */}
+                              {message.content && (
+                                <p className="text-[13px] md:text-[14px] lg:text-[15px] break-words leading-[1.4] px-2.5 py-1.5 md:px-3 md:py-2">
+                                  <TelegramEmoji content={message.content} size={20} />
                                 </p>
                               )}
-                            
-                            {/* Images */}
-                            {message.images && message.images.length > 0 && (
-                              <div className={cn(
-                                "grid gap-1 p-1",
-                                message.images.length === 1 ? "grid-cols-1" : message.images.length === 2 ? "grid-cols-2" : "grid-cols-2"
-                              )}>
-                                {message.images.map((imageUrl, index) => (
-                                  <div
-                                    key={index}
-                                    className={cn(
-                                      "relative rounded-lg overflow-hidden bg-[#2b3642]",
-                                      message.images!.length === 1 ? "w-full max-w-[400px]" : "w-full"
-                                    )}
-                                  >
-                                    <img
-                                      src={imageUrl}
-                                      alt={`Image ${index + 1}`}
-                                      className="w-full h-auto object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                                      loading="lazy"
-                                    />
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                            
-                            {/* Message Text */}
-                            {message.content && (
-                              <p className="text-[13px] md:text-[14px] lg:text-[15px] break-words leading-[1.4] px-2.5 py-1.5 md:px-3 md:py-2">
-                                {message.content}
-                              </p>
-                            )}
-                            
-                            {/* Time inside bubble - Telegram style */}
-                            <div className="flex items-center justify-end gap-0.5 md:gap-1 mt-0.5 md:mt-1 px-2.5 pb-1.5 md:px-3 md:pb-2">
-                              <span
-                                className={cn(
-                                  "text-[10px] md:text-[11px]",
-                                  message.isOwn
-                                    ? "text-white/70"
-                                    : "text-gray-400"
-                                )}
-                              >
-                                {formatMessageTime(message.timestamp)}
-                              </span>
-                              {message.isOwn && (
-                                <>
-                                  {message.isRead ? (
-                                    <CheckCheck className="h-3 w-3 md:h-3.5 md:w-3.5 text-white/70" />
-                                  ) : (
-                                    <Check className="h-3 w-3 md:h-3.5 md:w-3.5 text-white/70" />
+                              
+                              {/* Time inside bubble - Telegram style */}
+                              <div className="flex items-center justify-end gap-0.5 md:gap-1 mt-0.5 md:mt-1 px-2.5 pb-1.5 md:px-3 md:pb-2">
+                                <span
+                                  className={cn(
+                                    "text-[10px] md:text-[11px]",
+                                    message.isOwn
+                                      ? "text-[#080E11]"
+                                      : "text-gray-400"
                                   )}
-                                </>
-                              )}
+                                >
+                                  {formatMessageTime(message.timestamp)}
+                                </span>
+                                {message.isOwn && (
+                                  <>
+                                    {message.isRead ? (
+                                      <CheckCheck className="h-3 w-3 md:h-3.5 md:w-3.5 text-[#080E11]" />
+                                    ) : (
+                                      <Check className="h-3 w-3 md:h-3.5 md:w-3.5 text-[#080E11]" />
+                                    )}
+                                  </>
+                                )}
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </div>
                       </div>
                     );
@@ -918,6 +945,17 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                 isOpen={isRoomInfoOpen}
                 onClose={() => setIsRoomInfoOpen(false)}
               />
+
+              {/* Image Viewer */}
+              {currentImageList.length > 0 && (
+                <ImageViewer
+                  isOpen={imageViewerOpen}
+                  onClose={() => setImageViewerOpen(false)}
+                  images={currentImageList}
+                  currentIndex={currentImageIndex}
+                  onIndexChange={setCurrentImageIndex}
+                />
+              )}
             </div>
           ) : (
             <div 

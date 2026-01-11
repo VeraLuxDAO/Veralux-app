@@ -1,10 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
+import { shouldDisplayAsEmoticonOnly } from "@/lib/emoji-utils";
+import { ImageViewer } from "@/components/chat/image-viewer";
+import { TelegramEmoji } from "@/components/chat/telegram-emoji";
 
 export interface ChatMessage {
   id: string;
@@ -36,6 +40,9 @@ export function ChatMessageComponent({
   isGrouped = false,
 }: ChatMessageProps) {
   const timeAgo = formatDistanceToNow(message.timestamp, { addSuffix: true });
+  const isEmoticonOnly = shouldDisplayAsEmoticonOnly(message.content, message.images);
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   if (message.type === "system") {
     return (
@@ -51,8 +58,7 @@ export function ChatMessageComponent({
     <div
       className={cn(
         "group flex gap-3 px-4 py-2 hover:bg-white/5 transition-colors",
-        isGrouped && "py-1",
-        message.isOwn && "flex-row-reverse"
+        isGrouped && "py-1"
       )}
     >
       {/* Avatar */}
@@ -73,14 +79,9 @@ export function ChatMessageComponent({
       </div>
 
       {/* Message Content */}
-      <div
-        className={cn(
-          "flex-1 min-w-0",
-          message.isOwn && "flex flex-col items-end"
-        )}
-      >
+      <div className="flex-1 min-w-0">
         {/* Header (only show if not grouped) */}
-        {!isGrouped && !message.isOwn && (
+        {!isGrouped && (
           <div className="flex items-center gap-2 mb-1">
             <span className="font-semibold text-white text-sm">
               {message.authorName}
@@ -107,63 +108,75 @@ export function ChatMessageComponent({
         )}
 
         {/* Message Content Container */}
-        <div
-          className={cn(
-            message.isOwn
-              ? "bg-[#FADEFD] text-[#080E11] rounded-2xl rounded-br-sm px-0 py-0 shadow-sm max-w-[75%] inline-block overflow-hidden"
-              : "text-[#9BB6CC] max-w-[75%]"
-          )}
-        >
-          {/* Images */}
-          {message.images && message.images.length > 0 && (
-            <div className={cn(
-              "grid gap-1 p-1",
-              message.images.length === 1 ? "grid-cols-1" : message.images.length === 2 ? "grid-cols-2" : "grid-cols-2"
-            )}>
-              {message.images.map((imageUrl, index) => (
-                <div
-                  key={index}
-                  className={cn(
-                    "relative rounded-lg overflow-hidden bg-[#2b3642]",
-                    message.images!.length === 1 ? "w-full max-w-[400px]" : "w-full"
-                  )}
-                >
-                  <img
-                    src={imageUrl}
-                    alt={`Image ${index + 1}`}
-                    className="w-full h-auto object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                    loading="lazy"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-          
-          {/* Message Text */}
-          {message.content && (
-            <div
-              className={cn(
-                "text-sm leading-relaxed whitespace-pre-wrap break-words",
-                message.isOwn ? "px-4 py-2.5" : ""
-              )}
-              style={{
-                wordWrap: "break-word",
-                overflowWrap: "anywhere",
-              }}
-            >
-              {message.content}
-            </div>
-          )}
-        </div>
+        {isEmoticonOnly ? (
+          /* Emoticon-Only Display - Large, Prominent (No Bubble) with Telegram Emojis - Left Aligned */
+          <div
+            className="flex items-center justify-start"
+            style={{
+              fontSize: "2rem",
+              lineHeight: "1.2",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-start",
+            }}
+          >
+            <TelegramEmoji content={message.content.trim()} size={192} />
+          </div>
+        ) : (
+          <div className="text-[#9BB6CC] max-w-[75%]">
+            {/* Images */}
+            {message.images && message.images.length > 0 && (
+              <div className={cn(
+                "grid gap-1 p-0",
+                message.images.length === 1 ? "grid-cols-1" : message.images.length === 2 ? "grid-cols-2" : "grid-cols-2",
+                message.content && "pb-0"
+              )}>
+                {message.images.map((imageUrl, index) => (
+                  <div
+                    key={index}
+                    className={cn(
+                      "relative rounded-lg overflow-hidden bg-[#2b3642]",
+                      message.images!.length === 1 ? "w-full max-w-[400px]" : "w-full"
+                    )}
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={`Image ${index + 1}`}
+                      className="w-full h-auto object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                      loading="lazy"
+                      onClick={() => {
+                        setCurrentImageIndex(index);
+                        setImageViewerOpen(true);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {/* Message Text */}
+            {message.content && (
+              <div
+                className={cn(
+                  "text-sm leading-relaxed whitespace-pre-wrap break-words text-[#9BB6CC]",
+                  message.images
+                    ? "pt-2 pb-1"
+                    : "py-0"
+                )}
+                style={{
+                  wordWrap: "break-word",
+                  overflowWrap: "anywhere",
+                }}
+              >
+                <TelegramEmoji content={message.content} size={20} />
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Reactions */}
         {message.reactions && message.reactions.length > 0 && (
-          <div
-            className={cn(
-              "flex gap-1.5 mt-2 flex-wrap",
-              message.isOwn && "justify-end"
-            )}
-          >
+          <div className="flex gap-1.5 mt-2 flex-wrap">
             {message.reactions.map((reaction, index) => (
               <button
                 key={index}
@@ -181,6 +194,17 @@ export function ChatMessageComponent({
           </div>
         )}
       </div>
+
+      {/* Image Viewer */}
+      {message.images && message.images.length > 0 && (
+        <ImageViewer
+          isOpen={imageViewerOpen}
+          onClose={() => setImageViewerOpen(false)}
+          images={message.images}
+          currentIndex={currentImageIndex}
+          onIndexChange={setCurrentImageIndex}
+        />
+      )}
     </div>
   );
 }

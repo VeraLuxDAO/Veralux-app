@@ -3374,3 +3374,66 @@ aside::-webkit-scrollbar {
     opacity: 0;
   }
 }
+
+/* Member Profile View - Enhanced Responsive Styles */
+/* Handle very narrow sidebar widths (200px - 280px) */
+@media (max-width: 280px) {
+  /* Stats grid: Stack all cards vertically on very narrow screens */
+  .member-profile-stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  /* Action buttons: Always stack on very narrow */
+  .member-profile-actions {
+    flex-direction: column !important;
+  }
+}
+
+/* Narrow panel widths (200px - 350px) - for resized sidebar */
+@media (min-width: 200px) and (max-width: 350px) {
+  /* Ensure stats cards don't overflow */
+  .member-profile-stats-card {
+    padding: 0.5rem !important;
+    min-width: 0;
+  }
+  
+  /* Smaller text in stats for narrow panels */
+  .member-profile-stats-value {
+    font-size: 0.875rem !important;
+  }
+  
+  .member-profile-stats-label {
+    font-size: 0.625rem !important;
+  }
+}
+
+/* Medium panel widths (350px - 450px) */
+@media (min-width: 350px) and (max-width: 450px) {
+  .member-profile-stats-value {
+    font-size: 1rem !important;
+  }
+}
+
+/* Ensure buttons are always touch-friendly */
+.member-profile-button {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Prevent text overflow in stats */
+.member-profile-stats-card {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Container query support for stats grid - stack when container is narrow */
+@container (max-width: 280px) {
+  .member-profile-stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Smooth transitions for stats grid layout changes */
+.member-profile-stats-grid {
+  transition: grid-template-columns 0.3s ease;
+}
