@@ -3,7 +3,16 @@
 import { memo, useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ImageViewer } from "@/components/chat/image-viewer";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+interface MediaFile {
+  type: "image" | "video" | "audio";
+  url: string;
+  mime?: string;
+  playable?: boolean;
+}
 
 interface FlowPost {
   id: string;
@@ -22,6 +31,7 @@ interface FlowPost {
   hasGlowed: boolean;
   hasTipped: boolean;
   tags: string[];
+  media?: MediaFile[];
 }
 
 interface PostCardProps {
@@ -33,8 +43,21 @@ interface PostCardProps {
 export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
   const [isMounted, setIsMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(true); // Start visible by default
+  const [hasReplied, setHasReplied] = useState(false);
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
   const hasAnimated = useRef(false);
+
+  // Filter images from media
+  const images = post.media?.filter(m => m.type === "image") || [];
+  const hasMultipleImages = images.length > 1;
+
+  // Reset image index when post changes
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [post.id]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -97,7 +120,7 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
     <Card
       ref={cardRef}
       className={cn(
-        "border-none transition-all duration-500 rounded-xl py-[0px] shadow-lg w-full cursor-pointer hover:shadow-xl group relative overflow-hidden",
+        "transition-all duration-500 rounded-xl py-[0px] shadow-lg w-full cursor-pointer hover:shadow-xl group relative overflow-hidden",
         isVisible 
           ? "opacity-100 translate-y-0" 
           : "opacity-0 translate-y-8"
@@ -105,6 +128,7 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
       style={{
         background:
           "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
+          border: "1px solid #FFFFFF14",
       }}
     >
       {/* Hover overlay - brighter gradient */}
@@ -115,7 +139,7 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
             "linear-gradient(0deg, rgba(229, 247, 253, 0.12) 0%, rgba(229, 247, 253, 0.04) 100%)",
         }}
       />
-      <CardContent className="p-4 sm:p-5 md:py-0.5 md:px-6 md:pt-6 md:pb-6">
+      <CardContent className="p-3 sm:p-5 md:py-0.5 md:p-3">
         {/* Post Header */}
         <div className="flex items-center space-x-3 mb-6">
           <Avatar className="w-9 h-9 flex-shrink-0">
@@ -173,130 +197,318 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
           </p>
         </div>
 
-        {/* Post Tags */}
-        {post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-6 mt-6">
-            {post.tags.map((tag, index) => (
-              <span
-                key={index}
-                className="px-3 py-1 rounded-md text-sm font-medium cursor-pointer transition-colors"
-                style={{
-                  backgroundColor: "rgba(31, 43, 49, 0.56)",
-                  color: "#E9F0F5",
-                }}
-              >
-                #{tag}
-              </span>
-            ))}
+        {/* Post Media (Images, Videos, Audio) */}
+        {post.media && post.media.length > 0 && (
+          <div className="mb-3 mt-3 bg-black rounded-lg">
+            {/* Images - Show one at a time with navigation if multiple */}
+            {images.length > 0 && (
+              <div className="relative mb-2 bg-blackimage.png">
+                <div className="relative rounded-lg overflow-hidden w-1/2 mx-auto" style={{ aspectRatio: "1 / 1" }}>
+                  {/* Current Image */}
+                  <img
+                    src={images[currentImageIndex]?.url}
+                    alt={`Post image ${currentImageIndex + 1}`}
+                    className="w-full h-full rounded-lg object-cover cursor-pointer transition-opacity hover:opacity-90"
+                    onClick={() => {
+                      setSelectedImageIndex(currentImageIndex);
+                      setImageViewerOpen(true);
+                    }}
+                    style={{ display: "block" }}
+                  />
+                  
+                  {/* Navigation Arrows - Only show if multiple images */}
+                  {hasMultipleImages && (
+                    <>
+                      {/* Left Arrow */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentImageIndex((prev) => 
+                            prev > 0 ? prev - 1 : images.length - 1
+                          );
+                        }}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center transition-all z-10"
+                        aria-label="Previous image"
+                      >
+                        <ArrowLeft className="w-4 h-4 text-white" />
+                      </button>
+                      
+                      {/* Right Arrow */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentImageIndex((prev) => 
+                            prev < images.length - 1 ? prev + 1 : 0
+                          );
+                        }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 hover:bg-black/70 flex items-center justify-center transition-all z-10"
+                        aria-label="Next image"
+                      >
+                        <ArrowRight className="w-4 h-4 text-white" />
+                      </button>
+                      
+                      {/* Image Counter */}
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 px-2 py-1 rounded-full bg-black/50 text-white text-xs">
+                        {currentImageIndex + 1} / {images.length}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Videos and Audio - Display separately */}
+            <div className={cn(
+              "flex gap-2",
+              post.media.filter(m => m.type !== "image").length > 1 ? "flex-wrap" : "flex-col"
+            )}>
+            {post.media
+              .filter(m => m.type !== "image")
+              .map((mediaItem, index) => {
+                const isVideoPlayable =
+                  mediaItem.type !== "video" ||
+                  mediaItem.playable !== false;
+
+                return (
+                  <div 
+                    key={`${mediaItem.type}-${index}`} 
+                    className={cn(
+                      "relative rounded-lg overflow-hidden",
+                      post.media && post.media.filter(m => m.type !== "image").length === 1 
+                        ? "w-1/2 mx-auto" 
+                        : "w-[calc(25%-4px)] sm:w-[calc(16.667%-5.33px)]"
+                    )}
+                    style={{
+                      aspectRatio: "1 / 1",
+                    }}
+                  >
+                    {mediaItem.type === "video" && isVideoPlayable && (
+                      <video
+                        src={mediaItem.url}
+                        controls
+                        playsInline
+                        preload="metadata"
+                        className="w-full h-full rounded-lg object-cover bg-black"
+                      >
+                        Your browser does not support the video tag.
+                      </video>
+                    )}
+                    {mediaItem.type === "video" && !isVideoPlayable && (
+                      <div className="w-full h-full rounded-lg bg-black/60 text-white text-sm flex items-center justify-center text-center px-3">
+                        <span>
+                          Unsupported video format. Please upload MP4, WebM, OGG, or MOV.
+                        </span>
+                      </div>
+                    )}
+                    {mediaItem.type === "audio" && (
+                      <div className="w-full h-full p-4 rounded-lg bg-[rgba(31,43,49,0.3)] flex items-center gap-3">
+                        <svg
+                          className="w-8 h-8 flex-shrink-0"
+                          style={{ color: "rgba(250, 222, 253, 1)" }}
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M9 18V5l12-2v13" />
+                          <circle cx="6" cy="18" r="3" />
+                          <circle cx="18" cy="16" r="3" />
+                        </svg>
+                        <audio src={mediaItem.url} controls className="flex-1 w-full">
+                          Your browser does not support the audio tag.
+                        </audio>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
-        {/* Post Actions */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <button
-              onClick={() => onGlow(post.id)}
-              className="flex items-center gap-2 cursor-pointer"
-            >
-              {isMounted && (
-                <svg
-                  className="w-5 h-5"
-                  style={{ color: "rgba(250, 222, 253, 1)" }}
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z" />
-                </svg>
-              )}
-              <span
-                className="text-base font-medium"
-                style={{ color: "rgba(155, 182, 204, 1)" }}
-              >
-                {post.glows}
-              </span>
-            </button>
+        {/* Image Viewer Modal */}
+        {post.media && post.media.some(m => m.type === "image") && (
+          <ImageViewer
+            isOpen={imageViewerOpen}
+            onClose={() => setImageViewerOpen(false)}
+            images={post.media.filter(m => m.type === "image").map(m => m.url)}
+            currentIndex={selectedImageIndex}
+            onIndexChange={setSelectedImageIndex}
+          />
+        )}
 
-            <button
-              onClick={() => onTip(post.id)}
-              className="flex items-center gap-2 cursor-pointer"
-            >
-              {isMounted && (
-                <svg
-                  className="w-5 h-5"
-                  style={{ color: "rgba(250, 222, 253, 1)" }}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  xmlns="http://www.w3.org/2000/svg"
+          {post.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 flex-shrink-0">
+              {post.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 rounded-md text-sm font-medium cursor-pointer transition-colors"
+                  style={{
+                    backgroundColor: "rgba(31, 43, 49, 0.56)",
+                    color: "#E9F0F5",
+                  }}
                 >
-                  <path
-                    d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+        <div 
+          className={cn(
+            "flex items-center sm:items-center justify-between py-3 rounded-lg",
+            "bg-transparent"
+          )}
+        >
+
+          {/* Engagement Metrics and Actions - right section */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 justify-end flex-wrap sm:flex-nowrap">
+              <button
+                onClick={() => onGlow(post.id)}
+                className={cn(
+                  "flex items-center gap-1 px-2 py-2 rounded-[20px] cursor-pointer transition-colors flex-shrink-0",
+                  post.hasGlowed 
+                    ? "border" 
+                    : ""
+                )}
+                style={
+                  post.hasGlowed
+                    ? {
+                        backgroundColor: "#FADEFD33",
+                        borderColor: "#FADEFD66",
+                        borderWidth: "1px",
+                      }
+                    : {}
+                }
+              >
+                {isMounted && (
+                  <svg width="18" height="18" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg" style={{ color: post.hasGlowed ? "#FADEFD" : "#9BB6CC" }}>
+                  <path d="M16.8261 2.09319C16.4004 1.66736 15.8951 1.32956 15.3389 1.09909C14.7827 0.868623 14.1865 0.75 13.5844 0.75C12.9823 0.75 12.3862 0.868623 11.8299 1.09909C11.2737 1.32956 10.7684 1.66736 10.3427 2.09319L9.45941 2.97652L8.57608 2.09319C7.71633 1.23344 6.55027 0.750446 5.33441 0.750446C4.11855 0.750446 2.95249 1.23344 2.09274 2.09319C1.233 2.95293 0.75 4.11899 0.75 5.33485C0.75 6.55071 1.233 7.71678 2.09274 8.57652L9.45941 15.9432L16.8261 8.57652C17.2519 8.15089 17.5897 7.64553 17.8202 7.08932C18.0506 6.5331 18.1693 5.93693 18.1693 5.33485C18.1693 4.73278 18.0506 4.13661 17.8202 3.58039C17.5897 3.02418 17.2519 2.51882 16.8261 2.09319Z" />
+                  </svg>
+                  
+                )}
+                <span
+                  className="text-[16px] font-light"
+                  style={{ color: post.hasGlowed ? "#FADEFD" : "#9BB6CC" }}
+                >
+                  {post.glows}
+                </span>
+              </button>
+
+              <button
+                onClick={() => onTip(post.id)}
+                className={cn(
+                  "flex items-center gap-1 px-2 py-2 rounded-[20px] cursor-pointer transition-colors flex-shrink-0",
+                  post.hasTipped 
+                    ? "border" 
+                    : ""
+                )}
+                style={
+                  post.hasTipped
+                    ? {
+                        backgroundColor: "#FADEFD33",
+                        borderColor: "#FADEFD66",
+                        borderWidth: "1px",
+                      }
+                    : {}
+                }
+              >
+                {isMounted && (
+                  <svg
+                    className="w-4 h-4"
+                    style={{ color: post.hasTipped ? "#FADEFD" : "#9BB6CC" }}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                  />
-                </svg>
-              )}
-              <span
-                className="text-base font-medium"
-                style={{ color: "rgba(155, 182, 204, 1)" }}
-              >
-                {post.tips}
-              </span>
-            </button>
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 10 12" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" style={{ color: post.hasTipped ? "#FADEFD" : "#9BB6CC" }}>
+                      <path d="M9.08333 4.91667L4.91667 0.75L0.75 4.91667M9.08333 10.75L4.91667 6.58333L0.75 10.75" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
 
-            <button className="flex items-center gap-2 cursor-pointer">
-              {isMounted && (
-                <svg
-                  className="w-5 h-5"
-                  style={{ color: "rgba(250, 222, 253, 1)" }}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  xmlns="http://www.w3.org/2000/svg"
+                  </svg>
+                )}
+                <span
+                  className="text-[16px] font-light"
+                  style={{ color: post.hasTipped ? "#FADEFD" : "#9BB6CC" }}
                 >
-                  <path
-                    d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                  {post.tips}
+                </span>
+              </button>
+
+              <button 
+                onClick={() => setHasReplied(!hasReplied)}
+                className={cn(
+                  "flex items-center gap-1 px-2 py-2 rounded-[20px] cursor-pointer transition-colors flex-shrink-0",
+                  hasReplied 
+                    ? "border" 
+                    : ""
+                )}
+                style={
+                  hasReplied
+                    ? {
+                        backgroundColor: "#FADEFD33",
+                        borderColor: "#FADEFD66",
+                        borderWidth: "1px",
+                      }
+                    : {}
+                }
+              >
+                {isMounted && (
+                  <svg
+                    className="w-4 h-4"
+                    style={{ color: hasReplied ? "#FADEFD" : "#9BB6CC" }}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                  />
-                </svg>
-              )}
-              <span
-                className="text-base font-medium"
-                style={{ color: "rgba(155, 182, 204, 1)" }}
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                  <svg width="24" height="24" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg" style={{ color: hasReplied ? "#FADEFD" : "#9BB6CC" }}>
+                    <path d="M15.75 8.25C15.75 12.3921 12.3921 15.75 8.25 15.75C7.25238 15.75 6.30025 15.5552 5.42958 15.2016C5.26294 15.1339 5.17962 15.1001 5.11227 15.085C5.04638 15.0702 4.99763 15.0648 4.93011 15.0648C4.86109 15.0648 4.78591 15.0773 4.63554 15.1024L1.67063 15.5966C1.36015 15.6483 1.20491 15.6742 1.09265 15.626C0.994402 15.5839 0.916108 15.5056 0.873967 15.4073C0.825819 15.2951 0.851692 15.1398 0.903439 14.8294L1.39759 11.8645C1.42265 11.7141 1.43518 11.6389 1.43517 11.5699C1.43516 11.5024 1.42976 11.4536 1.415 11.3877C1.3999 11.3204 1.36606 11.2371 1.29839 11.0704C0.94478 10.1997 0.75 9.24762 0.75 8.25C0.75 4.10786 4.10786 0.75 8.25 0.75C12.3921 0.75 15.75 4.10786 15.75 8.25Z"/>
+                  </svg>
+
+
+                  </svg>
+                )}
+                <span
+                  className="text-[16px] font-light"
+                  style={{ color: hasReplied ? "#FADEFD" : "#9BB6CC" }}
+                >
+                  {post.replies}
+                </span>
+              </button>
+
+              <button 
+                className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0"
+                style={{
+                  backgroundColor: "#FADEFD",
+                }}
               >
-                {post.replies}
-              </span>
-            </button>
+                {isMounted && (
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M7.37585 2.29167C8.42796 1.26068 9.86891 0.625 11.4583 0.625C14.68 0.625 17.2917 3.23667 17.2917 6.45833C17.2917 8.04778 16.656 9.48875 15.625 10.5409M12.2917 11.4583C12.2917 14.68 9.67999 17.2917 6.45833 17.2917C3.23667 17.2917 0.625 14.68 0.625 11.4583C0.625 8.23667 3.23667 5.625 6.45833 5.625C9.67999 5.625 12.2917 8.23667 12.2917 11.4583Z" stroke="#080E11" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                )}
+              </button>
           </div>
-
-          <button className="flex items-center gap-2 cursor-pointer">
+          <button 
+            className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0"
+            style={{
+              backgroundColor: "#FADEFD33",
+            }}
+          >
             {isMounted && (
-              <svg
-                className="w-5 h-5"
-                style={{ color: "rgba(250, 222, 253, 1)" }}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15.1778 6.17509L9.61819 0.599613C9.40834 0.389162 9.04882 0.537781 9.04882 0.83498L9.04883 3.05664C9.04883 3.22526 8.91214 3.36196 8.74352 3.36196C4.19075 3.36196 0.5 7.05271 0.5 11.6055L0.5 14.5106C0.5 14.8472 0.942214 14.9717 1.11776 14.6844L1.77857 13.6031C3.26196 11.1757 5.90167 9.69529 8.74639 9.69529C8.91343 9.69529 9.04884 9.8307 9.04884 9.99773V11.97C9.04884 12.267 9.40788 12.4157 9.61787 12.2057L15.1774 6.64616C15.3075 6.51611 15.3076 6.30532 15.1778 6.17509Z" stroke="#FADEFD" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             )}
-            <span
-              className="text-base font-medium"
-              style={{ color: "rgba(155, 182, 204, 1)" }}
-            >
-              Share
-            </span>
           </button>
         </div>
       </CardContent>

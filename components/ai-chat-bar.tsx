@@ -5,8 +5,10 @@ import { Send, Bot, User, Loader2, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ClientOnly } from "@/components/client-only";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface Message {
   id: string;
@@ -26,14 +28,70 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
     {
       id: "1",
       content:
-        "Hello! I'm VeraLux AI Assistant. I can help you with Web3 questions, DeFi strategies, NFT guidance, blockchain development, and more. What would you like to know?",
+        "Hi, I'm VeraLux AI. I can answer questions about the VeraLux team and roadmap, Sui and other blockchains, tokenomics, and broader topics like economics, politics, culture, healthcare, education, and IT. I respond in Markdown.",
       sender: "ai",
       timestamp: new Date(),
     },
   ]);
   const [inputValue, setInputValue] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
+  const [abortController, setAbortController] = React.useState<AbortController | null>(null);
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = React.useCallback(() => {
+    const viewport = scrollAreaRef.current?.querySelector<HTMLElement>(
+      '[data-slot="scroll-area-viewport"]'
+    );
+
+    if (viewport) {
+      viewport.scrollTo({
+        top: viewport.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, []);
+
+  const markdownComponents = React.useMemo(
+    () => ({
+      a: (props: any) => (
+        <a
+          {...props}
+          target="_blank"
+          rel="noreferrer"
+          className={`underline decoration-[#8EE5FF] underline-offset-4 transition hover:text-white ${props.className || ""}`}
+        />
+      ),
+      code: ({ inline, className, children, ...props }: any) =>
+        inline ? (
+          <code
+            className={`rounded bg-white/10 px-1 py-0.5 text-[12px] ${className || ""}`}
+            {...props}
+          >
+            {children}
+          </code>
+        ) : (
+          <pre
+            className={`rounded-xl bg-[#0D141D] p-3 text-sm text-[#D1E3FF] overflow-x-auto border border-white/5 ${className || ""}`}
+            {...props}
+          >
+            <code>{children}</code>
+          </pre>
+        ),
+      ul: ({ className, ...props }: any) => (
+        <ul
+          className={`list-disc pl-4 space-y-1 ${className || ""}`}
+          {...props}
+        />
+      ),
+      ol: ({ className, ...props }: any) => (
+        <ol
+          className={`list-decimal pl-4 space-y-1 ${className || ""}`}
+          {...props}
+        />
+      ),
+    }),
+    []
+  );
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -71,10 +129,15 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
   };
 
   React.useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-    }
-  }, [messages]);
+    const frame = requestAnimationFrame(scrollToBottom);
+    return () => cancelAnimationFrame(frame);
+  }, [messages, isLoading, scrollToBottom]);
+
+  React.useEffect(() => {
+    return () => {
+      abortController?.abort();
+    };
+  }, [abortController]);
 
   if (!isOpen) return null;
 
@@ -86,6 +149,7 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
       <div className="ai-chat-header flex items-center justify-between p-3 sm:p-4 border-b rounded-t-xl">
         <div className="flex items-center space-x-3">
           <Avatar className="h-8 w-8">
+            <AvatarImage src="/Container.png" alt="YNX AI" />
             <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
               <Bot className="h-4 w-4" />
             </AvatarFallback>
@@ -132,15 +196,27 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
                 <div className="flex items-start space-x-3">
                   {message.sender === "ai" && (
                     <Avatar className="h-7 w-7 mt-0.5 flex-shrink-0">
+                      <AvatarImage src="/Container.png" alt="YNX AI" />
                       <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs">
                         <Bot className="h-3.5 w-3.5" />
                       </AvatarFallback>
                     </Avatar>
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm leading-relaxed break-words">
-                      {message.content}
-                    </p>
+                    <div
+                      className={`prose prose-sm max-w-none break-words leading-relaxed prose-pre:my-3 prose-p:my-1 prose-li:my-0 ${
+                        message.sender === "ai"
+                          ? "prose-invert text-foreground"
+                          : "text-white"
+                      }`}
+                    >
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={markdownComponents}
+                      >
+                        {message.content || (isLoading && message.sender === "ai" ? "..." : "")}
+                      </ReactMarkdown>
+                    </div>
                     <p className="text-xs opacity-70 mt-2">
                       {message.timestamp.toLocaleTimeString([], {
                         hour: "2-digit",
@@ -165,6 +241,7 @@ function AIChatBarContent({ isOpen, onClose, className = "" }: AIChatBarProps) {
               <div className="bg-muted text-foreground rounded-2xl p-4 max-w-[85%] mr-auto">
                 <div className="flex items-center space-x-3">
                   <Avatar className="h-7 w-7 flex-shrink-0">
+                    <AvatarImage src="/Container.png" alt="YNX AI" />
                     <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs">
                       <Bot className="h-3.5 w-3.5" />
                     </AvatarFallback>

@@ -5,7 +5,6 @@ import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
 interface MobileTopBarProps {
   onMenuToggle: () => void;

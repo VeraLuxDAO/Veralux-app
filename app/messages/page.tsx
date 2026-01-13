@@ -10,6 +10,9 @@ import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { RoomInfoView } from "@/components/room-info-view";
 import { AvatarViewer } from "@/components/avatar-viewer";
+import { ChatInput } from "@/components/chat/chat-input";
+import { ImageViewer } from "@/components/chat/image-viewer";
+import { TelegramEmoji } from "@/components/chat/telegram-emoji";
 import {
   ArrowLeft,
   Search,
@@ -28,6 +31,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
+import { shouldDisplayAsEmoticonOnly } from "@/lib/emoji-utils";
 
 interface Message {
   id: string;
@@ -38,6 +42,7 @@ interface Message {
   timestamp: Date;
   isRead: boolean;
   isOwn: boolean;
+  images?: string[]; // Array of image URLs or data URLs
 }
 
 interface Room {
@@ -212,13 +217,14 @@ function MessagesPageContent() {
       : null;
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [messageInput, setMessageInput] = useState("");
   const [messages, setMessages] = useState<Message[]>(mockMessages);
   const [showSearch, setShowSearch] = useState(false);
   const [isMobileRoomInfoOpen, setIsMobileRoomInfoOpen] = useState(false);
   const [isAvatarViewerOpen, setIsAvatarViewerOpen] = useState(false);
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentImageList, setCurrentImageList] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -230,29 +236,49 @@ function MessagesPageContent() {
     }
   }, [messages, selectedRoom]);
 
-  const handleEmojiSelect = (emoji: string) => {
-    setMessageInput((prev) => prev + emoji);
-    // Focus back to input after selecting emoji
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 100);
-  };
+  const handleSendMessage = (content: string, images?: File[]) => {
+    if (!content.trim() && (!images || images.length === 0)) return;
 
-  const handleSendMessage = () => {
-    if (!messageInput.trim()) return;
+    // Convert images to data URLs
+    if (images && images.length > 0) {
+      const imagePromises = Array.from(images).map((file) => {
+        return new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            if (e.target?.result) {
+              resolve(e.target.result as string);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      });
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      senderId: "me",
-      senderName: "You",
-      content: messageInput,
-      timestamp: new Date(),
-      isRead: false,
-      isOwn: true,
-    };
-
-    setMessages([...messages, newMessage]);
-    setMessageInput("");
+      Promise.all(imagePromises).then((imageUrls) => {
+        const newMessage: Message = {
+          id: Date.now().toString(),
+          senderId: "me",
+          senderName: "You",
+          content: content,
+          timestamp: new Date(),
+          isRead: false,
+          isOwn: true,
+          images: imageUrls,
+        };
+        setMessages((prev) => [...prev, newMessage]);
+      });
+    } else {
+      // No images, create message immediately
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        senderId: "me",
+        senderName: "You",
+        content: content,
+        timestamp: new Date(),
+        isRead: false,
+        isOwn: true,
+      };
+      setMessages([...messages, newMessage]);
+    }
   };
 
   const formatTime = (date: Date) => {
@@ -528,6 +554,7 @@ function MessagesPageContent() {
             const showTime =
               index === messages.length - 1 ||
               messages[index + 1]?.senderId !== message.senderId;
+            const isEmoticonOnly = shouldDisplayAsEmoticonOnly(message.content, message.images);
 
             return (
               <div
@@ -556,45 +583,95 @@ function MessagesPageContent() {
                     message.isOwn ? "items-end" : "items-start"
                   )}
                 >
-                  <div
-                    className={cn(
-                      "px-3 py-2 rounded-lg shadow-sm",
-                      message.isOwn
-                        ? "bg-[#FADEFD] text-[#080E11] rounded-br-sm"
-                        : "bg-[#9BB6CC0A] text-[#9BB6CC] rounded-bl-sm"
-                    )}
-                  >
-                    {showAvatar &&
-                      !message.isOwn &&
-                      selectedRoom.type === "group" && (
-                        <p className="text-xs font-medium mb-1 text-[#4bd865]">
-                          {message.senderName}
+                  {isEmoticonOnly ? (
+                    /* Emoticon-Only Display - Large, Prominent (No Bubble) with Telegram Emojis */
+                    <div
+                      style={{
+                        fontSize: "4rem",
+                        lineHeight: "1.2",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <TelegramEmoji content={message.content.trim()} size={192} />
+                    </div>
+                  ) : (
+                    <div
+                      className={cn(
+                        "rounded-lg shadow-sm overflow-hidden",
+                        message.isOwn
+                          ? "bg-[#FADEFD] text-[#080E11] rounded-br-sm"
+                          : "bg-[#9BB6CC0A] text-[#9BB6CC] rounded-bl-sm"
+                      )}
+                    >
+                      {showAvatar &&
+                        !message.isOwn &&
+                        selectedRoom.type === "group" && (
+                          <p className="text-xs font-medium mb-1 px-3 pt-2 text-[#4bd865]">
+                            {message.senderName}
+                          </p>
+                        )}
+                      
+                      {/* Images */}
+                      {message.images && message.images.length > 0 && (
+                        <div className={cn(
+                          "grid gap-1 p-1",
+                          message.images.length === 1 ? "grid-cols-1" : message.images.length === 2 ? "grid-cols-2" : "grid-cols-2"
+                        )}>
+                          {message.images.map((imageUrl, index) => (
+                            <div
+                              key={index}
+                              className={cn(
+                                "relative rounded-lg overflow-hidden bg-[#2b3642]",
+                                message.images!.length === 1 ? "w-full max-w-[400px]" : "w-full"
+                              )}
+                            >
+                              <img
+                                src={imageUrl}
+                                alt={`Image ${index + 1}`}
+                                className="w-full h-auto object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                loading="lazy"
+                                onClick={() => {
+                                  setCurrentImageList(message.images!);
+                                  setCurrentImageIndex(index);
+                                  setImageViewerOpen(true);
+                                }}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Message Text */}
+                      {message.content && (
+                        <p className="text-[15px] break-words leading-[1.4] whitespace-pre-wrap px-3 py-2">
+                          <TelegramEmoji content={message.content} size={20} />
                         </p>
                       )}
-                    <p className="text-[15px] break-words leading-[1.4] whitespace-pre-wrap">
-                      {message.content}
-                    </p>
-                    {/* Time inside bubble - Telegram style */}
-                    <div className="flex items-center justify-end gap-1 mt-1">
-                      <span
-                        className={cn(
-                          "text-[10px]",
-                          message.isOwn ? "text-[#080E11]" : "text-[#9BB6CC]"
-                        )}
-                      >
-                        {formatMessageTime(message.timestamp)}
-                      </span>
-                      {message.isOwn && (
-                        <>
-                          {message.isRead ? (
-                            <CheckCheck className="h-3.5 w-3.5 text-[#080E11]" />
-                          ) : (
-                            <Check className="h-3.5 w-3.5 text-[#080E11]" />
+                      
+                      {/* Time inside bubble - Telegram style */}
+                      <div className="flex items-center justify-end gap-1 mt-1 px-3 pb-2">
+                        <span
+                          className={cn(
+                            "text-[10px]",
+                            message.isOwn ? "text-[#080E11]" : "text-[#9BB6CC]"
                           )}
-                        </>
-                      )}
+                        >
+                          {formatMessageTime(message.timestamp)}
+                        </span>
+                        {message.isOwn && (
+                          <>
+                            {message.isRead ? (
+                              <CheckCheck className="h-3.5 w-3.5 text-[#080E11]" />
+                            ) : (
+                              <Check className="h-3.5 w-3.5 text-[#080E11]" />
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             );
@@ -604,70 +681,24 @@ function MessagesPageContent() {
       </div>
 
       {/* Input Area */}
-      <div className="flex-shrink-0 px-6 pt-3 pb-8 bg-[#080E1199] border-t border-white/5">
-        <div className="flex items-center">
-          <div className="flex w-full items-center rounded-full bg-[#E5F7FD0A] border border-white/10 px-3 gap-2">
-            {/* Emoji */}
-            <EmojiPicker
-              onEmojiSelect={handleEmojiSelect}
-              trigger={
-                <div
-                  className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0"
-                  title="Emoji"
-                >
-                  <Smile className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
-                </div>
-              }
-            />
-
-            {/* Input Field */}
-            <Input
-              ref={inputRef}
-              placeholder="Send Message"
-              value={messageInput}
-              onChange={(e) => setMessageInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSendMessage();
-                }
-              }}
-              className="flex-1 h-6 bg-[#E5F7FD0A] border-none text-[#9BB6CC99] text-[14px] placeholder:text-[#9BB6CC99] focus:ring-0 focus-visible:ring-0 px-2 py-0 shadow-none"
-              autoComplete="off"
-              style={{ fontFamily: "'Geist'", fontSize:"14px !important" }}
-            />
-
-            {/* Right icon group: Mic, Pin, Send (in this order) */}
-            <div className="flex items-center gap-3 flex-shrink-0">
-              {/* Mic */}
-              <div
-                className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 flex items-center justify-center"
-                title="Voice message"
-                style={{maxWidth:"16px !important", maxHeight:"16px !important"}}
-              >
-                <Mic className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
-              </div>
-
-              {/* Pin / Attach */}
-              <div
-                className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 flex items-center justify-center"
-                title="Attach file"
-              >
-                <Paperclip className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
-              </div>
-
-              {/* Send (paper airplane) */}
-              <div
-                onClick={handleSendMessage}
-                className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 flex items-center justify-center"
-                title="Send message"
-              >
-                <Send className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="flex-shrink-0 px-6 pt-3 pb-8">
+        <ChatInput
+          onSendMessage={handleSendMessage}
+          placeholder="Send Message"
+          className="bg-[#080E1199] border-t border-white/5"
+        />
       </div>
+
+      {/* Image Viewer */}
+      {currentImageList.length > 0 && (
+        <ImageViewer
+          isOpen={imageViewerOpen}
+          onClose={() => setImageViewerOpen(false)}
+          images={currentImageList}
+          currentIndex={currentImageIndex}
+          onIndexChange={setCurrentImageIndex}
+        />
+      )}
 
       {/* Mobile Room Info Sheet - Full Screen */}
       <div className="md:hidden">

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Headphones,
@@ -10,11 +10,16 @@ import {
   LogOut,
   LogIn,
   X,
+  Copy,
+  Check,
+  Wallet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter, usePathname } from "next/navigation";
-import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useWallet } from "@suiet/wallet-kit";
+import { WalletAccountModal } from "@/components/wallet-account-modal";
 
 interface MobileHamburgerMenuProps {
   isOpen: boolean;
@@ -28,9 +33,20 @@ export function MobileHamburgerMenu({
   className,
 }: MobileHamburgerMenuProps) {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const auth = useAuth();
+  const wallet = useWallet();
   const router = useRouter();
   const pathname = usePathname();
+  const userInitial = auth.user?.name?.charAt(0) || "U";
+  const walletAddress =
+    wallet.connected && wallet.account?.address ? wallet.account.address : "";
+
+  const truncatedAddress = useMemo(() => {
+    if (!walletAddress) return "";
+    return `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+  }, [walletAddress]);
 
   // Handle animation state
   useEffect(() => {
@@ -44,6 +60,17 @@ export function MobileHamburgerMenu({
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
+
+  const handleCopyAddress = async () => {
+    if (!walletAddress || typeof navigator === "undefined") return;
+    try {
+      await navigator.clipboard.writeText(walletAddress);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    } catch (error) {
+      console.error("Failed to copy address", error);
+    }
+  };
 
   const handleNavigation = (path: string) => {
     router.push(path);
@@ -195,6 +222,43 @@ export function MobileHamburgerMenu({
 
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col">
+            {auth.isAuthenticated && auth.user && (
+              <div className="mb-5 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-11 w-11 border border-white/10">
+                    <AvatarImage src={auth.user.picture} />
+                    <AvatarFallback className="bg-primary/20 text-primary text-sm font-medium">
+                      {userInitial}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-white leading-tight truncate">
+                      {auth.user.name || "Unnamed user"}
+                    </p>
+                    <p className="text-[11px] text-[#9BB6CC]">Online</p>
+                  </div>
+                  {walletAddress && (
+                    <button
+                      onClick={handleCopyAddress}
+                      className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                      aria-label="Copy wallet address"
+                    >
+                      {copied ? (
+                        <Check className="h-4 w-4 text-veralux-green" />
+                      ) : (
+                        <Copy className="h-4 w-4 text-white" />
+                      )}
+                    </button>
+                  )}
+                </div>
+                {walletAddress && (
+                  <p className="mt-2 text-xs font-mono text-[#9BB6CC] truncate">
+                    {truncatedAddress}
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Modules Label */}
             <div className="mb-3">
               <span
@@ -241,7 +305,24 @@ export function MobileHamburgerMenu({
           </div>
 
           {/* Bottom Auth Button */}
-          <div className="px-4 pb-4 pt-2">
+          <div className="px-4 pb-4 pt-2 space-y-2">
+            {auth.isAuthenticated && wallet.connected && (
+              <button
+                onClick={() => {
+                  setIsAccountModalOpen(true);
+                  onClose();
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-[18px] bg-white/5 px-4 py-3 text-sm transition-all duration-200 hover:bg-white/10"
+                style={{
+                  fontFamily: "Manrope, sans-serif",
+                  fontWeight: 500,
+                  color: "rgba(229, 247, 253, 0.9)",
+                }}
+              >
+                <Wallet className="h-4 w-4" />
+                <span>Manage wallet</span>
+              </button>
+            )}
             {auth.isAuthenticated ? (
               <button
                 onClick={() => {
@@ -277,6 +358,12 @@ export function MobileHamburgerMenu({
           </div>
         </div>
       </div>
+
+      {/* Wallet Account Modal */}
+      <WalletAccountModal
+        isOpen={isAccountModalOpen}
+        onClose={() => setIsAccountModalOpen(false)}
+      />
     </>
   );
 }

@@ -6,7 +6,16 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { PostCard } from "@/components/post-card";
+import { PostCreator } from "@/components/post-creator";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
+
+interface MediaFile {
+  type: "image" | "video" | "audio";
+  url: string;
+  mime?: string;
+  playable?: boolean;
+}
 
 interface FlowPost {
   id: string;
@@ -25,6 +34,7 @@ interface FlowPost {
   hasGlowed: boolean;
   hasTipped: boolean;
   tags: string[];
+  media?: MediaFile[];
 }
 
 const mockPosts: FlowPost[] = [
@@ -88,6 +98,7 @@ const mockPosts: FlowPost[] = [
 ];
 
 export function SocialFeed() {
+  const { user, isAuthenticated } = useAuth();
   const [posts, setPosts] = useState<FlowPost[]>(mockPosts);
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -121,6 +132,63 @@ export function SocialFeed() {
       )
     );
   }, []);
+
+  const handleCreatePost = useCallback((content: string, files?: File[]) => {
+    if (!content.trim() && (!files || files.length === 0)) return;
+
+    // Convert files to media objects with object URLs
+    // In a real implementation, you would:
+    // 1. Upload files to your storage (e.g., IPFS, AWS S3, etc.)
+    // 2. Get the file URLs from the storage service
+    // 3. Store them in the post data
+    const supportedVideoMimes = [
+      "video/mp4",
+      "video/webm",
+      "video/ogg",
+      "video/quicktime",
+    ];
+
+    const media: MediaFile[] | undefined = files?.map((file) => {
+      const type = file.type.startsWith("image/")
+        ? "image"
+        : file.type.startsWith("video/")
+        ? "video"
+        : "audio";
+      const url = URL.createObjectURL(file);
+      const mime = file.type || undefined;
+      const playable =
+        type !== "video" ||
+        !mime ||
+        supportedVideoMimes.some((m) => mime.includes(m.split("/")[1]) || mime === m);
+
+      return { type, url, mime, playable };
+    });
+
+    const newPost: FlowPost = {
+      id: `user-${Date.now()}`,
+      author: {
+        name: user?.name || "Anonymous User",
+        username: user?.email?.split("@")[0] 
+          ? `@${user.email.split("@")[0]}` 
+          : "@user",
+        avatar: user?.picture || "/placeholder.svg",
+        verified: false,
+        badges: [],
+      },
+      content,
+      timestamp: "now",
+      glows: 0,
+      tips: 0,
+      replies: 0,
+      hasGlowed: false,
+      hasTipped: false,
+      tags: [],
+      media,
+    };
+
+    // Add new post at the beginning of the feed
+    setPosts((prevPosts) => [newPost, ...prevPosts]);
+  }, [user]);
 
   // Generate more mock posts for infinite scroll
   const generateMorePosts = useCallback((pageNum: number): FlowPost[] => {
@@ -205,6 +273,12 @@ export function SocialFeed() {
 
   return (
     <div className="space-y-6 w-full max-w-full">
+      {/* Post Creator - at the top (only show when authenticated) */}
+      {isAuthenticated && user && (
+        <PostCreator onCreatePost={handleCreatePost} />
+      )}
+
+      {/* Posts Feed */}
       {posts.map((post) => (
         <PostCard
           key={post.id}

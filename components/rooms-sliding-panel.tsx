@@ -28,6 +28,10 @@ import {
 import { cn } from "@/lib/utils";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { RoomInfoView } from "@/components/room-info-view";
+import { ChatInput } from "@/components/chat/chat-input";
+import { shouldDisplayAsEmoticonOnly } from "@/lib/emoji-utils";
+import { ImageViewer } from "@/components/chat/image-viewer";
+import { TelegramEmoji } from "@/components/chat/telegram-emoji";
 
 interface Message {
   id: string;
@@ -38,6 +42,7 @@ interface Message {
   timestamp: Date;
   isRead: boolean;
   isOwn: boolean;
+  images?: string[]; // Array of image URLs or data URLs
 }
 
 interface Room {
@@ -174,12 +179,13 @@ const initialMessages: Message[] = [
 export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [messageInput, setMessageInput] = useState("");
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [isRoomInfoOpen, setIsRoomInfoOpen] = useState(false);
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentImageList, setCurrentImageList] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   // Lock body scroll when panel is open
   useEffect(() => {
@@ -299,29 +305,49 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
     setIsResizing(true);
   };
 
-  const handleEmojiSelect = (emoji: string) => {
-    setMessageInput((prev) => prev + emoji);
-    // Focus back to input after selecting emoji
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 100);
-  };
+  const handleSendMessage = (content: string, images?: File[]) => {
+    if (!content.trim() && (!images || images.length === 0)) return;
 
-  const handleSendMessage = () => {
-    if (!messageInput.trim()) return;
+    // Convert images to data URLs
+    if (images && images.length > 0) {
+      const imagePromises = Array.from(images).map((file) => {
+        return new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            if (e.target?.result) {
+              resolve(e.target.result as string);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      });
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      senderId: "me",
-      senderName: "You",
-      content: messageInput,
-      timestamp: new Date(),
-      isRead: false,
-      isOwn: true,
-    };
-
-    setMessages([...messages, newMessage]);
-    setMessageInput("");
+      Promise.all(imagePromises).then((imageUrls) => {
+        const newMessage: Message = {
+          id: Date.now().toString(),
+          senderId: "me",
+          senderName: "You",
+          content: content,
+          timestamp: new Date(),
+          isRead: false,
+          isOwn: true,
+          images: imageUrls,
+        };
+        setMessages((prev) => [...prev, newMessage]);
+      });
+    } else {
+      // No images, create message immediately
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        senderId: "me",
+        senderName: "You",
+        content: content,
+        timestamp: new Date(),
+        isRead: false,
+        isOwn: true,
+      };
+      setMessages([...messages, newMessage]);
+    }
   };
 
   const formatTime = (date: Date) => {
@@ -759,6 +785,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                     const showTime =
                       index === messages.length - 1 ||
                       messages[index + 1]?.senderId !== message.senderId;
+                    const isEmoticonOnly = shouldDisplayAsEmoticonOnly(message.content, message.images);
 
                     return (
                       <div
@@ -794,48 +821,98 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                             message.isOwn ? "items-end" : "items-start"
                           )}
                         >
-                          <div
-                            className={cn(
-                              "px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg shadow-sm",
-                              "transition-all duration-300 ease-out hover:scale-[1.02]",
-                              message.isOwn
-                                ? "bg-[#FADEFD] text-[#080E11] rounded-br-sm"
-                                : "bg-[#9BB6CC0A] text-[#9BB6CC] rounded-bl-sm"
-                            )}
-                          >
-                            {showAvatar &&
-                              !message.isOwn &&
-                              selectedRoom.type === "group" && (
-                                <p className="text-[11px] md:text-xs font-medium mb-0.5 md:mb-1 text-[#4bd865]">
-                                  {message.senderName}
+                          {isEmoticonOnly ? (
+                            /* Emoticon-Only Display - Large, Prominent (No Bubble) with Telegram Emojis */
+                            <div
+                              style={{
+                                fontSize: "4rem",
+                                lineHeight: "1.2",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <TelegramEmoji content={message.content.trim()} size={192} />
+                            </div>
+                          ) : (
+                            <div
+                              className={cn(
+                                "rounded-lg shadow-sm overflow-hidden",
+                                "transition-all duration-300 ease-out hover:scale-[1.02]",
+                                message.isOwn
+                                  ? "bg-[#FADEFD] text-[#080E11] rounded-br-sm"
+                                  : "bg-[#9BB6CC0A] text-[#9BB6CC] rounded-bl-sm"
+                              )}
+                            >
+                              {showAvatar &&
+                                !message.isOwn &&
+                                selectedRoom.type === "group" && (
+                                  <p className="text-[11px] md:text-xs font-medium mb-0.5 md:mb-1 px-2.5 pt-1.5 md:px-3 md:pt-2 text-[#4bd865]">
+                                    {message.senderName}
+                                  </p>
+                                )}
+                              
+                              {/* Images */}
+                              {message.images && message.images.length > 0 && (
+                                <div className={cn(
+                                  "grid gap-1 p-1",
+                                  message.images.length === 1 ? "grid-cols-1" : message.images.length === 2 ? "grid-cols-2" : "grid-cols-2"
+                                )}>
+                                  {message.images.map((imageUrl, index) => (
+                                    <div
+                                      key={index}
+                                      className={cn(
+                                        "relative rounded-lg overflow-hidden bg-[#2b3642]",
+                                        message.images!.length === 1 ? "w-full max-w-[400px]" : "w-full"
+                                      )}
+                                    >
+                                      <img
+                                        src={imageUrl}
+                                        alt={`Image ${index + 1}`}
+                                        className="w-full h-auto object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                        loading="lazy"
+                                        onClick={() => {
+                                          setCurrentImageList(message.images!);
+                                          setCurrentImageIndex(index);
+                                          setImageViewerOpen(true);
+                                        }}
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              
+                              {/* Message Text */}
+                              {message.content && (
+                                <p className="text-[13px] md:text-[14px] lg:text-[15px] break-words leading-[1.4] px-2.5 py-1.5 md:px-3 md:py-2">
+                                  <TelegramEmoji content={message.content} size={20} />
                                 </p>
                               )}
-                            <p className="text-[13px] md:text-[14px] lg:text-[15px] break-words leading-[1.4]">
-                              {message.content}
-                            </p>
-                            {/* Time inside bubble - Telegram style */}
-                            <div className="flex items-center justify-end gap-0.5 md:gap-1 mt-0.5 md:mt-1">
-                              <span
-                                className={cn(
-                                  "text-[10px] md:text-[11px]",
-                                  message.isOwn
-                                    ? "text-white/70"
-                                    : "text-gray-400"
-                                )}
-                              >
-                                {formatMessageTime(message.timestamp)}
-                              </span>
-                              {message.isOwn && (
-                                <>
-                                  {message.isRead ? (
-                                    <CheckCheck className="h-3 w-3 md:h-3.5 md:w-3.5 text-white/70" />
-                                  ) : (
-                                    <Check className="h-3 w-3 md:h-3.5 md:w-3.5 text-white/70" />
+                              
+                              {/* Time inside bubble - Telegram style */}
+                              <div className="flex items-center justify-end gap-0.5 md:gap-1 mt-0.5 md:mt-1 px-2.5 pb-1.5 md:px-3 md:pb-2">
+                                <span
+                                  className={cn(
+                                    "text-[10px] md:text-[11px]",
+                                    message.isOwn
+                                      ? "text-[#080E11]"
+                                      : "text-gray-400"
                                   )}
-                                </>
-                              )}
+                                >
+                                  {formatMessageTime(message.timestamp)}
+                                </span>
+                                {message.isOwn && (
+                                  <>
+                                    {message.isRead ? (
+                                      <CheckCheck className="h-3 w-3 md:h-3.5 md:w-3.5 text-[#080E11]" />
+                                    ) : (
+                                      <Check className="h-3 w-3 md:h-3.5 md:w-3.5 text-[#080E11]" />
+                                    )}
+                                  </>
+                                )}
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </div>
                       </div>
                     );
@@ -847,81 +924,18 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
 
               {/* Input Area */}
               <div 
-                className="flex-shrink-0 px-2 md:px-3 lg:px-4 py-2 md:py-2.5 lg:py-3 border-t border-[#2b3642]/50 relative z-0 animate-in fade-in-0 slide-in-from-bottom-2 duration-300"
+                className="flex-shrink-0 px-2 md:px-3 lg:px-4 py-2 md:py-2.5 lg:py-3 relative z-0 animate-in fade-in-0 slide-in-from-bottom-2 duration-300"
                 style={{
                   background: "rgba(0, 0, 0, 0.3)",
                   backdropFilter: "blur(20px)",
                   WebkitBackdropFilter: "blur(20px)",
                 }}
               >
-                <div className="flex items-center gap-1.5 md:gap-2 lg:gap-3 relative z-0">
-                  {/* Attachment Button */}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 md:h-9 md:w-9 lg:h-10 lg:w-10 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full flex-shrink-0 transition-all"
-                    title="Attach file"
-                  >
-                    <Paperclip className="h-4 w-4 md:h-[18px] md:w-[18px] lg:h-5 lg:w-5" />
-                  </Button>
-
-                  {/* Input Field Container */}
-                  <div className="flex-1 relative z-0">
-                    <div className="flex items-center gap-1.5 md:gap-2 bg-[#080E1199] rounded-lg px-2 md:px-2.5 lg:px-3 py-1.5 md:py-2 border border-[#2b3642]/30 hover:border-[#2b3642]/60 focus-within:border-[#5c6bc0]/50 transition-all">
-                      <Input
-                        ref={inputRef}
-                        placeholder="Write a message..."
-                        value={messageInput}
-                        onChange={(e) => setMessageInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSendMessage();
-                          }
-                        }}
-                        className="flex-1 h-5 md:h-6 bg-transparent border-none text-white text-[13px] md:text-[14px] placeholder:text-gray-500 focus:ring-0 focus-visible:ring-0 p-0 shadow-none"
-                        autoComplete="off"
-                      />
-                      {/* EmojiPicker has z-[9999] and renders in a portal, so it will appear above everything */}
-                      <EmojiPicker
-                        onEmojiSelect={handleEmojiSelect}
-                        align="right"
-                        trigger={
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-5 w-5 md:h-6 md:w-6 p-0 hover:bg-[#2b3642]/50 text-gray-400 hover:text-white rounded-full flex-shrink-0 relative z-0"
-                            title="Emoji"
-                            type="button"
-                          >
-                            <Smile className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                          </Button>
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  {/* Send/Voice Button */}
-                  {messageInput.trim() ? (
-                    <Button
-                      size="sm"
-                      onClick={handleSendMessage}
-                      className="h-8 w-8 md:h-9 md:w-9 lg:h-10 lg:w-10 p-0 rounded-full bg-[#5c6bc0] hover:bg-[#7986cb] flex-shrink-0 transition-all active:scale-95 shadow-md"
-                      title="Send message"
-                    >
-                      <Send className="h-4 w-4 md:h-[18px] md:w-[18px] lg:h-5 lg:w-5" />
-                    </Button>
-                  ) : (
-                    <Button
-                      size="sm"
-                      className="h-8 w-8 md:h-9 md:w-9 lg:h-10 lg:w-10 p-0 rounded-full hover:bg-[#2b3642]/50 text-gray-400 hover:text-white flex-shrink-0 transition-all"
-                      title="Voice message"
-                      variant="ghost"
-                    >
-                      <Mic className="h-4 w-4 md:h-[18px] md:w-[18px] lg:h-5 lg:w-5" />
-                    </Button>
-                  )}
-                </div>
+                <ChatInput
+                  onSendMessage={handleSendMessage}
+                  placeholder="Write a message..."
+                  forceDesktop={true}
+                />
               </div>
               </div>
 
@@ -931,6 +945,17 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                 isOpen={isRoomInfoOpen}
                 onClose={() => setIsRoomInfoOpen(false)}
               />
+
+              {/* Image Viewer */}
+              {currentImageList.length > 0 && (
+                <ImageViewer
+                  isOpen={imageViewerOpen}
+                  onClose={() => setImageViewerOpen(false)}
+                  images={currentImageList}
+                  currentIndex={currentImageIndex}
+                  onIndexChange={setCurrentImageIndex}
+                />
+              )}
             </div>
           ) : (
             <div 
