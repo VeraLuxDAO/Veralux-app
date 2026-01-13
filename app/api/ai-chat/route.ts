@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import OpenAI from "openai"
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
-
 const BASE_SYSTEM_PROMPT = `
 You are VeraLux AI, the on-site assistant for https://veralux.xyz.
 - Primary knowledge sources: the live site (founder, PM, developer bios, contacts) and the VeraLux whitepaper at https://veralux.gitbook.io/veralux-docs/.
@@ -30,13 +26,6 @@ function mapMessages(messages: IncomingMessage[]) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!process.env.OPENAI_API_KEY) {
-    return NextResponse.json(
-      { error: "Missing OPENAI_API_KEY" },
-      { status: 500 },
-    )
-  }
-
   let body: { messages?: IncomingMessage[]; context?: string }
 
   try {
@@ -69,6 +58,16 @@ export async function POST(req: NextRequest) {
   ]
 
   try {
+    const apiKey = process.env.OPENAI_API_KEY
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: "Missing OPENAI_API_KEY" },
+        { status: 500 },
+      )
+    }
+
+    const openai = new OpenAI({ apiKey })
+
     const completion = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL || "gpt-4o-mini",
       temperature: 0.35,
