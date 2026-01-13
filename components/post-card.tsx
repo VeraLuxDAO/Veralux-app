@@ -357,7 +357,7 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
           )}
         <div 
           className={cn(
-            "flex flex-col sm:flex-row items-center sm:items-center justify-between gap-6 py-3 sm:gap-4 rounded-lg",
+            "flex items-center sm:items-center justify-between py-3 rounded-lg",
             "bg-transparent"
           )}
         >

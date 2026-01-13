@@ -3,11 +3,18 @@
 import { useState, useEffect } from "react";
 import { useWallet } from "@suiet/wallet-kit";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Wallet, ExternalLink, Download, X } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 interface Wallet {
   name: string;
@@ -126,28 +133,32 @@ export function WalletSelectionModal({
   onWalletSelect,
 }: WalletSelectionModalProps) {
   const wallet = useWallet();
-  
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      const scrollY = window.scrollY;
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
-      document.body.style.overflow = "hidden";
-      
-      return () => {
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.width = "";
-        document.body.style.overflow = "";
-        window.scrollTo(0, scrollY);
-      };
-    }
-    return undefined;
-  }, [isOpen]);
   const [wallets, setWallets] = useState<Wallet[]>(SUPPORTED_WALLETS);
   const [mounted, setMounted] = useState(false);
+
+  // Lock body scroll when dialog is open and restore on close
+  useEffect(() => {
+    if (!isOpen) return;
+    const scrollY = window.scrollY;
+    const { style } = document.body;
+    const prevPosition = style.position;
+    const prevTop = style.top;
+    const prevWidth = style.width;
+    const prevOverflow = style.overflow;
+
+    style.position = "fixed";
+    style.top = `-${scrollY}px`;
+    style.width = "100%";
+    style.overflow = "hidden";
+
+    return () => {
+      style.position = prevPosition;
+      style.top = prevTop;
+      style.width = prevWidth;
+      style.overflow = prevOverflow;
+      window.scrollTo(0, scrollY);
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     setMounted(true);
@@ -159,6 +170,7 @@ export function WalletSelectionModal({
       }, 500);
       return () => clearTimeout(retryTimeout);
     }
+    return undefined;
   }, [isOpen]);
 
   const checkInstalledWallets = () => {
@@ -313,44 +325,30 @@ export function WalletSelectionModal({
   if (!mounted || !isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center animate-in fade-in duration-300 p-3 sm:p-4 md:p-6">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 backdrop-blur-md"
-        onClick={onClose}
-        style={{backdropFilter:"blur(20px)"}}
-      />
-
-      {/* Modal */}
-      <Card className="relative w-full max-w-[90vw] sm:max-w-[432px] md:max-w-[480px] lg:max-w-[520px] mx-auto border border-[rgba(255, 255, 255, 0.08)] shadow-2xl backdrop-blur-md animate-in duration-300 max-h-[600px] flex flex-col overflow-hidden" 
-      style={{ backgroundColor:"rgba(8, 14, 17, 0.4)"}}>
-        <CardHeader className="px-3 sm:px-4 pt-3 sm:pt-4 pb-2 sm:pb-3 flex-shrink-0">
-          {/* Header with icon and title */}
+    <Dialog open={isOpen} onOpenChange={(open) => (!open ? onClose() : null)}>
+      <DialogContent
+        className="w-full max-w-[90vw] sm:max-w-[432px] md:max-w-[480px] lg:max-w-[520px] border border-[rgba(255,255,255,0.08)] bg-[#090b0c61] backdrop-blur-md shadow-2xl max-h-[70vh] p-0 overflow-hidden flex flex-col"
+        style={{borderRadius:'24px'}}
+      >
+        <DialogHeader className="px-3 sm:px-4 pt-3 sm:pt-4 pb-2 sm:pb-3 flex-shrink-0">
           <div className="flex items-start justify-between gap-2 sm:gap-3">
             <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#FADEFD] flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 sm:w-9 sm:h-9 rounded-full bg-[#FADEFD] flex items-center justify-center flex-shrink-0">
                 <Wallet className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-black" />
               </div>
               <div className="flex flex-col min-w-0">
-                <CardTitle className="text-[14px] sm:text-[16px] font-medium text-white">
+                <DialogTitle className="text-[14px] sm:text-[16px] font-medium text-white">
                   Connect Wallet
-                </CardTitle>
-                <p className="text-[11px] sm:text-[12px] text-gray-400">
+                </DialogTitle>
+                <DialogDescription className="text-[11px] sm:text-[12px] text-gray-400">
                   Choose a wallet to connect to VeraLux
-                </p>
+                </DialogDescription>
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-full transition-colors hover:bg-white/10 flex-shrink-0"
-              aria-label="Close"
-            >
-              <X className="w-4 h-4 sm:w-5 sm:h-5 text-[#9BB6CC]" />
-            </button>
           </div>
-        </CardHeader>
+        </DialogHeader>
 
-        <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-4 overflow-y-auto flex-1">
+        <div className="space-y-3 sm:space-y-4 px-3 sm:px-4 pb-3 sm:pb-4 overflow-y-auto flex-1 min-h-0">
           {/* Popular Wallets */}
           <div>
             <p className="text-[11px] sm:text-[12px] font-medium text-[#9BB6CC99] mb-2 sm:mb-3">
@@ -360,7 +358,7 @@ export function WalletSelectionModal({
               {wallets.slice(0, 4).map((wallet) => (
                 <button
                   key={wallet.name}
-                  className="w-full p-2.5 sm:p-3 rounded-lg bg-transparent hover:bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-200 cursor-pointer group"
+                  className="w-full p-2.5 sm:p-3 rounded-lg bg-[#9BB6CC0A] hover:bg-white/5 transition-all duration-200 cursor-pointer group"
                   onClick={() => handleWalletClick(wallet)}
                 >
                   <div className="flex items-center gap-2.5 sm:gap-3 w-full">
@@ -425,7 +423,7 @@ export function WalletSelectionModal({
               {wallets.slice(4).map((wallet) => (
                 <button
                   key={wallet.name}
-                  className="w-full p-2.5 sm:p-3 rounded-lg bg-transparent hover:bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-200 cursor-pointer group"
+                  className="w-full p-2.5 sm:p-3 rounded-lg bg-[#9BB6CC0A] hover:bg-white/5 transition-all duration-200 cursor-pointer group"
                   onClick={() => handleWalletClick(wallet)}
                 >
                   <div className="flex items-center gap-2.5 sm:gap-3 w-full">
@@ -482,7 +480,7 @@ export function WalletSelectionModal({
           </div>
 
           {/* Footer */}
-          <div className="pt-3 sm:pt-4 border-t border-white/10 flex-shrink-0">
+          <div className="pt-3 sm:pt-4 mt-3 sm:mt-4 border-t border-white/10">
             <p className="text-[10px] sm:text-xs md:text-sm text-center text-white">
               New to Sui?{" "}
               <a
@@ -495,8 +493,8 @@ export function WalletSelectionModal({
               </a>
             </p>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
