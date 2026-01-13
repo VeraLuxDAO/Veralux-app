@@ -13,6 +13,8 @@ import { useAuth } from "@/contexts/auth-context";
 interface MediaFile {
   type: "image" | "video" | "audio";
   url: string;
+  mime?: string;
+  playable?: boolean;
 }
 
 interface FlowPost {
@@ -139,6 +141,13 @@ export function SocialFeed() {
     // 1. Upload files to your storage (e.g., IPFS, AWS S3, etc.)
     // 2. Get the file URLs from the storage service
     // 3. Store them in the post data
+    const supportedVideoMimes = [
+      "video/mp4",
+      "video/webm",
+      "video/ogg",
+      "video/quicktime",
+    ];
+
     const media: MediaFile[] | undefined = files?.map((file) => {
       const type = file.type.startsWith("image/")
         ? "image"
@@ -146,7 +155,13 @@ export function SocialFeed() {
         ? "video"
         : "audio";
       const url = URL.createObjectURL(file);
-      return { type, url };
+      const mime = file.type || undefined;
+      const playable =
+        type !== "video" ||
+        !mime ||
+        supportedVideoMimes.some((m) => mime.includes(m.split("/")[1]) || mime === m);
+
+      return { type, url, mime, playable };
     });
 
     const newPost: FlowPost = {

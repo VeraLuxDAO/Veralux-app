@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,6 +16,10 @@ import {
   Wrench,
   ShoppingCart,
   X,
+  Copy,
+  Check,
+  LogOut,
+  Wallet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
@@ -27,6 +31,13 @@ import { RoomsSlidingPanel } from "@/components/rooms-sliding-panel";
 import { CirclesSlidingPanel } from "@/components/circles-sliding-panel";
 import { NotificationCenterPopover } from "@/components/notification-center-popover";
 import { joinedCircles } from "@/lib/circles-data";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useWallet } from "@suiet/wallet-kit";
+import { WalletAccountModal } from "@/components/wallet-account-modal";
 
 interface DesktopTopBarProps {
   className?: string;
@@ -39,8 +50,12 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
   const [isConnectionsPanelOpen, setIsConnectionsPanelOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const auth = useAuth();
+  const wallet = useWallet();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -51,6 +66,15 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
   
   // Desktop Circles panel is considered "open" whenever the circle parameter is present (on any page)
   const isCirclesPanelOpen = searchParams.get("circle") !== null;
+
+  const userInitial = auth.user?.name?.charAt(0) || "U";
+  const walletAddress =
+    wallet.connected && wallet.account?.address ? wallet.account.address : "";
+
+  const truncatedAddress = useMemo(() => {
+    if (!walletAddress) return "";
+    return `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+  }, [walletAddress]);
 
   const handleLogoClick = () => {
     router.push("/");
@@ -104,6 +128,113 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isSearchExpanded]);
+
+  const handleCopyAddress = async () => {
+    if (!walletAddress || typeof navigator === "undefined") return;
+    try {
+      await navigator.clipboard.writeText(walletAddress);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    } catch (error) {
+      console.error("Failed to copy address", error);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await auth.signOut();
+    setIsUserMenuOpen(false);
+  };
+
+  const renderUserMenu = () => (
+    <Popover open={isUserMenuOpen} onOpenChange={setIsUserMenuOpen}>
+      <PopoverTrigger asChild>
+        <button className="relative flex items-center justify-center focus:outline-none">
+          <Avatar className="h-10 w-10 border-2 border-transparent hover:border-primary/30 transition-all">
+            <AvatarImage src={auth.user?.picture} />
+            <AvatarFallback className="bg-primary/20 text-primary text-sm font-medium">
+              {userInitial}
+            </AvatarFallback>
+          </Avatar>
+          <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#080E11] rounded-full" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        sideOffset={10}
+        className="w-[260px] border border-white/10 bg-[#0B1317] text-white shadow-xl"
+      >
+        <div className="flex items-start gap-3">
+          <Avatar className="h-11 w-11 border border-white/10">
+            <AvatarImage src={auth.user?.picture} />
+            <AvatarFallback className="bg-primary/20 text-primary text-base font-medium">
+              {userInitial}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 space-y-1">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold leading-tight">
+                {auth.user?.name || "Unnamed user"}
+              </p>
+              <span className="text-[11px] text-veralux-green">Online</span>
+            </div>
+            {walletAddress && (
+              <div className="flex items-center gap-2 rounded-lg bg-white/5 px-2 py-1">
+                <span className="text-xs font-mono text-[#9BB6CC] truncate">
+                  {truncatedAddress}
+                </span>
+                <button
+                  onClick={handleCopyAddress}
+                  className="flex h-7 w-7 items-center justify-center rounded-md bg-white/5 hover:bg-white/10 transition-colors"
+                  aria-label="Copy wallet address"
+                >
+                  {copied ? (
+                    <Check className="h-4 w-4 text-veralux-green" />
+                  ) : (
+                    <Copy className="h-4 w-4 text-white" />
+                  )}
+                </button>
+              </div>
+            )}
+            <p className="text-xs text-[#9BB6CC]">
+              Signed in with Google · zkLogin
+            </p>
+          </div>
+        </div>
+        <div className="mt-4 space-y-2">
+          {wallet.connected && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setIsAccountModalOpen(true);
+                setIsUserMenuOpen(false);
+              }}
+              className="w-full h-9 text-sm bg-white/10 hover:bg-white/15 border border-white/10"
+            >
+              <Wallet className="h-4 w-4 mr-2" />
+              Manage wallet
+            </Button>
+          )}
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => router.push("/profile")}
+              className="h-9 text-sm bg-white/10 hover:bg-white/15 border border-white/10"
+            >
+              View profile
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={handleSignOut}
+              className="h-9 text-sm text-red-200 hover:bg-red-500/10 border border-white/5"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Log out
+            </Button>
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
 
   const navItems = [
     { icon: Headphones, label: "Connect", path: "/" },
@@ -270,19 +401,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                   </Link>
 
                   {/* Profile Avatar */}
-                  <button
-                    onClick={() => router.push("/profile")}
-                    className="relative flex items-center justify-center"
-                  >
-                    <Avatar className="h-10 w-10 border-2 border-transparent hover:border-primary/30 transition-all">
-                      <AvatarImage src={auth.user?.picture} />
-                      <AvatarFallback className="bg-primary/20 text-primary text-sm font-medium">
-                        {auth.user?.name?.charAt(0) || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    {/* Online Indicator */}
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#080E11] rounded-full" />
-                  </button>
+                  {renderUserMenu()}
                 </div>
               ) : (
                 /* Search Collapsed - Compact container */
@@ -372,19 +491,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                   </Link>
 
                   {/* Profile Avatar */}
-                  <button
-                    onClick={() => router.push("/profile")}
-                    className="relative flex items-center justify-center"
-                  >
-                    <Avatar className="h-10 w-10 border-2 border-transparent hover:border-primary/30 transition-all">
-                      <AvatarImage src={auth.user?.picture} />
-                      <AvatarFallback className="bg-primary/20 text-primary text-sm font-medium">
-                        {auth.user?.name?.charAt(0) || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    {/* Online Indicator */}
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#080E11] rounded-full" />
-                  </button>
+                  {renderUserMenu()}
                 </div>
               )
             ) : /* Not Authenticated State */
@@ -484,6 +591,12 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
       <NotificationCenterPopover
         isOpen={isNotificationsPanelOpen}
         onClose={() => setIsNotificationsPanelOpen(false)}
+      />
+
+      {/* Wallet Account Modal */}
+      <WalletAccountModal
+        isOpen={isAccountModalOpen}
+        onClose={() => setIsAccountModalOpen(false)}
       />
     </>
   );

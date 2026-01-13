@@ -4,7 +4,16 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Paperclip, ArrowUp, X, Image, Video, Music } from "lucide-react";
+import {
+  Paperclip,
+  ArrowUp,
+  X,
+  Image,
+  Video,
+  Music,
+  Check,
+  Loader2,
+} from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +21,9 @@ interface UploadedFile {
   file: File;
   preview: string;
   type: "image" | "video" | "audio";
+  playable: boolean;
+  mime?: string;
+  error?: string | null;
 }
 
 interface PostCreatorProps {
@@ -23,12 +35,16 @@ export function PostCreator({ onCreatePost }: PostCreatorProps) {
   const [content, setContent] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [publishStatus, setPublishStatus] = useState<
+    "idle" | "publishing" | "published"
+  >("idle");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = async () => {
     if ((!content.trim() && uploadedFiles.length === 0) || isSubmitting) return;
 
+    setPublishStatus("publishing");
     setIsSubmitting(true);
     try {
       const files = uploadedFiles.map((uf) => uf.file);
@@ -45,6 +61,8 @@ export function PostCreator({ onCreatePost }: PostCreatorProps) {
       console.error("Failed to create post:", error);
     } finally {
       setIsSubmitting(false);
+      setPublishStatus("published");
+      setTimeout(() => setPublishStatus("idle"), 1500);
     }
   };
 
@@ -66,20 +84,50 @@ export function PostCreator({ onCreatePost }: PostCreatorProps) {
     return "image"; // default
   };
 
+  const supportedVideoMimes = [
+    "video/mp4",
+    "video/webm",
+    "video/ogg",
+    "video/quicktime",
+  ];
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
     const newFiles: UploadedFile[] = files.map((file) => {
       const type = getFileType(file);
-      const preview = type === "image" || type === "video" 
-        ? URL.createObjectURL(file)
-        : ""; // Audio files don't need preview URL
-      
+      const mime = file.type || "";
+      const isVideo = type === "video";
+      const normalizedMime = (mime || "").toLowerCase();
+      const mimeSubtype = (mime.split("/")[1] || "").toLowerCase();
+      const playable = !isVideo
+        ? true
+        : !!(
+            normalizedMime &&
+            supportedVideoMimes.some(
+              (m) => {
+                const targetPart = (m.split("/")[1] || "").toLowerCase();
+                return normalizedMime === m || normalizedMime.includes(targetPart);
+              }
+            )
+          );
+
+      const preview =
+        type === "image" || type === "video" ? URL.createObjectURL(file) : "";
+
+      const error =
+        isVideo && !playable
+          ? "Unsupported video format. Please use MP4, WebM, OGG, or MOV."
+          : undefined;
+
       return {
         file,
         preview,
         type,
+        playable,
+        mime,
+        error: error ?? null,
       };
     });
 
@@ -197,12 +245,25 @@ export function PostCreator({ onCreatePost }: PostCreatorProps) {
                       className="w-20 h-20 object-cover"
                     />
                   )}
-                  {uploadedFile.type === "video" && (
-                    <video
-                      src={uploadedFile.preview}
-                      className="w-20 h-20 object-cover"
-                      muted
-                    />
+                  {uploadedFile.type === "video" && uploadedFile.playable && (
+                    <div className="w-20 h-20">
+                      <video
+                        src={uploadedFile.preview}
+                        className="w-full h-full object-cover rounded-lg"
+                        muted
+                        playsInline
+                        controls
+                        preload="metadata"
+                        poster=""
+                      >
+                        Sorry, your browser doesn't support embedded videos.
+                      </video>
+                    </div>
+                  )}
+                  {uploadedFile.type === "video" && !uploadedFile.playable && (
+                    <div className="w-20 h-20 bg-black/50 flex items-center justify-center text-[10px] text-white text-center px-2">
+                      <span>Unsupported format</span>
+                    </div>
                   )}
                   {uploadedFile.type === "audio" && (
                     <div className="w-20 h-20 flex items-center justify-center">
@@ -219,7 +280,7 @@ export function PostCreator({ onCreatePost }: PostCreatorProps) {
                   </button>
                   
                   {/* File type indicator */}
-                  <div className="absolute bottom-1 left-1">
+                  <div className="absolute bottom-1 left-1 flex items-center gap-1">
                     {uploadedFile.type === "image" && (
                       <Image className="w-3 h-3 text-white" />
                     )}
@@ -228,6 +289,11 @@ export function PostCreator({ onCreatePost }: PostCreatorProps) {
                     )}
                     {uploadedFile.type === "audio" && (
                       <Music className="w-3 h-3 text-white" />
+                    )}
+                    {uploadedFile.error && (
+                      <span className="text-[9px] text-red-200 bg-red-500/20 px-1 py-[2px] rounded">
+                        {uploadedFile.error}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -238,7 +304,7 @@ export function PostCreator({ onCreatePost }: PostCreatorProps) {
       </div>
 
       {/* Action Buttons - positioned at absolute bottom right of container */}
-      <div className="absolute bottom-3 right-3 flex flex-row items-center gap-[10px] flex-shrink-0">
+      <div className="absolute bottom-3 right-3 flex flex-row items-center gap-[12px] flex-shrink-0">
         {/* File Attach Button (Paper clip icon) */}
         <Button
           type="button"
@@ -268,14 +334,11 @@ export function PostCreator({ onCreatePost }: PostCreatorProps) {
           variant="ghost"
           size="icon"
           onClick={handleSubmit}
-          disabled={(!content.trim() && uploadedFiles.length === 0) || isSubmitting}
           className={cn(
-            "flex flex-row items-center p-[10px] w-10 h-10 rounded-full",
-            "transition-colors",
+            "flex flex-row items-center p-[10px] w-10 h-10 rounded-full border border-[#FADEFD]",
             (content.trim() || uploadedFiles.length > 0)
               ? "bg-[#FADEFD] hover:bg-[#FADEFD]"
               : "bg-[#FADEFD1A] hover:bg-[#FADEFD1A]",
-            "disabled:opacity-50 disabled:cursor-not-allowed"
           )}
           title="Post"
         >
@@ -286,6 +349,33 @@ export function PostCreator({ onCreatePost }: PostCreatorProps) {
             )}
           />
         </Button>
+      </div>
+
+      {/* Bottom-center publish status toast */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-6 flex justify-center z-[2000]">
+        {publishStatus !== "idle" && (
+          <div
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-full shadow-lg text-sm bg-[rgba(229, 247, 253, 0.1)] font-medium transition-all duration-200",
+              publishStatus === "publishing"
+                ? "text-[#9BB6CC] border border-[#E5F7FD33]"
+                : "text-[#FADEFD] border border-[#E5F7FD33]"
+              )}
+              style={{ minWidth: "140px", backdropFilter:"blur(20px)" }}
+          >
+            {publishStatus === "publishing" ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Publishing…</span>
+              </>
+            ) : (
+              <>
+                <Check className="h-4 w-4" />
+                <span>Published!</span>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
