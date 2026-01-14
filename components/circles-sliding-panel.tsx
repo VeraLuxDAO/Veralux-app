@@ -46,7 +46,7 @@ export function CirclesSlidingPanel({
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [isMemberProfileOpen, setIsMemberProfileOpen] = useState(false);
   const [leftSidebarWidth] = useState(300);
-  const [rightSidebarWidth] = useState(240);
+  const [rightSidebarWidth] = useState(270);
   const router = useRouter();
   const searchParams = useSearchParams();
 

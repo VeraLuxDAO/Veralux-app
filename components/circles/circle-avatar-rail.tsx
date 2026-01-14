@@ -41,7 +41,7 @@ export function CircleAvatarRail({
               type="button"
               onClick={onAdd}
               title="Add circle"
-              className="h-9 w-9 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-all"
+              className="h-9 w-9 rounded-lg border border-[#FFFFFF14] flex items-center justify-center text-white hover:bg-white/10 transition-all"
             >
               <Plus className="h-5 w-5" />
             </button>
