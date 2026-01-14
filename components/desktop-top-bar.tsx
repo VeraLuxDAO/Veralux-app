@@ -20,6 +20,7 @@ import {
   Check,
   LogOut,
   Wallet,
+  ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
@@ -27,10 +28,10 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CirclesModal } from "@/components/circles-modal";
 import { CirclesPopover } from "@/components/circles-popover";
-import { RoomsSlidingPanel } from "@/components/rooms-sliding-panel";
 import { CirclesSlidingPanel } from "@/components/circles-sliding-panel";
 import { NotificationCenterPopover } from "@/components/notification-center-popover";
 import { joinedCircles } from "@/lib/circles-data";
+import { PrivateRoomsPopover } from "@/components/private-rooms-popover";
 import {
   Popover,
   PopoverContent,
@@ -53,19 +54,26 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+  const [hoveredNavItem, setHoveredNavItem] = useState<string | null>(null);
+  const [isPrivateRoomsPopoverOpen, setIsPrivateRoomsPopoverOpen] =
+    useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const auth = useAuth();
   const wallet = useWallet();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const isPrivateRoomsActive = searchParams.get("private_rooms") !== null;
 
-  // Desktop Rooms (private messages) panel is considered "open"
-  // whenever the current path starts with /private_rooms
-  const isRoomsPanelOpen = pathname.startsWith("/private_rooms");
-  
   // Desktop Circles panel is considered "open" whenever the circle parameter is present (on any page)
   const isCirclesPanelOpen = searchParams.get("circle") !== null;
+
+  // Close the private rooms popover whenever the private rooms overlay is active
+  useEffect(() => {
+    if (isPrivateRoomsActive) {
+      setIsPrivateRoomsPopoverOpen(false);
+    }
+  }, [isPrivateRoomsActive]);
 
   const userInitial = auth.user?.name?.charAt(0) || "U";
   const walletAddress =
@@ -78,6 +86,14 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
 
   const handleLogoClick = () => {
     router.push("/");
+  };
+
+  const handlePrivateRoomsBack = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("private_rooms");
+    const nextSearch = params.toString();
+    const nextPath = pathname || "/";
+    router.push(nextSearch ? `${nextPath}?${nextSearch}` : nextPath);
   };
 
   const handleSearchIconClick = () => {
@@ -253,16 +269,40 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
           className
         )}
       >
-        <div className="flex items-center justify-center px-8 pt-4 pb-3.5 relative">
+        <div className="flex items-center justify-center px-8 pt-4 pb-3.5 relative" style={{backdropFilter:"16px"}}>
+          {/* Left Side - Back Button (only when private rooms overlay is open) */}
+          {isPrivateRoomsActive && (
+            <div className="fixed left-[24px]">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handlePrivateRoomsBack}
+                className="flex items-center gap-2 h-9 px-3 rounded-full text-white hover:bg-white/10 transition-colors"
+              >
+                <ArrowLeft className="h-5 w-5" />
+                <span className="text-sm font-medium">Back</span>
+              </Button>
+            </div>
+          )}
+
           {/* Center - Navigation Pills with Icons - Centered ignoring sidebar */}
           <nav className="flex items-center gap-3 bg-[#080E11]/40 border border-white/[0.08] rounded-[24px] p-3 backdrop-blur-[40px] h-[60px]">
             {navItems.map((item) => {
               const isActive = pathname === item.path;
+              const isHovered = hoveredNavItem === item.path;
+              const showLabel = isActive || isHovered;
               // Play, Build, Trade buttons should use #E5F7FD99 when not active
               const shouldUseHighlightColor = !isActive && (item.path === "/gaming" || item.path === "/dev" || item.path === "/marketplace");
               
               // Preserve circle and channel query parameters when navigating
+              // Except for Connect button which always goes to clean home page
               const handleNavigation = () => {
+                // Connect button always navigates to clean home page
+                if (item.path === "/" && item.label === "Connect") {
+                  router.push("/");
+                  return;
+                }
+                
                 const circle = searchParams.get("circle");
                 const channel = searchParams.get("channel");
                 
@@ -283,11 +323,13 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                   variant="ghost"
                   size="sm"
                   onClick={handleNavigation}
+                  onMouseEnter={() => setHoveredNavItem(item.path)}
+                  onMouseLeave={() => setHoveredNavItem(null)}
                   className={cn(
-                    "flex items-center gap-2 rounded-[12px] px-4 py-2 transition-all duration-200 text-sm h-9",
-                    isActive
-                      ? "text-foreground"
-                      : "hover:bg-white/10 hover:text-foreground"
+                    "flex items-center rounded-[12px] text-sm h-9",
+                    showLabel ? "px-4 py-2" : "px-3 py-2",
+                    isActive ? "text-foreground" : "hover:bg-white/10 hover:text-foreground",
+                    "transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
                   )}
                   style={{
                     fontFamily: "Manrope, sans-serif",
@@ -298,8 +340,28 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                       : { color: shouldUseHighlightColor ? "#E5F7FD99" : "rgba(230, 253, 229, 0.6)" })
                   }}
                 >
-                  <item.icon className="h-4 w-4" />
-                  <span>{item.label}</span>
+                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                  <div
+                    className="overflow-hidden inline-block"
+                    style={{
+                      width: showLabel ? '60px' : '0px',
+                      transition: 'width 350ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+                      willChange: 'width'
+                    }}
+                  >
+                    <span 
+                      className="whitespace-nowrap inline-block"
+                      style={{
+                        opacity: showLabel ? 1 : 0,
+                        transition: showLabel 
+                          ? 'opacity 200ms cubic-bezier(0.4, 0, 1, 1) 150ms'
+                          : 'opacity 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
+                        willChange: 'opacity'
+                      }}
+                    >
+                      {item.label}
+                    </span>
+                  </div>
                 </Button>
               );
             })}
@@ -375,12 +437,17 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     <Users className="h-5 w-5 text-white" />
                   </button>
 
-                  {/* Messages Button - navigates to /private_rooms (desktop private rooms) */}
-                  <Link
-                    href="/private_rooms"
+                  {/* Messages Button - opens private rooms popover */}
+                  <button
+                    data-private-rooms-trigger
+                    onClick={() => {
+                      setIsPrivateRoomsPopoverOpen(!isPrivateRoomsPopoverOpen);
+                      setIsNotificationsPanelOpen(false);
+                      setIsCirclesModalOpen(false);
+                    }}
                     className={cn(
                       "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",
-                      isRoomsPanelOpen
+                      isPrivateRoomsActive || isPrivateRoomsPopoverOpen
                         ? "bg-[#FFFFFF14]"
                         : "hover:bg-white/5"
                     )}
@@ -398,7 +465,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     >
                       2
                     </Badge>
-                  </Link>
+                  </button>
 
                   {/* Profile Avatar */}
                   {renderUserMenu()}
@@ -465,12 +532,17 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     <Users className="h-5 w-5 text-white" />
                   </button>
 
-                  {/* Messages Button - navigates to /private_rooms (desktop private rooms) */}
-                  <Link
-                    href="/private_rooms"
+                  {/* Messages Button - opens private rooms popover */}
+                  <button
+                    data-private-rooms-trigger
+                    onClick={() => {
+                      setIsPrivateRoomsPopoverOpen(!isPrivateRoomsPopoverOpen);
+                      setIsNotificationsPanelOpen(false);
+                      setIsCirclesModalOpen(false);
+                    }}
                     className={cn(
                       "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",
-                      isRoomsPanelOpen
+                      isPrivateRoomsActive || isPrivateRoomsPopoverOpen
                         ? "bg-[#FFFFFF14]"
                         : "hover:bg-white/5"
                     )}
@@ -488,7 +560,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     >
                       2
                     </Badge>
-                  </Link>
+                  </button>
 
                   {/* Profile Avatar */}
                   {renderUserMenu()}
@@ -575,10 +647,10 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
         />
       </div>
 
-      {/* Rooms Sliding Panel (desktop only, opened/closed based on /private_rooms path) */}
-      <RoomsSlidingPanel
-        isOpen={isRoomsPanelOpen}
-        onClose={() => router.push("/")}
+      {/* Private Rooms Popover - Desktop Only */}
+      <PrivateRoomsPopover
+        isOpen={isPrivateRoomsPopoverOpen}
+        onClose={() => setIsPrivateRoomsPopoverOpen(false)}
       />
 
       {/* Circles Sliding Panel (desktop only, opened/closed based on ?circle parameter) */}

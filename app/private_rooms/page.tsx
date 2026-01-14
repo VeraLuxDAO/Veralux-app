@@ -1,12 +1,14 @@
 "use client";
 
-import HomePage from "../page";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-// Desktop private rooms entry point.
-// This reuses the Social Hub page content; the DesktopTopBar
-// will detect the /private_rooms path and open the rooms panel.
 export default function PrivateRoomsPage() {
-  return <HomePage />;
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/?private_rooms");
+  }, [router]);
+
+  return null;
 }
-
-

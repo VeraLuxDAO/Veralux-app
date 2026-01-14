@@ -193,10 +193,11 @@ export function RoomInfoView({
         isMobile
           ? "w-full h-full opacity-100"
           : isOpen
-          ? "w-[320px] opacity-100"
+          ? "w-[300px] opacity-100 ml-4"
           : "w-0 opacity-0 pointer-events-none"
       )}
       style={{
+        borderRadius:"24px",
         background: "rgba(5, 8, 13, 0.98)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",

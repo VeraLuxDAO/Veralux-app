@@ -1,12 +1,16 @@
 "use client";
 
-import HomePage from "../../page";
+import { useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 
-// Desktop private room route with a specific room slug.
-// The DesktopTopBar + RoomsSlidingPanel read the /private_rooms path
-// and the slug to decide which room is selected.
 export default function PrivateRoomSlugPage() {
-  return <HomePage />;
+  const router = useRouter();
+  const params = useParams<{ roomSlug?: string }>();
+
+  useEffect(() => {
+    const slug = params?.roomSlug ? `/?private_rooms=${params.roomSlug}` : "/?private_rooms";
+    router.replace(slug);
+  }, [params?.roomSlug, router]);
+
+  return null;
 }
-
-

@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0",
     "@hookform/resolvers": "^3.10.0",
     "@mysten/sui": "^1.37.6",
     "@mysten/zklogin": "^0.8.1",

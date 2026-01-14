@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Search, Users, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { joinedCircles, discoverCircles, type Circle } from "@/lib/circles-data";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +21,8 @@ export function CirclesPopover({ isOpen, onClose }: CirclesPopoverProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("joined");
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const popoverRef = useRef<HTMLDivElement>(null);
 
   const slugifyCircleName = (name: string) =>
@@ -32,12 +34,13 @@ export function CirclesPopover({ isOpen, onClose }: CirclesPopoverProps) {
   const handleCircleClick = (circle: Circle) => {
     if (circle.isJoined) {
       const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-      // On mobile, add #channel hash by default
-      if (isMobile) {
-        router.push(`/?circle=${slugifyCircleName(circle.name)}&channel=general#channel`);
-      } else {
-        router.push(`/?circle=${slugifyCircleName(circle.name)}&channel=general`);
-      }
+      const circleSlug = slugifyCircleName(circle.name);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("circle", circleSlug);
+      params.set("channel", "general");
+      const currentPath = pathname || "/";
+      const url = `${currentPath}?${params.toString()}${isMobile ? "#channel" : ""}`;
+      router.push(url);
       onClose();
     } else {
       // Handle join circle logic
@@ -183,25 +186,19 @@ export function CirclesPopover({ isOpen, onClose }: CirclesPopoverProps) {
           <div className="px-4 py-3 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(76, 216, 101, 0.2)" }}>
-                  <Users className="h-3 w-3" style={{ color: "#4bd865" }} />
+                <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#E5F7FD33" }}>
+                  <Users className="h-5 w-5" style={{ color: "white" }} />
                 </div>
-                <h2 className="text-[15px] font-semibold text-white">
-                  Circles
-                </h2>
+                <div className="flex-col">
+                  <h2 className="text-[15px] font-semibold text-white">
+                    Circles
+                  </h2>
+                  <p className="text-xs text-[#9BB6CC99]">
+                    Connect with your communities
+                  </p>
+                </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="h-7 w-7 p-0 hover:bg-white/10 text-[#9BB6CC] hover:text-white rounded-md transition-all"
-              >
-                <X className="h-4 w-4" />
-              </Button>
             </div>
-            <p className="text-xs text-[#9BB6CC99] ml-7">
-              Connect with your communities
-            </p>
           </div>
 
           {/* Search Bar */}
