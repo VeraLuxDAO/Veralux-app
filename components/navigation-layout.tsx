@@ -9,6 +9,7 @@ import { DesktopTopBar } from "@/components/desktop-top-bar";
 import { DesktopLeftSidebar } from "@/components/desktop-left-sidebar";
 import { AIChat } from "@/components/ai-chat";
 import { CirclesSlidingPanel } from "@/components/circles-sliding-panel";
+import { RoomsSlidingPanel } from "@/components/rooms-sliding-panel";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +18,7 @@ interface NavigationLayoutProps {
   className?: string;
   header?: React.ReactNode;
   hideDesktopSidebar?: boolean;
+  hideAIChat?: boolean;
 }
 
 function NavigationLayoutContent({
@@ -24,11 +26,14 @@ function NavigationLayoutContent({
   className,
   header,
   hideDesktopSidebar = false,
+  hideAIChat = false,
 }: NavigationLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const isPrivateRoomsOpen = searchParams.get("private_rooms") !== null;
+  const shouldHideSidebar = hideDesktopSidebar || isPrivateRoomsOpen;
   
   // Compute shouldHideBottomBar directly - check if circle parameter exists and we're on mobile
   // Use both searchParams and window.location as fallback for reliability
@@ -46,6 +51,14 @@ function NavigationLayoutContent({
 
   // Circles panel is open when circle parameter is present (works on both mobile and desktop, on all pages)
   const isCirclesPanelOpen = searchParams.get("circle") !== null;
+
+  const handlePrivateRoomsClose = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("private_rooms");
+    const nextSearch = params.toString();
+    const nextPath = pathname || "/";
+    router.push(nextSearch ? `${nextPath}?${nextSearch}` : nextPath);
+  };
 
   // Set data attribute on body for CSS targeting
   useEffect(() => {
@@ -70,23 +83,30 @@ function NavigationLayoutContent({
         isOpen={isMobileMenuOpen}
         onClose={handleMobileMenuClose}
       />
-      <MobileAITab />
+      {!hideAIChat && <MobileAITab />}
 
       {/* Desktop Navigation */}
       <Suspense fallback={null}>
         <DesktopTopBar />
       </Suspense>
-      {!hideDesktopSidebar && <DesktopLeftSidebar />}
+      {!shouldHideSidebar && <DesktopLeftSidebar />}
 
       {/* Desktop AI Chat (bottom-right popup) */}
-      <div className="hidden md:block">
-        <AIChat />
-      </div>
+      {!hideAIChat && (
+        <div className="hidden md:block">
+          <AIChat />
+        </div>
+      )}
 
       {/* Circles Sliding Panel (works on both mobile and desktop) */}
       <CirclesSlidingPanel
         isOpen={isCirclesPanelOpen}
         onClose={() => router.push("/")}
+      />
+      <RoomsSlidingPanel
+        isOpen={isPrivateRoomsOpen}
+        onClose={handlePrivateRoomsClose}
+        variant="overlay"
       />
 
       {/* Page Header Section (Between Top Nav and Main Content) */}
@@ -113,21 +133,21 @@ function NavigationLayoutContent({
           "pb-0 md:pb-0",
           // Responsive left margins: 14px edge + Sidebar width + 24px gap
           // No left margin on mobile/tablet (sidebar hidden below lg breakpoint)
-          hideDesktopSidebar ? "lg:ml-0 xl:ml-0" : "lg:ml-[258px]",
-          hideDesktopSidebar ? "" : "xl:ml-[288px]", // xl: 14 + 250 + 24
+          shouldHideSidebar ? "lg:ml-0 xl:ml-0" : "lg:ml-[258px]",
+          shouldHideSidebar ? "" : "xl:ml-[288px]", // xl: 14 + 250 + 24
           // Desktop: Right margin = 24px (equal to left gap)
-          hideDesktopSidebar ? "md:mr-0" : "md:mr-[24px]",
+          shouldHideSidebar ? "md:mr-0" : "md:mr-[24px]",
           // Gap between header and main content - FIXED
           "mt-0 md:mt-[67px]",
           // Use flexbox to fill available height when sidebar is hidden
-          hideDesktopSidebar && "flex flex-col",
+          shouldHideSidebar && "flex flex-col",
           // Calculate height: viewport height minus top bar height (~90px with padding)
-          hideDesktopSidebar && "md:h-[calc(100vh-90px)]"
+          shouldHideSidebar && "md:h-[calc(100vh-90px)]"
         )}
       >
         <div className={cn(
           "w-full",
-          hideDesktopSidebar ? "flex-1 flex flex-col min-h-0 overflow-hidden px-4 pt-4 sm:px-6 sm:pt-6 md:px-0 md:pt-8" : "px-4 pt-4 sm:px-6 sm:pt-6 md:px-0 md:pt-8"
+          shouldHideSidebar ? "flex-1 flex flex-col min-h-0 overflow-hidden px-4 pt-4 sm:px-6 sm:pt-6 md:px-0 md:pt-8" : "px-4 pt-4 sm:px-6 sm:pt-6 md:px-0 md:pt-8"
         )}>
           {children}
         </div>

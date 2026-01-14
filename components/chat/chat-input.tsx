@@ -128,12 +128,13 @@ export function ChatInput({
   return (
     <div
       className={cn(
-        "bg-background/95 backdrop-blur-md border-t border-border/50",
-        "shadow-lg shadow-black/5 chat-input-container p-0",
+        "chat-input-container p-0",
         className
       )}
       style={{
         padding: "0px !important",
+        background: "transparent",
+        border: "none",
       }}
     >
       {/* Image Previews */}
@@ -175,7 +176,8 @@ export function ChatInput({
                 "focus-within:bg-[rgba(229,247,253,0.06)]"
               )}
               style={{
-                backgroundColor: "rgba(229, 247, 253, 0.04)",
+                backgroundColor: "rgba(229, 247, 253, 0.06)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
               }}
             >
               {/* Left: Emoji Picker - Inside input field */}
@@ -202,12 +204,13 @@ export function ChatInput({
                 placeholder={placeholder}
                 disabled={disabled}
                 className={cn(
-                  "w-full min-h-[36px] max-h-40 resize-none border border-[#FFFFFF14] bg-transparent",
+                  "w-full min-h-[36px] max-h-40 resize-none bg-transparent",
                   "focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
                   "leading-relaxed",
                   "py-[10px] pl-10 pr-20 font-medium",
                   "scrollbar-thin scrollbar-thumb-muted-foreground/20 rounded-2xl md:rounded-3xl",
-                  "placeholder:text-[#9BB6CC99]"
+                  "placeholder:text-[#9BB6CC99]",
+                  "border-none"
                 )}
                 rows={1}
                 style={{

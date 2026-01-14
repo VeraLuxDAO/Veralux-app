@@ -225,7 +225,7 @@ export function PrivateRoomsPopover({
                 <button
                   key={room.id}
                   onClick={() => {
-                    router.push(`/private_rooms/${slugifyRoomName(room.name)}`);
+                    router.push(`/?private_rooms=${slugifyRoomName(room.name)}`);
                     onClose();
                   }}
                   className="w-full text-left"

@@ -1,21 +1,16 @@
 "use client";
 
-import { NavigationLayout } from "@/components/navigation-layout";
-import { RoomsSlidingPanel } from "@/components/rooms-sliding-panel";
-import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 
 export default function PrivateRoomSlugPage() {
   const router = useRouter();
+  const params = useParams<{ roomSlug?: string }>();
 
-  return (
-    <NavigationLayout className="bg-transparent" hideDesktopSidebar>
-      <div className="w-full h-full flex flex-col min-h-0">
-        <RoomsSlidingPanel
-          isOpen
-          variant="page"
-          onClose={() => router.push("/")}
-        />
-      </div>
-    </NavigationLayout>
-  );
+  useEffect(() => {
+    const slug = params?.roomSlug ? `/?private_rooms=${params.roomSlug}` : "/?private_rooms";
+    router.replace(slug);
+  }, [params?.roomSlug, router]);
+
+  return null;
 }

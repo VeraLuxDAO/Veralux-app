@@ -62,17 +62,17 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const isRoomsPage = pathname.startsWith("/private_rooms");
+  const isPrivateRoomsActive = searchParams.get("private_rooms") !== null;
 
   // Desktop Circles panel is considered "open" whenever the circle parameter is present (on any page)
   const isCirclesPanelOpen = searchParams.get("circle") !== null;
 
-  // Close the private rooms popover whenever the dedicated page route is active
+  // Close the private rooms popover whenever the private rooms overlay is active
   useEffect(() => {
-    if (isRoomsPage) {
+    if (isPrivateRoomsActive) {
       setIsPrivateRoomsPopoverOpen(false);
     }
-  }, [isRoomsPage]);
+  }, [isPrivateRoomsActive]);
 
   const userInitial = auth.user?.name?.charAt(0) || "U";
   const walletAddress =
@@ -423,7 +423,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     }}
                     className={cn(
                       "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",
-                      isRoomsPage || isPrivateRoomsPopoverOpen
+                      isPrivateRoomsActive || isPrivateRoomsPopoverOpen
                         ? "bg-[#FFFFFF14]"
                         : "hover:bg-white/5"
                     )}
@@ -518,7 +518,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     }}
                     className={cn(
                       "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",
-                      isRoomsPage || isPrivateRoomsPopoverOpen
+                      isPrivateRoomsActive || isPrivateRoomsPopoverOpen
                         ? "bg-[#FFFFFF14]"
                         : "hover:bg-white/5"
                     )}

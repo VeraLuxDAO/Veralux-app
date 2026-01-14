@@ -68,7 +68,7 @@ interface Room {
 interface RoomsSlidingPanelProps {
   isOpen: boolean;
   onClose: () => void;
-  variant?: "panel" | "page";
+  variant?: "panel" | "page" | "overlay";
 }
 
 const mockRooms: Room[] = [
@@ -196,6 +196,7 @@ export function RoomsSlidingPanel({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const isPage = variant === "page";
+  const isOverlay = variant === "overlay";
 
   // Lock body scroll when panel is open
   useEffect(() => {
@@ -228,6 +229,9 @@ export function RoomsSlidingPanel({
   const searchParams = useSearchParams();
   const params = useParams<{ roomSlug?: string }>();
   const roomSlugFromPath = params?.roomSlug;
+  const privateRoomSlugFromQuery = searchParams.get("private_rooms");
+  const slugFromQuery = privateRoomSlugFromQuery || searchParams.get("room");
+  const slug = roomSlugFromPath || slugFromQuery;
 
   const slugifyRoomName = (name: string) =>
     name
@@ -247,12 +251,9 @@ export function RoomsSlidingPanel({
     }
   }, [messages]);
 
-  // Sync selectedRoom with URL when panel is open on desktop (/private_rooms?room=slug)
+  // Sync selectedRoom with URL when panel is open (?private_rooms=slug)
   useEffect(() => {
     if (!isOpen && !isPage) return;
-
-    const slugFromQuery = searchParams.get("room");
-    const slug = roomSlugFromPath || slugFromQuery;
 
     if (slug) {
       const fromSlug =
@@ -425,12 +426,16 @@ export function RoomsSlidingPanel({
       {!isPage && (
         <div
           className={cn(
-            "fixed inset-0 z-[65] transition-opacity duration-300",
-            "hidden md:block",
+            "fixed inset-0 z-[45] transition-opacity duration-300",
+            isOverlay ? "" : "hidden md:block",
             isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
           )}
           onClick={onClose}
-          style={{ top: "5rem" }}
+          style={
+            {
+          background: isOverlay ? "rgba(8, 14, 17, 0.72)" : undefined,
+            }
+          }
         />
       )}
 
@@ -438,11 +443,11 @@ export function RoomsSlidingPanel({
       <div
         className={cn(
           "rooms-sliding-panel",
-          "shadow-[0_20px_45px_rgba(0,0,0,0.45)]",
-          "transform transition-all duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)]",
           "overflow-hidden",
           isPage
             ? "relative w-full h-full flex-1 min-h-0 z-[10]"
+            : isOverlay
+            ? "fixed left-0 right-0 bottom-0 top-[96px] z-[48] w-full flex items-start justify-center pb-6"
             : "fixed h-[calc(100vh-5rem)] z-[70] hidden md:block w-[90vw] md:w-auto",
           isPage
             ? "opacity-100 translate-x-0 scale-100"
@@ -450,28 +455,39 @@ export function RoomsSlidingPanel({
             ? "translate-x-0 opacity-100 scale-100"
             : "translate-x-full opacity-0 scale-95",
           !isPage &&
+            !isOverlay &&
             "md:left-[238px] lg:left-[258px] xl:left-[288px] md:right-[24px]"
         )}
+        style={{
+          boxShadow: isPage 
+            ? "none" 
+            : "0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+          backdropFilter: isOverlay ? "blur(20px)" : undefined,
+          WebkitBackdropFilter: isOverlay ? "blur(20px)" : undefined,
+          width: isOverlay ? "100%" : undefined,
+        }}
       >
         <div
           className={cn(
             "flex h-full overflow-hidden px-6",
-            isPage ? "flex-col lg:flex-row gap-8" : ""
+            isPage ? "flex-col lg:flex-row gap-8" : "",
+            isOverlay && "w-full"
           )}
         >
           {/* Rooms List - Left Side */}  
           <div
             className={cn(
-              "flex-shrink-0 border-r-0 flex flex-col relative overflow-hidden transition-none border border-[#FFFFFF14]",
+              "flex-shrink-0 border-r-0 flex flex-col relative overflow-hidden transition-none border border-white/10",
               // Hide rooms list when chat is selected on medium screens
               selectedRoom ? "hidden lg:flex" : "flex"
             )}
             style={{ 
               width: isPage ? "min(420px, 100%)" : `${roomsListWidth}px`,
-              background: "rgba(0, 0, 0, 0.3)",
-              backdropFilter: "blur(20px)",
-              WebkitBackdropFilter: "blur(20px)",
-              borderRadius:"24px"
+              background: "rgba(8, 14, 17, 0.85)",
+              backdropFilter: "blur(24px)",
+              WebkitBackdropFilter: "blur(24px)",
+              borderRadius: "24px",
+              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)"
             }}
           >
             {/* Header */}
@@ -482,7 +498,7 @@ export function RoomsSlidingPanel({
                     variant="link"
                     size="sm"
                     onClick={onClose}
-                    className="h-9 w-9 p-0 rounded-full  text-white transition-all"
+                    className="h-9 w-9 p-0 rounded-full  text-white "
                     title="Close rooms"
                   >
                     <ArrowLeft className="h-5 w-5" />
@@ -521,10 +537,11 @@ export function RoomsSlidingPanel({
                     placeholder="Search rooms..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-11 pr-4 h-10 rounded-full bg-[#E5F7FD0A] text-[14px] text-white placeholder:text-[#9BB6CC99] focus:ring-0 focus:border-white/30 transition-all shadow-inner"
+                      className="pl-11 pr-4 h-10 rounded-full text-[14px] text-white placeholder:text-[#9BB6CC99] focus:ring-0 focus:border-white/30 "
                     style={{
                       fontFamily: "'Geist'",
-                      backgroundColor: "#E5F7FD0A",
+                      backgroundColor: "rgba(229, 247, 253, 0.06)",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
                     }}
                   />
                 </div>
@@ -547,9 +564,8 @@ export function RoomsSlidingPanel({
                     <button
                       onClick={() => {
                         setSelectedRoom(room);
-                        router.push(
-                          `/private_rooms/${slugifyRoomName(room.name)}`
-                        );
+                        const slug = slugifyRoomName(room.name);
+                        router.push(`/?private_rooms=${slug}`);
                       }}
                       className={cn(
                         "w-full flex items-start gap-3 py-4 cursor-pointer",
@@ -557,14 +573,14 @@ export function RoomsSlidingPanel({
                         "group relative",
                         "[transition:none!important] [transform:none!important]",
                         isSelected 
-                          ? "opacity-100 bg-white/5 px-4" 
+                          ? "opacity-100 bg-white/8 px-4 rounded-lg" 
                           : "px-0"
                       )}
                       style={{
                         borderBottom: isSelected 
                           ? "none" 
-                          : "1px solid rgba(255, 255, 255, 0.06)",
-                        transition: "none",
+                          : "1px solid rgba(255, 255, 255, 0.08)",
+                        transition: "background-color 0.2s ease",
                         transform: "none",
                       }}
                     >
@@ -682,8 +698,8 @@ export function RoomsSlidingPanel({
               }}
             >
               {/* Visual indicator */}
-              <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 group-hover:w-[2px] transition-all pointer-events-none">
-                <div className="h-full w-full bg-transparent group-hover:bg-[#5c6bc0]/50 transition-all" />
+              <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 group-hover:w-[2px]  pointer-events-none">
+                <div className="h-full w-full bg-transparent group-hover:bg-[#5c6bc0]/50 " />
               </div>
               {/* Wider hit area for better UX */}
               <div
@@ -696,17 +712,18 @@ export function RoomsSlidingPanel({
           {/* Chat Area - Right Side */}
           {selectedRoom ? (
             <div 
-              className="flex-1 flex min-w-0 relative z-0  slide-in-from-right-4 duration-300"
+              className="flex-1 flex min-w-0 relative z-0 "
             >
               {/* Main Chat Content */}
               <div className="flex-1 flex flex-col min-w-0">
               {/* Chat Header */}
               <div 
-                className="flex-shrink-0 px-4 lg:px-4 slide-in-from-top-2 duration-300 rounded-[24px] py-4 border-[1px] border-[#FFFFFF14]"
+                className="flex-shrink-0 px-4 lg:px-4 rounded-[24px] py-4 border-[1px] border-white/10"
                 style={{
-                  background: "rgba(0, 0, 0, 0.3)",
-                  backdropFilter: "blur(20px)",
-                  WebkitBackdropFilter: "blur(20px)",
+                  background: "rgba(8, 14, 17, 0.85)",
+                  backdropFilter: "blur(24px)",
+                  WebkitBackdropFilter: "blur(24px)",
+                  boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)"
                 }}
               >
                 <div className="flex flex-col">
@@ -723,7 +740,7 @@ export function RoomsSlidingPanel({
                           e.stopPropagation();
                           setSelectedRoom(null);
                         }}
-                        className="h-9 w-9 p-0 hover:bg-white/10 text-white rounded-full transition-all lg:hidden flex-shrink-0"
+                        className="h-9 w-9 p-0 hover:bg-white/10 text-white rounded-full  lg:hidden flex-shrink-0"
                       >
                         <ArrowLeft className="h-5 w-5" />
                       </Button>
@@ -764,10 +781,11 @@ export function RoomsSlidingPanel({
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
                           <Input
                             placeholder={`Search ${selectedRoom.name}`}
-                            className="pl-10 pr-4 h-9 bg-[#E5F7FD0A] rounded-full text-[#9BB6CC99] text-[14px] placeholder:text-[#9BB6CC99] focus:ring-0"
+                            className="pl-10 pr-4 h-9 rounded-full text-white text-[14px] placeholder:text-[#9BB6CC99] focus:ring-0"
                             style={{
                               fontFamily: "'Geist'",
-                              backgroundColor: "#E5F7FD0A",
+                              backgroundColor: "rgba(229, 247, 253, 0.06)",
+                              border: "1px solid rgba(255, 255, 255, 0.1)",
                             }}
                           />
                         </div>
@@ -782,8 +800,11 @@ export function RoomsSlidingPanel({
               <div
                 className="flex-1 overflow-y-auto px-4 lg:px-6 py-6"
                 ref={messagesContainerRef}
+                style={{
+                  background: "transparent"
+                }}
               >
-                <div className="space-y-3 max-w-4xl mx-auto">
+                <div className="space-y-3 width-full mx-auto">
                   {messages.map((message, index) => {
                     const showAvatar =
                       index === 0 ||
@@ -797,16 +818,13 @@ export function RoomsSlidingPanel({
                       <div
                         key={message.id}
                         className={cn(
-                          "flex gap-1 transition-all duration-300 ease-out",
+                          "flex gap-1  duration-300 ease-out",
                           message.isOwn ? "flex-row-reverse" : "flex-row",
                           "",
                           message.isOwn 
                             ? "slide-in-from-right-4" 
                             : "slide-in-from-left-4"
                         )}
-                        style={{
-                          animationDelay: `${index * 50}ms`,
-                        }}
                       >
                         {/* Avatar */}
                         <div className="flex-shrink-0 w-6 md:w-7 lg:w-8 mt-auto">
@@ -844,7 +862,7 @@ export function RoomsSlidingPanel({
                             <div
                               className={cn(
                                 "rounded-lg shadow-sm overflow-hidden",
-                                "transition-all duration-300 ease-out hover:scale-[1.02]",
+                                " duration-300 ease-out hover:scale-[1.02]",
                                 message.isOwn
                                   ? "bg-[#FADEFD] text-[#080E11] rounded-br-sm"
                                   : "bg-[#9BB6CC0A] text-[#9BB6CC] rounded-bl-sm"
@@ -930,7 +948,10 @@ export function RoomsSlidingPanel({
 
               {/* Input Area */}
               <div 
-                className="flex-shrink-0 relative z-0 slide-in-from-bottom-2 duration-300"
+                className="flex-shrink-0 relative z-0"
+                style={{
+                  background: "transparent"
+                }}
               >
                 <ChatInput
                   onSendMessage={handleSendMessage}
@@ -960,14 +981,15 @@ export function RoomsSlidingPanel({
             </div>
           ) : (
             <div 
-              className="flex-1 flex items-center justify-center px-4 relative z-0  zoom-in-95 duration-[400ms]"
+              className="flex-1 flex items-center justify-center px-4 relative z-0 rounded-[24px] border border-white/10"
               style={{
-                background: "rgba(0, 0, 0, 0.3)",
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
+                background: "rgba(8, 14, 17, 0.85)",
+                backdropFilter: "blur(24px)",
+                WebkitBackdropFilter: "blur(24px)",
+                boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.05)"
               }}
             >
-              <div className="text-center relative flex flex-col items-center justify-center gap-6  slide-in-from-bottom-4 duration-500">
+              <div className="text-center relative flex flex-col items-center justify-center gap-6 ">
                 <svg 
                   width="200" 
                   height="162" 
