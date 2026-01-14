@@ -15,8 +15,6 @@ import {
   ChevronDown,
   Users,
   Plus,
-  ChevronUp,
-  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
@@ -213,17 +211,9 @@ export function CirclesSlidingPanel({
   const [mobileView, setMobileView] = useState<"channel" | "chatting" | "members">("channel"); // Mobile view state
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [isMemberProfileOpen, setIsMemberProfileOpen] = useState(false);
-  const [isSwitchCircleOpen, setIsSwitchCircleOpen] = useState(false);
-  const [switchCircleSearch, setSwitchCircleSearch] = useState("");
   const [leftSidebarWidth, setLeftSidebarWidth] = useState(300);
   const [rightSidebarWidth, setRightSidebarWidth] = useState(240);
-  const [isResizingLeft, setIsResizingLeft] = useState(false);
-  const [isResizingRight, setIsResizingRight] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const switchCircleRef = useRef<HTMLDivElement>(null);
-  const switchCirclePopupRef = useRef<HTMLDivElement>(null);
-  const leftResizeRef = useRef<HTMLDivElement>(null);
-  const rightResizeRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -271,70 +261,6 @@ export function CirclesSlidingPanel({
       localStorage.setItem('circle-right-sidebar-width', rightSidebarWidth.toString());
     }
   }, [rightSidebarWidth]);
-
-  // Handle left sidebar resize
-  useEffect(() => {
-    if (!isResizingLeft) return;
-
-    const panel = leftResizeRef.current?.closest('.circles-sliding-panel') as HTMLElement;
-    if (!panel) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const panelLeft = panel.getBoundingClientRect().left;
-      const newWidth = e.clientX - panelLeft;
-      // Min width: 200px, Max width: 500px
-      const clampedWidth = Math.max(200, Math.min(500, newWidth));
-      setLeftSidebarWidth(clampedWidth);
-    };
-
-    const handleMouseUp = () => {
-      setIsResizingLeft(false);
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-    };
-  }, [isResizingLeft]);
-
-  // Handle right sidebar resize
-  useEffect(() => {
-    if (!isResizingRight) return;
-
-    const panel = rightResizeRef.current?.closest('.circles-sliding-panel') as HTMLElement;
-    if (!panel) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const panelRight = panel.getBoundingClientRect().right;
-      const newWidth = panelRight - e.clientX;
-      // Min width: 200px, Max width: 500px (increased for better profile view)
-      const clampedWidth = Math.max(200, Math.min(500, newWidth));
-      setRightSidebarWidth(clampedWidth);
-    };
-
-    const handleMouseUp = () => {
-      setIsResizingRight(false);
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-    };
-  }, [isResizingRight]);
 
   // Sync selectedCircle and activeChannelId with URL
   useEffect(() => {
@@ -522,6 +448,14 @@ export function CirclesSlidingPanel({
     }
   };
 
+  const handleExitCircle = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+      return;
+    }
+    onClose();
+  };
+
   const handleSwitchCircle = (circle: Circle) => {
     const circleSlug = slugifyCircleName(circle.name);
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -531,39 +465,7 @@ export function CirclesSlidingPanel({
     } else {
       router.push(`/?circle=${circleSlug}&channel=general`);
     }
-    
-    setIsSwitchCircleOpen(false);
-    setSwitchCircleSearch("");
   };
-
-  // Close popup when clicking outside (but allow scrolling)
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      
-      // Check if click is inside the popup or the button that opens it
-      const isInsidePopup = switchCirclePopupRef.current?.contains(target);
-      const isInsideButton = switchCircleRef.current?.contains(target);
-      
-      // Only close if click is outside both the popup and the button
-      if (!isInsidePopup && !isInsideButton) {
-        setIsSwitchCircleOpen(false);
-      }
-    };
-
-    if (isSwitchCircleOpen) {
-      // Use a small delay to avoid closing immediately when opening
-      const timeoutId = setTimeout(() => {
-        document.addEventListener("mousedown", handleClickOutside);
-      }, 0);
-      
-      return () => {
-        clearTimeout(timeoutId);
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }
-    return undefined;
-  }, [isSwitchCircleOpen]);
 
   const handleChannelSelect = (channelId: string, e?: React.MouseEvent) => {
     // Prevent default button behavior and event propagation
@@ -1117,6 +1019,34 @@ export function CirclesSlidingPanel({
         <div className="h-full pt-[96px]">
           {selectedCircle ? (
             <div className="flex h-full overflow-hidden relative pb-[12px] px-[12px]">
+              <div className="flex-shrink-0 w-[36px] min-w-[36px] pt-6 mr-3">
+                  <ScrollArea className="h-full">
+                    <div className="flex flex-col items-center gap-3 pb-4">
+                      {Object.values(mockCircles).map((circle) => (
+                        <button
+                          key={circle.id}
+                          onClick={() => handleSwitchCircle(circle)}
+                          title={circle.name}
+                          className={cn(
+                            "h-9 w-9 rounded-full flex items-center justify-center text-lg transition-all",
+                            "hover:bg-white/10",
+                            selectedCircle?.id === circle.id && "ring-2 ring-white/20"
+                          )}
+                        >
+                          {circle.icon}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => console.log("Open circles modal")}
+                        title="Add circle"
+                        className="h-9 w-9 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-all"
+                      >
+                        <Plus className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </ScrollArea>
+              </div>
             {/* Left Sidebar - Channels */}
             <div
               className="flex-shrink-0 flex flex-col relative overflow-visible border border-[#FFFFFF14] rounded-[24px]"
@@ -1127,17 +1057,16 @@ export function CirclesSlidingPanel({
               {/* Circle Header */}
               <div className="px-4 pt-6 pb-4 flex-shrink-0 relative">
                 <div className="flex items-center justify-between gap-2 mb-4">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onClose}
-                    className="h-8 w-8 p-0 rounded-full text-white hover:bg-white/10 transition-all"
-                    title="Close circle"
-                  >
-                    <ArrowLeft className="h-5 w-5" />
-                  </Button>
-
                   <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleExitCircle}
+                      className="h-8 w-8 p-0 rounded-full text-white hover:bg-white/10 transition-all"
+                      title="Back"
+                    >
+                      <ArrowLeft className="h-5 w-5" />
+                    </Button>
                     <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
                       <span className="text-lg">{selectedCircle.icon}</span>
                     </div>
@@ -1156,203 +1085,67 @@ export function CirclesSlidingPanel({
                       </p>
                     </div>
                   </div>
-
-                  <div className="relative" ref={switchCircleRef}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsSwitchCircleOpen(!isSwitchCircleOpen)}
-                      className="h-8 w-8 p-0 rounded-full text-white hover:bg-white/10 transition-all"
-                      title="Switch circle"
-                    >
-                      {isSwitchCircleOpen ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
                 </div>
-
-                {/* Switch Circle Popup - Positioned in sidebar */}
-                {isSwitchCircleOpen && (
-                  <div
-                    ref={switchCirclePopupRef}
-                    className="absolute top-full left-2 right-2 -mt-4 rounded-2xl z-[100] flex flex-col border border-white/8 backdrop-blur-[40px]"
-                    style={{
-                      background: "rgba(8, 14, 17, 0.95)",
-                      boxShadow: "0px 334px 94px rgba(0, 0, 0, 0.01), 0px 214px 86px rgba(0, 0, 0, 0.04), 0px 120px 72px rgba(0, 0, 0, 0.15), 0px 53px 53px rgba(0, 0, 0, 0.26), 0px 13px 29px rgba(0, 0, 0, 0.29)",
-                      backdropFilter: "blur(40px)",
-                      WebkitBackdropFilter: "blur(40px)",
-                      maxHeight: "400px",
-                      overflow: "hidden",
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                    onMouseDown={(e) => e.stopPropagation()}
-                  >
-                    {/* Header */}
-                    <div className="px-4 pt-4 pb-3 flex-shrink-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 md:w-9 md:h-9 rounded-full flex items-center justify-center flex-shrink-0 border border-[rgba(76,216,101,0.3)]" style={{ background: "rgba(76, 216, 101, 0.2)" }}>
-                            <Users className="w-6 h-6 md:w-5 md:h-5" style={{ color: "#4bd865" }} />
-                          </div>
-                          <div className="flex flex-col">
-                            <h3 className="text-base md:text-[16px] font-semibold text-white">Switch Circle</h3>
-                            <p className="text-[12px] text-[#9BB6CC99]" style={{ fontFamily: "'Geist'" }}>Connect with your communities</p>
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 md:h-7 md:w-7 p-0 rounded-md hover:bg-white/10 text-white flex-shrink-0 border border-white/10 bg-white/5"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // TODO: Open circles modal to create/join new circles
-                            console.log("Open circles modal");
-                          }}
-                        >
-                          <Plus className="h-5 w-5 md:h-4 md:w-4" />
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Search Bar */}
-                    <div className="px-4 pb-6 flex-shrink-0">
-                      <div className="relative flex flex-row items-center pl-3 w-full h-10 bg-[rgba(229,247,253,0.06)] rounded-full">
-                        {/* Search Icon - Inside Left */}
-                        <Search className="w-4 h-4 text-[rgba(255,255,255,0.4)] mr-2 flex-shrink-0" />
-                        <Input
-                          placeholder="Search circles.."
-                          value={switchCircleSearch}
-                          onChange={(e) => setSwitchCircleSearch(e.target.value)}
-                          autoFocus={false}
-                          className="w-full h-full border-0 bg-transparent font-medium text-sm text-left text-white placeholder:text-[rgba(255,255,255,0.4)] focus-visible:ring-0 focus-visible:ring-offset-0 p-0"
-                        />
-                        {/* Clear Button (if searching) */}
-                        {switchCircleSearch && (
-                          <Button
-                            onClick={() => setSwitchCircleSearch("")}
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 rounded-full hover:bg-white/10 text-[#9BB6CC99] hover:text-white transition-colors flex-shrink-0 mr-2"
-                          >
-                            <X className="h-3 w-3" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Circles List - Scrollable */}
-                    <ScrollArea 
-                      className="w-full"
-                      style={{ 
-                        maxHeight: "400px",
-                        height: "400px"
-                      }}
-                    >
-                      <div >
-                        {Object.values(mockCircles)
-                          .filter((circle) =>
-                            circle.name.toLowerCase().includes(switchCircleSearch.toLowerCase())
-                          )
-                          .map((circle) => (
-                            <button
-                              key={circle.id}
-                              onClick={() => handleSwitchCircle(circle)}
-                              className={cn(
-                                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 transition-colors text-left",
-                                selectedCircle?.id === circle.id && "bg-white/5"
-                              )}
-                            >
-                              <div className="h-12 w-12 md:h-9 md:w-9 rounded-lg flex items-center justify-center text-xl md:text-lg flex-shrink-0">
-                                {circle.icon}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <p className="text-sm font-medium text-white truncate">
-                                    {circle.name}
-                                  </p>
-                                  {circle.unreadCount && circle.unreadCount > 0 && (
-                                    <Badge className="h-4 min-w-4 px-1 text-xs bg-[rgba(255,255,255,0.15)] text-white">
-                                      {circle.unreadCount}
-                                    </Badge>
-                                  )}
-                                </div>
-                                <p className="text-xs text-[#9BB6CC99] mt-0.5">
-                                  {circle.memberCount} • {circle.onlineMembers} Online
-                                </p>
-                              </div>
-                            </button>
-                          ))}
-                      </div>
-                    </ScrollArea>
-                  </div>
-                )}
               </div>
 
-              {/* Channels List */}
-              <ScrollArea 
-                className="flex-1 overflow-hidden"
-                style={{ 
-                  position: 'relative',
-                  zIndex: isSwitchCircleOpen ? 10 : 'auto',
-                  pointerEvents: 'auto'
-                }}
-              >
-                <div className="px-4 pb-4">
-                  {channelCategories.map((category) => (
-                    <div key={category.id} className="mb-4">
-                      <button
-                        onClick={() => handleCategoryToggle(category.id)}
-                        className="w-full flex items-center justify-between px-2 py-1 text-xs font-semibold text-[#9BB6CC] hover:text-white transition-colors uppercase tracking-wide"
-                      >
-                        <span>{category.name}</span>
-                        <ChevronDown
-                          className={cn(
-                            "h-3 w-3 transition-transform",
-                            category.isCollapsed && "-rotate-90"
-                          )}
-                        />
-                      </button>
-                      {!category.isCollapsed && (
-                        <div className="mt-1 space-y-0.5">
-                          {category.channels.map((channel) => (
-                            <button
-                              key={channel.id}
-                              type="button"
-                              onClick={(e) => handleChannelSelect(channel.id, e)}
-                              className={cn(
-                                "w-full flex items-center gap-2 px-2 py-1.5 rounded text-sm transition-all",
-                                activeChannelId === channel.id
-                                  ? "bg-[#5865F2]/20 text-white"
-                                  : "text-[#9BB6CC] hover:bg-white/5 hover:text-white"
-                              )}
-                            >
-                              {channel.type === "text" ? (
-                                <Hash className="h-4 w-4 flex-shrink-0" />
-                              ) : (
-                                <Volume2 className="h-4 w-4 flex-shrink-0" />
-                              )}
-                              <span className="flex-1 truncate text-left">
-                                {channel.name}
-                              </span>
-                              {channel.isPrivate && (
-                                <Lock className="h-3 w-3 flex-shrink-0" />
-                              )}
-                              {channel.unreadCount && channel.unreadCount > 0 && (
-                                <Badge className="h-4 min-w-4 px-1 text-xs bg-[#FADEFD] text-[#000205]">
-                                  {channel.unreadCount}
-                                </Badge>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
+              <div className="flex-1 flex min-h-0">
+
+                {/* Channels List */}
+                <ScrollArea className="flex-1 overflow-hidden">
+                  <div className="px-4 pb-4">
+                    {channelCategories.map((category) => (
+                      <div key={category.id} className="mb-4">
+                        <button
+                          onClick={() => handleCategoryToggle(category.id)}
+                          className="w-full flex items-center justify-between px-2 py-1 text-xs font-semibold text-[#9BB6CC] hover:text-white transition-colors uppercase tracking-wide"
+                        >
+                          <span>{category.name}</span>
+                          <ChevronDown
+                            className={cn(
+                              "h-3 w-3 transition-transform",
+                              category.isCollapsed && "-rotate-90"
+                            )}
+                          />
+                        </button>
+                        {!category.isCollapsed && (
+                          <div className="mt-1 space-y-0.5">
+                            {category.channels.map((channel) => (
+                              <button
+                                key={channel.id}
+                                type="button"
+                                onClick={(e) => handleChannelSelect(channel.id, e)}
+                                className={cn(
+                                  "w-full flex items-center gap-2 px-2 py-1.5 rounded text-sm transition-all",
+                                  activeChannelId === channel.id
+                                    ? "bg-[#5865F2]/20 text-white"
+                                    : "text-[#9BB6CC] hover:bg-white/5 hover:text-white"
+                                )}
+                              >
+                                {channel.type === "text" ? (
+                                  <Hash className="h-4 w-4 flex-shrink-0" />
+                                ) : (
+                                  <Volume2 className="h-4 w-4 flex-shrink-0" />
+                                )}
+                                <span className="flex-1 truncate text-left">
+                                  {channel.name}
+                                </span>
+                                {channel.isPrivate && (
+                                  <Lock className="h-3 w-3 flex-shrink-0" />
+                                )}
+                                {channel.unreadCount && channel.unreadCount > 0 && (
+                                  <Badge className="h-4 min-w-4 px-1 text-xs bg-[#FADEFD] text-[#000205]">
+                                    {channel.unreadCount}
+                                  </Badge>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
             </div>
 
             {/* Main Chat Area */}
