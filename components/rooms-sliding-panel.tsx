@@ -26,7 +26,11 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import {
+  useRouter,
+  useSearchParams,
+  useParams,
+} from "next/navigation";
 import { RoomInfoView } from "@/components/room-info-view";
 import { ChatInput } from "@/components/chat/chat-input";
 import { shouldDisplayAsEmoticonOnly } from "@/lib/emoji-utils";
@@ -64,6 +68,7 @@ interface Room {
 interface RoomsSlidingPanelProps {
   isOpen: boolean;
   onClose: () => void;
+  variant?: "panel" | "page";
 }
 
 const mockRooms: Room[] = [
@@ -176,7 +181,11 @@ const initialMessages: Message[] = [
   },
 ];
 
-export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
+export function RoomsSlidingPanel({
+  isOpen,
+  onClose,
+  variant = "panel",
+}: RoomsSlidingPanelProps) {
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -186,9 +195,11 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
   const [currentImageList, setCurrentImageList] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const isPage = variant === "page";
 
   // Lock body scroll when panel is open
   useEffect(() => {
+    if (isPage) return undefined;
     if (isOpen) {
       const scrollY = window.scrollY;
       document.body.style.position = "fixed";
@@ -205,7 +216,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
       };
     }
     return undefined;
-  }, [isOpen]);
+  }, [isOpen, isPage]);
 
   // Resizable divider state
   const [roomsListWidth, setRoomsListWidth] = useState(404); // Default width (matches design)
@@ -214,8 +225,9 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
   const MAX_WIDTH = 500; // Maximum width for rooms list
 
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
+  const params = useParams<{ roomSlug?: string }>();
+  const roomSlugFromPath = params?.roomSlug;
 
   const slugifyRoomName = (name: string) =>
     name
@@ -237,10 +249,10 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
 
   // Sync selectedRoom with URL when panel is open on desktop (/private_rooms?room=slug)
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen && !isPage) return;
 
-    // Read slug from ?room=slug
-    const slug = searchParams.get("room");
+    const slugFromQuery = searchParams.get("room");
+    const slug = roomSlugFromPath || slugFromQuery;
 
     if (slug) {
       const fromSlug =
@@ -251,10 +263,11 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
       // No slug -> no room selected (show "Select a chat" placeholder)
       setSelectedRoom(null);
     }
-  }, [isOpen, searchParams]);
+  }, [isOpen, searchParams, roomSlugFromPath, isPage]);
 
   // Prevent body scroll when panel is open
   useEffect(() => {
+    if (isPage) return undefined;
     if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {
@@ -264,7 +277,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isOpen]);
+  }, [isOpen, isPage]);
 
   // Handle resizing - mouse events
   useEffect(() => {
@@ -380,6 +393,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
 
   // Hide AI button when rooms panel is open
   useEffect(() => {
+    if (isPage) return undefined;
     const aiButton = document.querySelector(".desktop-ai-tab-container");
     if (aiButton) {
       if (isOpen) {
@@ -401,53 +415,51 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
         (aiButton as HTMLElement).style.pointerEvents = "auto";
       }
     };
-  }, [isOpen]);
+  }, [isOpen, isPage]);
 
-  if (!isOpen) return null;
+  if (!isOpen && !isPage) return null;
 
   return (
     <>
       {/* Backdrop - Transparent, only for click handling */}
-      <div
-        className={cn(
-          "fixed inset-0 z-[65] transition-opacity duration-300",
-          "hidden md:block",
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        )}
-        onClick={onClose}
-        style={{ top: "5rem" }}
-      />
+      {!isPage && (
+        <div
+          className={cn(
+            "fixed inset-0 z-[65] transition-opacity duration-300",
+            "hidden md:block",
+            isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          )}
+          onClick={onClose}
+          style={{ top: "5rem" }}
+        />
+      )}
 
-      {/* Sliding Panel - Desktop Only */}
+      {/* Sliding Panel */}
       <div
         className={cn(
           "rooms-sliding-panel",
-          "fixed h-[calc(100vh-5rem)] z-[70]",
           "shadow-[0_20px_45px_rgba(0,0,0,0.45)]",
           "transform transition-all duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)]",
-          "hidden md:block",
           "overflow-hidden",
-          // Position from left sidebar edge to right edge
-          "md:left-[238px] lg:left-[258px] xl:left-[288px]",
-          "md:right-[24px]",
-          // Width auto to fill space between left and right
-          "w-[90vw] md:w-auto",
-          isOpen 
-            ? "translate-x-0 opacity-100 scale-100" 
-            : "translate-x-full opacity-0 scale-95"
+          isPage
+            ? "relative w-full h-full flex-1 min-h-0 z-[10]"
+            : "fixed h-[calc(100vh-5rem)] z-[70] hidden md:block w-[90vw] md:w-auto",
+          isPage
+            ? "opacity-100 translate-x-0 scale-100"
+            : isOpen
+            ? "translate-x-0 opacity-100 scale-100"
+            : "translate-x-full opacity-0 scale-95",
+          !isPage &&
+            "md:left-[238px] lg:left-[258px] xl:left-[288px] md:right-[24px]"
         )}
-        style={{
-          top: "5rem",
-          background:
-            "linear-gradient(145deg, rgba(14,20,28,0.95) 0%, rgba(8,12,18,0.92) 100%)",
-          border: "1px solid rgba(255, 255, 255, 0.08)",
-          borderRadius: "20px",
-          backdropFilter: "blur(40px)",
-          WebkitBackdropFilter: "blur(40px)",
-        }}
       >
-        <div className="flex h-full overflow-hidden">
-          {/* Rooms List - Left Side */}
+        <div
+          className={cn(
+            "flex h-full overflow-hidden px-6",
+            isPage ? "flex-col lg:flex-row gap-8" : ""
+          )}
+        >
+          {/* Rooms List - Left Side */}  
           <div
             className={cn(
               "flex-shrink-0 border-r-0 flex flex-col relative overflow-hidden transition-none",
@@ -455,7 +467,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
               selectedRoom ? "hidden lg:flex" : "flex"
             )}
             style={{ 
-              width: `${roomsListWidth}px`,
+              width: isPage ? "min(420px, 100%)" : `${roomsListWidth}px`,
               background: "rgba(0, 0, 0, 0.3)",
               backdropFilter: "blur(20px)",
               WebkitBackdropFilter: "blur(20px)",
@@ -535,7 +547,7 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
                       onClick={() => {
                         setSelectedRoom(room);
                         router.push(
-                          `/private_rooms?room=${slugifyRoomName(room.name)}`
+                          `/private_rooms/${slugifyRoomName(room.name)}`
                         );
                       }}
                       className={cn(
@@ -655,28 +667,30 @@ export function RoomsSlidingPanel({ isOpen, onClose }: RoomsSlidingPanelProps) {
           </div>
 
           {/* Resizable Divider */}
-          <div
-            className={cn(
-              "relative flex-shrink-0 w-[1px] bg-[#2b3642]/50 group hover:bg-[#5c6bc0] transition-colors duration-200",
-              "hidden lg:block",
-              isResizing && "bg-[#5c6bc0]"
-            )}
-            onMouseDown={handleMouseDown}
-            style={{
-              userSelect: "none",
-              cursor: "col-resize",
-            }}
-          >
-            {/* Visual indicator */}
-            <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 group-hover:w-[2px] transition-all pointer-events-none">
-              <div className="h-full w-full bg-transparent group-hover:bg-[#5c6bc0]/50 transition-all" />
-            </div>
-            {/* Wider hit area for better UX */}
+          {!isPage && (
             <div
-              className="absolute inset-y-0 -left-2 -right-2"
-              style={{ cursor: "col-resize" }}
-            />
-          </div>
+              className={cn(
+                "relative flex-shrink-0 w-[1px] bg-[#2b3642]/50 group hover:bg-[#5c6bc0] transition-colors duration-200",
+                "hidden lg:block",
+                isResizing && "bg-[#5c6bc0]"
+              )}
+              onMouseDown={handleMouseDown}
+              style={{
+                userSelect: "none",
+                cursor: "col-resize",
+              }}
+            >
+              {/* Visual indicator */}
+              <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 group-hover:w-[2px] transition-all pointer-events-none">
+                <div className="h-full w-full bg-transparent group-hover:bg-[#5c6bc0]/50 transition-all" />
+              </div>
+              {/* Wider hit area for better UX */}
+              <div
+                className="absolute inset-y-0 -left-2 -right-2"
+                style={{ cursor: "col-resize" }}
+              />
+            </div>
+          )}
 
           {/* Chat Area - Right Side */}
           {selectedRoom ? (

@@ -1,12 +1,21 @@
 "use client";
 
-import HomePage from "../page";
+import { NavigationLayout } from "@/components/navigation-layout";
+import { RoomsSlidingPanel } from "@/components/rooms-sliding-panel";
+import { useRouter } from "next/navigation";
 
-// Desktop private rooms entry point.
-// This reuses the Social Hub page content; the DesktopTopBar
-// will detect the /private_rooms path and open the rooms panel.
 export default function PrivateRoomsPage() {
-  return <HomePage />;
+  const router = useRouter();
+
+  return (
+    <NavigationLayout className="bg-transparent" hideDesktopSidebar>
+      <div className="w-full h-full flex flex-col min-h-0">
+        <RoomsSlidingPanel
+          isOpen
+          variant="page"
+          onClose={() => router.push("/")}
+        />
+      </div>
+    </NavigationLayout>
+  );
 }
-
-

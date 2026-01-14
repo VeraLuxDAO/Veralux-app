@@ -16,12 +16,14 @@ interface NavigationLayoutProps {
   children: React.ReactNode;
   className?: string;
   header?: React.ReactNode;
+  hideDesktopSidebar?: boolean;
 }
 
 function NavigationLayoutContent({
   children,
   className,
   header,
+  hideDesktopSidebar = false,
 }: NavigationLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -57,7 +59,7 @@ function NavigationLayoutContent({
   }, [hasCircle, isMobile]);
 
   return (
-    <div className={cn("min-h-screen", className)}>
+    <div className={cn("min-h-screen", hideDesktopSidebar && "flex flex-col h-screen", className)}>
       {/* Mobile Navigation */}
       <MobileTopBar
         onMenuToggle={handleMobileMenuToggle}
@@ -74,7 +76,7 @@ function NavigationLayoutContent({
       <Suspense fallback={null}>
         <DesktopTopBar />
       </Suspense>
-      <DesktopLeftSidebar />
+      {!hideDesktopSidebar && <DesktopLeftSidebar />}
 
       {/* Desktop AI Chat (bottom-right popup) */}
       <div className="hidden md:block">
@@ -111,15 +113,22 @@ function NavigationLayoutContent({
           "pb-0 md:pb-0",
           // Responsive left margins: 14px edge + Sidebar width + 24px gap
           // No left margin on mobile/tablet (sidebar hidden below lg breakpoint)
-          "lg:ml-[258px]", // lg: 14 + 220 + 24
-          "xl:ml-[288px]", // xl: 14 + 250 + 24
+          hideDesktopSidebar ? "lg:ml-0 xl:ml-0" : "lg:ml-[258px]",
+          hideDesktopSidebar ? "" : "xl:ml-[288px]", // xl: 14 + 250 + 24
           // Desktop: Right margin = 24px (equal to left gap)
-          "md:mr-[24px]",
+          hideDesktopSidebar ? "md:mr-0" : "md:mr-[24px]",
           // Gap between header and main content - FIXED
-          "mt-0 md:mt-[67px]"
+          "mt-0 md:mt-[67px]",
+          // Use flexbox to fill available height when sidebar is hidden
+          hideDesktopSidebar && "flex flex-col",
+          // Calculate height: viewport height minus top bar height (~90px with padding)
+          hideDesktopSidebar && "md:h-[calc(100vh-90px)]"
         )}
       >
-        <div className="w-full px-4 py-4 sm:px-6 sm:py-6 md:px-0 md:py-8">
+        <div className={cn(
+          "w-full",
+          hideDesktopSidebar ? "flex-1 flex flex-col min-h-0 overflow-hidden px-4 pt-4 sm:px-6 sm:pt-6 md:px-0 md:pt-8" : "px-4 pt-4 sm:px-6 sm:pt-6 md:px-0 md:pt-8"
+        )}>
           {children}
         </div>
       </main>

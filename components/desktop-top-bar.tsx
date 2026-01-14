@@ -27,7 +27,6 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CirclesModal } from "@/components/circles-modal";
 import { CirclesPopover } from "@/components/circles-popover";
-import { RoomsSlidingPanel } from "@/components/rooms-sliding-panel";
 import { CirclesSlidingPanel } from "@/components/circles-sliding-panel";
 import { NotificationCenterPopover } from "@/components/notification-center-popover";
 import { joinedCircles } from "@/lib/circles-data";
@@ -63,20 +62,17 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const isRoomsPage = pathname.startsWith("/private_rooms");
 
-  // Desktop Rooms (private messages) panel is considered "open"
-  // whenever the current path starts with /private_rooms
-  const isRoomsPanelOpen = pathname.startsWith("/private_rooms");
-  
   // Desktop Circles panel is considered "open" whenever the circle parameter is present (on any page)
   const isCirclesPanelOpen = searchParams.get("circle") !== null;
 
-  // Close the private rooms popover whenever the dedicated panel route is active
+  // Close the private rooms popover whenever the dedicated page route is active
   useEffect(() => {
-    if (isRoomsPanelOpen) {
+    if (isRoomsPage) {
       setIsPrivateRoomsPopoverOpen(false);
     }
-  }, [isRoomsPanelOpen]);
+  }, [isRoomsPage]);
 
   const userInitial = auth.user?.name?.charAt(0) || "U";
   const walletAddress =
@@ -417,7 +413,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     <Users className="h-5 w-5 text-white" />
                   </button>
 
-                  {/* Messages Button - navigates to /private_rooms (desktop private rooms) */}
+                  {/* Messages Button - opens private rooms popover */}
                   <button
                     data-private-rooms-trigger
                     onClick={() => {
@@ -427,7 +423,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     }}
                     className={cn(
                       "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",
-                      isRoomsPanelOpen || isPrivateRoomsPopoverOpen
+                      isRoomsPage || isPrivateRoomsPopoverOpen
                         ? "bg-[#FFFFFF14]"
                         : "hover:bg-white/5"
                     )}
@@ -512,7 +508,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     <Users className="h-5 w-5 text-white" />
                   </button>
 
-                  {/* Messages Button - navigates to /private_rooms (desktop private rooms) */}
+                  {/* Messages Button - opens private rooms popover */}
                   <button
                     data-private-rooms-trigger
                     onClick={() => {
@@ -522,7 +518,7 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                     }}
                     className={cn(
                       "relative flex items-center justify-center w-9 h-9 rounded-full transition-colors",
-                      isRoomsPanelOpen || isPrivateRoomsPopoverOpen
+                      isRoomsPage || isPrivateRoomsPopoverOpen
                         ? "bg-[#FFFFFF14]"
                         : "hover:bg-white/5"
                     )}
@@ -631,12 +627,6 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
       <PrivateRoomsPopover
         isOpen={isPrivateRoomsPopoverOpen}
         onClose={() => setIsPrivateRoomsPopoverOpen(false)}
-      />
-
-      {/* Rooms Sliding Panel (desktop only, opened/closed based on /private_rooms path) */}
-      <RoomsSlidingPanel
-        isOpen={isRoomsPanelOpen}
-        onClose={() => router.push("/")}
       />
 
       {/* Circles Sliding Panel (desktop only, opened/closed based on ?circle parameter) */}

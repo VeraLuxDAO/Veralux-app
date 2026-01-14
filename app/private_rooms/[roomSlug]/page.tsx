@@ -1,12 +1,21 @@
 "use client";
 
-import HomePage from "../../page";
+import { NavigationLayout } from "@/components/navigation-layout";
+import { RoomsSlidingPanel } from "@/components/rooms-sliding-panel";
+import { useRouter } from "next/navigation";
 
-// Desktop private room route with a specific room slug.
-// The DesktopTopBar + RoomsSlidingPanel read the /private_rooms path
-// and the slug to decide which room is selected.
 export default function PrivateRoomSlugPage() {
-  return <HomePage />;
+  const router = useRouter();
+
+  return (
+    <NavigationLayout className="bg-transparent" hideDesktopSidebar>
+      <div className="w-full h-full flex flex-col min-h-0">
+        <RoomsSlidingPanel
+          isOpen
+          variant="page"
+          onClose={() => router.push("/")}
+        />
+      </div>
+    </NavigationLayout>
+  );
 }
-
-
