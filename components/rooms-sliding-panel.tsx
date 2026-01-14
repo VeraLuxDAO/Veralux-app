@@ -462,7 +462,7 @@ export function RoomsSlidingPanel({
           {/* Rooms List - Left Side */}  
           <div
             className={cn(
-              "flex-shrink-0 border-r-0 flex flex-col relative overflow-hidden transition-none",
+              "flex-shrink-0 border-r-0 flex flex-col relative overflow-hidden transition-none border border-[#FFFFFF14]",
               // Hide rooms list when chat is selected on medium screens
               selectedRoom ? "hidden lg:flex" : "flex"
             )}
@@ -471,6 +471,7 @@ export function RoomsSlidingPanel({
               background: "rgba(0, 0, 0, 0.3)",
               backdropFilter: "blur(20px)",
               WebkitBackdropFilter: "blur(20px)",
+              borderRadius:"24px"
             }}
           >
             {/* Header */}
@@ -556,7 +557,7 @@ export function RoomsSlidingPanel({
                         "group relative",
                         "[transition:none!important] [transform:none!important]",
                         isSelected 
-                          ? "opacity-100 bg-white/5 rounded-lg px-4" 
+                          ? "opacity-100 bg-white/5 px-4" 
                           : "px-0"
                       )}
                       style={{
@@ -695,25 +696,20 @@ export function RoomsSlidingPanel({
           {/* Chat Area - Right Side */}
           {selectedRoom ? (
             <div 
-              className="flex-1 flex min-w-0 relative z-0 animate-in fade-in-0 slide-in-from-right-4 duration-300"
-              style={{
-                background: "rgba(0, 0, 0, 0.2)",
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
-              }}
+              className="flex-1 flex min-w-0 relative z-0  slide-in-from-right-4 duration-300"
             >
               {/* Main Chat Content */}
               <div className="flex-1 flex flex-col min-w-0">
               {/* Chat Header */}
               <div 
-                className="flex-shrink-0 px-4 lg:px-4 pt-6 border-b border-[#FFFFFF14] animate-in fade-in-0 slide-in-from-top-2 duration-300"
+                className="flex-shrink-0 px-4 lg:px-4 slide-in-from-top-2 duration-300 rounded-[24px] py-4 border-[1px] border-[#FFFFFF14]"
                 style={{
                   background: "rgba(0, 0, 0, 0.3)",
                   backdropFilter: "blur(20px)",
                   WebkitBackdropFilter: "blur(20px)",
                 }}
               >
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col">
                   <div className="flex items-center justify-between gap-3">
                     <button
                       onClick={() => setIsRoomInfoOpen(true)}
@@ -786,10 +782,6 @@ export function RoomsSlidingPanel({
               <div
                 className="flex-1 overflow-y-auto px-4 lg:px-6 py-6"
                 ref={messagesContainerRef}
-                style={{
-                  background:
-                    "radial-gradient(circle at top, rgba(61,80,120,0.25), transparent 45%), #05080d",
-                }}
               >
                 <div className="space-y-3 max-w-4xl mx-auto">
                   {messages.map((message, index) => {
@@ -807,7 +799,7 @@ export function RoomsSlidingPanel({
                         className={cn(
                           "flex gap-1 transition-all duration-300 ease-out",
                           message.isOwn ? "flex-row-reverse" : "flex-row",
-                          "animate-in fade-in-0",
+                          "",
                           message.isOwn 
                             ? "slide-in-from-right-4" 
                             : "slide-in-from-left-4"
@@ -938,12 +930,7 @@ export function RoomsSlidingPanel({
 
               {/* Input Area */}
               <div 
-                className="flex-shrink-0 px-2 md:px-3 lg:px-4 py-2 md:py-2.5 lg:py-3 relative z-0 animate-in fade-in-0 slide-in-from-bottom-2 duration-300"
-                style={{
-                  background: "rgba(0, 0, 0, 0.3)",
-                  backdropFilter: "blur(20px)",
-                  WebkitBackdropFilter: "blur(20px)",
-                }}
+                className="flex-shrink-0 relative z-0 slide-in-from-bottom-2 duration-300"
               >
                 <ChatInput
                   onSendMessage={handleSendMessage}
@@ -973,14 +960,14 @@ export function RoomsSlidingPanel({
             </div>
           ) : (
             <div 
-              className="flex-1 flex items-center justify-center px-4 relative z-0 animate-in fade-in-0 zoom-in-95 duration-[400ms]"
+              className="flex-1 flex items-center justify-center px-4 relative z-0  zoom-in-95 duration-[400ms]"
               style={{
                 background: "rgba(0, 0, 0, 0.3)",
                 backdropFilter: "blur(20px)",
                 WebkitBackdropFilter: "blur(20px)",
               }}
             >
-              <div className="text-center relative flex flex-col items-center justify-center gap-6 animate-in fade-in-0 slide-in-from-bottom-4 duration-500">
+              <div className="text-center relative flex flex-col items-center justify-center gap-6  slide-in-from-bottom-4 duration-500">
                 <svg 
                   width="200" 
                   height="162" 

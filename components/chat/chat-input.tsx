@@ -202,7 +202,7 @@ export function ChatInput({
                 placeholder={placeholder}
                 disabled={disabled}
                 className={cn(
-                  "w-full min-h-[36px] max-h-40 resize-none border-0 bg-transparent",
+                  "w-full min-h-[36px] max-h-40 resize-none border border-[#FFFFFF14] bg-transparent",
                   "focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
                   "leading-relaxed",
                   "py-[10px] pl-10 pr-20 font-medium",
