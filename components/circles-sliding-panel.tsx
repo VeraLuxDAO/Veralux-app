@@ -635,12 +635,16 @@ export function CirclesSlidingPanel({
       {/* Backdrop - Desktop Only */}
       <div
         className={cn(
-          "fixed inset-0 z-[65] transition-opacity duration-300",
+          "fixed inset-0 z-[44] transition-opacity duration-300",
           "hidden md:block",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         onClick={onClose}
-        style={{ top: "5rem" }}
+        style={{
+          background: "rgba(8, 14, 17, 0.72)",
+          backdropFilter: "blur(18px)",
+          WebkitBackdropFilter: "blur(18px)",
+        }}
       />
 
       {/* Mobile View - Responsive Layout (Channel Sidebar + Chat Area) when Circle Selected */}
@@ -1103,39 +1107,25 @@ export function CirclesSlidingPanel({
       <div
         className={cn(
           "circles-sliding-panel",
-          "fixed h-[calc(100vh-5rem)] z-[70]",
-          "shadow-[0_20px_45px_rgba(0,0,0,0.45)]",
+          "fixed inset-0 z-[48]",
           "transform transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
           "hidden md:block",
           "overflow-hidden",
-          "md:left-[238px] lg:left-[258px] xl:left-[288px]",
-          "md:right-[24px]",
-          "w-[90vw] md:w-auto",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
-        style={{
-          top: "5rem",
-          background:
-            "linear-gradient(145deg, rgba(14,20,28,0.95) 0%, rgba(8,12,18,0.92) 100%)",
-          border: "1px solid rgba(255, 255, 255, 0.08)",
-          borderRadius: "20px",
-        }}
       >
-        {selectedCircle ? (
-          <div className="flex h-full overflow-hidden relative">
+        <div className="h-full pt-[96px]">
+          {selectedCircle ? (
+            <div className="flex h-full overflow-hidden relative pb-[12px] px-[12px]">
             {/* Left Sidebar - Channels */}
             <div
-              className="flex-shrink-0 flex flex-col relative overflow-visible"
+              className="flex-shrink-0 flex flex-col relative overflow-visible border border-[#FFFFFF14] rounded-[24px]"
               style={{ 
                 width: `${leftSidebarWidth}px`,
-                borderRight: "1px solid rgba(255, 255, 255, 0.08)",
-                background: "#0000004A",
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
               }}
             >
               {/* Circle Header */}
-              <div className="px-4 pt-5 pb-4 flex-shrink-0 relative">
+              <div className="px-4 pt-6 pb-4 flex-shrink-0 relative">
                 <div className="flex items-center justify-between gap-2 mb-4">
                   <Button
                     variant="ghost"
@@ -1310,7 +1300,7 @@ export function CirclesSlidingPanel({
                   pointerEvents: 'auto'
                 }}
               >
-                <div className="px-2 pb-4">
+                <div className="px-4 pb-4">
                   {channelCategories.map((category) => (
                     <div key={category.id} className="mb-4">
                       <button
@@ -1365,36 +1355,17 @@ export function CirclesSlidingPanel({
               </ScrollArea>
             </div>
 
-            {/* Left Resize Border */}
+            {/* Main Chat Area */}
             <div
-              ref={leftResizeRef}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                setIsResizingLeft(true);
-              }}
-              className="absolute top-0 bottom-0 z-20 hover:cursor-col-resize"
+              className="flex-1 flex flex-col min-w-0 relative"
               style={{
-                left: `${leftSidebarWidth}px`,
-                transform: 'translateX(-50%)',
-                width: '4px',
-                cursor: 'col-resize',
+                background: "transparent",
+                marginLeft: "32px",
+                marginRight: isMembersVisible ? "32px" : "0px",
               }}
             >
-              <div
-                className={cn(
-                  "absolute top-0 bottom-0 left-1/2 -translate-x-1/2 transition-all pointer-events-none",
-                  "w-[1px] hover:w-[2px]",
-                  isResizingLeft
-                    ? "bg-[#5865F2] opacity-100 w-[2px]"
-                    : "bg-transparent hover:bg-[#5865F2]/50"
-                )}
-              />
-            </div>
-
-            {/* Main Chat Area */}
-            <div className="flex-1 flex flex-col min-w-0 relative" style={{ background: "transparent" }}>
               {/* Chat Header */}
-              <div className="flex-shrink-0 px-4 pt-6 pb-4 bg-[#0000004A] border-b border-[#FFFFFF14]">
+              <div className="flex-shrink-0 px-4 py-5 rounded-[24px] border border-[#FFFFFF14]">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2 flex-1 min-w-0">
                     {activeChannel?.type === "text" ? (
@@ -1451,7 +1422,7 @@ export function CirclesSlidingPanel({
                           setIsMembersVisible(!isMembersVisible);
                         }
                       }}
-                      className="mobile-members-button p-0 rounded-full text-white hover:bg-white/10 transition-all bg-gradient-to-b from-[#45D4A7] to-[#4DF3FF] flex-shrink-0 h-9 w-9"
+                      className="mobile-members-button p-0 rounded-full text-white hover:bg-white/10 transition-all  flex-shrink-0 h-9 w-9"
                       style={{
                         height: "36px",
                         width: "36px",
@@ -1474,9 +1445,6 @@ export function CirclesSlidingPanel({
               {/* Messages Area */}
               <div
                 className="flex-1 overflow-y-auto px-4 pt-4 pb-3"
-                style={{
-                  background: "#05080d",
-                }}
               >
                 <div className="space-y-1">
                   {messages.map((message, index) => {
@@ -1502,7 +1470,7 @@ export function CirclesSlidingPanel({
               </div>
 
               {/* Input Area */}
-              <div className="flex-shrink-0 px-4 py-3 border-t border-[#2b3642]/50 bg-[#0000004A]">
+              <div className="flex-shrink-0 px-4 py-3 border-t border-[#FFFFFF14] rounded-[24px]">
                 <ChatInput
                   onSendMessage={handleSendMessage}
                   placeholder={`Message #${activeChannel?.name || "channel"}`}
@@ -1510,55 +1478,12 @@ export function CirclesSlidingPanel({
               </div>
             </div>
 
-            {/* Right Resize Border - Enhanced */}
-            {isMembersVisible && (
-              <div
-                ref={rightResizeRef}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsResizingRight(true);
-                }}
-                className="absolute top-0 bottom-0 z-30 cursor-col-resize group"
-                style={{
-                  right: `${rightSidebarWidth}px`,
-                  transform: 'translateX(50%)',
-                  width: '8px',
-                }}
-              >
-                <div
-                  className={cn(
-                    "absolute top-0 bottom-0 left-1/2 -translate-x-1/2 transition-all duration-200",
-                    "w-[2px] rounded-full",
-                    isResizingRight
-                      ? "bg-[#5865F2] opacity-100 w-[3px]"
-                      : "bg-transparent group-hover:bg-[#5865F2]/60 group-hover:w-[2px]"
-                  )}
-                />
-                {/* Resize indicator dot */}
-                <div
-                  className={cn(
-                    "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-                    "w-1.5 h-8 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100",
-                    isResizingRight && "opacity-100 bg-[#5865F2]"
-                  )}
-                  style={{
-                    background: isResizingRight ? '#5865F2' : 'rgba(88, 101, 242, 0.4)'
-                  }}
-                />
-              </div>
-            )}
-
             {/* Right Sidebar - Members (Desktop Only) */}
             {isMembersVisible && (
             <div
-              className="hidden md:flex flex-shrink-0 flex flex-col relative overflow-hidden"
+              className="hidden md:flex flex-shrink-0 flex flex-col relative overflow-hidden border border-[#FFFFFF14] rounded-[24px]"
               style={{ 
                 width: `${rightSidebarWidth}px`,
-                borderLeft: "1px solid rgba(255, 255, 255, 0.08)",
-                background: "#0000004A",
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
                 zIndex: 10,
               }}
             >
@@ -1723,22 +1648,23 @@ export function CirclesSlidingPanel({
             </div>
             )}
           </div>
-        ) : (
-          // No circle selected - show placeholder
-          <div className="flex items-center justify-center h-full bg-[#0000004A]">
-            <div className="text-center">
-              <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center">
-                <Users className="h-16 w-16 text-[#9BB6CC]" />
+          ) : (
+            // No circle selected - show placeholder
+            <div className="flex items-center justify-center h-full bg-[#0000004A]">
+              <div className="text-center">
+                <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center">
+                  <Users className="h-16 w-16 text-[#9BB6CC]" />
+                </div>
+                <h3 className="text-2xl font-semibold text-white mb-2">
+                  Select a Circle
+                </h3>
+                <p className="text-[#9BB6CC] text-sm">
+                  Choose a circle to start chatting with your community
+                </p>
               </div>
-              <h3 className="text-2xl font-semibold text-white mb-2">
-                Select a Circle
-              </h3>
-              <p className="text-[#9BB6CC] text-sm">
-                Choose a circle to start chatting with your community
-              </p>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Member Profile View - Mobile Only (Desktop shows in-place) */}
