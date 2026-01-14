@@ -166,8 +166,8 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
           <div className="flex items-center justify-between gap-3">
             {/* Left: Icon + Title + Tagline */}
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(76, 216, 101, 0.2)" }}>
-                <Users className="h-5 w-5" style={{ color: "#4bd865" }} />
+              <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#E5F7FD33" }}>
+                <Users className="h-5 w-5" style={{ color: "white" }} />
               </div>
               <div className="min-w-0 flex-1">
                 <DialogTitle className="text-lg font-semibold text-white text-left mb-0.5">

@@ -4,6 +4,7 @@ import "./globals.css";
 import { WalletProviderWrapper } from "@/components/wallet-provider-wrapper";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/auth-context";
+import { PostsProvider } from "@/contexts/posts-context";
 import { WalletConnectionManager } from "@/components/wallet-connection-manager";
 
 export const metadata: Metadata = {
@@ -52,11 +53,13 @@ export default function RootLayout({
             disableTransitionOnChange={false}
           >
             <AuthProvider>
-              <WalletProviderWrapper>
-                <WalletConnectionManager />
+              <PostsProvider>
+                <WalletProviderWrapper>
+                  <WalletConnectionManager />
 
-                {children}
-              </WalletProviderWrapper>
+                  {children}
+                </WalletProviderWrapper>
+              </PostsProvider>
             </AuthProvider>
           </ThemeProvider>
         </div>

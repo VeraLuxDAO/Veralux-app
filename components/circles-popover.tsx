@@ -183,25 +183,19 @@ export function CirclesPopover({ isOpen, onClose }: CirclesPopoverProps) {
           <div className="px-4 py-3 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "rgba(76, 216, 101, 0.2)" }}>
-                  <Users className="h-3 w-3" style={{ color: "#4bd865" }} />
+                <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "#E5F7FD33" }}>
+                  <Users className="h-5 w-5" style={{ color: "white" }} />
                 </div>
-                <h2 className="text-[15px] font-semibold text-white">
-                  Circles
-                </h2>
+                <div className="flex-col">
+                  <h2 className="text-[15px] font-semibold text-white">
+                    Circles
+                  </h2>
+                  <p className="text-xs text-[#9BB6CC99]">
+                    Connect with your communities
+                  </p>
+                </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="h-7 w-7 p-0 hover:bg-white/10 text-[#9BB6CC] hover:text-white rounded-md transition-all"
-              >
-                <X className="h-4 w-4" />
-              </Button>
             </div>
-            <p className="text-xs text-[#9BB6CC99] ml-7">
-              Connect with your communities
-            </p>
           </div>
 
           {/* Search Bar */}

@@ -327,7 +327,7 @@ export function ChatInput({
               }}
               placeholder="Send Message"
               disabled={disabled}
-              className="flex-1 h-6 bg-[#E5F7FD0A] border-none text-[#9BB6CC99] text-[14px] placeholder:text-[#9BB6CC99] focus:ring-0 focus-visible:ring-0 px-2 py-0 shadow-none"
+              className="flex-1 h-6  border-none text-[#9BB6CC99] text-[14px] placeholder:text-[#9BB6CC99] focus:ring-0 focus-visible:ring-0 px-2 py-0 shadow-none"
               autoComplete="off"
               style={{ fontFamily: "'Geist'", fontSize: "14px !important" }}
             />

@@ -1,46 +1,25 @@
 "use client";
 
-import { memo, useState, useEffect, useRef } from "react";
+import { memo, useState, useEffect, useRef, type KeyboardEvent, type MouseEvent } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ImageViewer } from "@/components/chat/image-viewer";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface MediaFile {
-  type: "image" | "video" | "audio";
-  url: string;
-  mime?: string;
-  playable?: boolean;
-}
-
-interface FlowPost {
-  id: string;
-  author: {
-    name: string;
-    username: string;
-    avatar: string;
-    verified: boolean;
-    badges: string[];
-  };
-  content: string;
-  timestamp: string;
-  glows: number;
-  tips: number;
-  replies: number;
-  hasGlowed: boolean;
-  hasTipped: boolean;
-  tags: string[];
-  media?: MediaFile[];
-}
+import { FlowPost } from "@/lib/posts-data";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface PostCardProps {
   post: FlowPost;
   onGlow: (postId: string) => void;
   onTip: (postId: string) => void;
+  href?: string;
 }
 
-export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
+export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip, href }) => {
+  const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(true); // Start visible by default
   const [hasReplied, setHasReplied] = useState(false);
@@ -58,6 +37,20 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
   useEffect(() => {
     setCurrentImageIndex(0);
   }, [post.id]);
+
+  const handleNavigate = () => {
+    if (href) {
+      router.push(href);
+    }
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!href) return;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleNavigate();
+    }
+  };
 
   useEffect(() => {
     setIsMounted(true);
@@ -130,6 +123,11 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
           "linear-gradient(0deg, rgba(229, 247, 253, 0.04) 0%, rgba(229, 247, 253, 0) 100%)",
           border: "1px solid #FFFFFF14",
       }}
+      role={href ? "button" : undefined}
+      tabIndex={href ? 0 : -1}
+      onClick={handleNavigate}
+      onKeyDown={handleKeyDown}
+      aria-label={href ? "Open post" : undefined}
     >
       {/* Hover overlay - brighter gradient */}
       <div 
@@ -142,9 +140,9 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
       <CardContent className="p-3 sm:p-5 md:py-0.5 md:p-3">
         {/* Post Header */}
         <div className="flex items-center space-x-3 mb-6">
-          <Avatar className="w-9 h-9 flex-shrink-0">
+          <Avatar className="w-8 h-8 sm:w-9 sm:h-9 flex-shrink-0">
             <AvatarImage src={post.author.avatar || "/placeholder.svg"} />
-            <AvatarFallback className="text-sm">
+            <AvatarFallback className="text-xs sm:text-sm">
               {post.author.name
                 .split(" ")
                 .map((n) => n[0])
@@ -190,11 +188,46 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
           </div>
         </div>
 
-        {/* Post Content */}
-        <div className="mb-3">
-          <p className="text-gray-100 whitespace-pre-line leading-relaxed text-base sm:text-[16px]">
+        {/* Post Content with Markdown */}
+        <div className="mb-2 sm:mb-3 prose prose-invert max-w-none prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0 prose-strong:text-white prose-em:text-white prose-a:text-electric-blue prose-blockquote:border-l prose-blockquote:border-white/20 prose-blockquote:text-white/80">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              p: ({ children }) => (
+                <p className="text-gray-100 leading-relaxed text-sm sm:text-base md:text-[16px]">
+                  {children}
+                </p>
+              ),
+              strong: ({ children }) => (
+                <strong className="font-semibold text-white">{children}</strong>
+              ),
+              em: ({ children }) => (
+                <em className="text-white italic">{children}</em>
+              ),
+              ul: ({ children }) => (
+                <ul className="list-disc pl-5 space-y-1 text-gray-100 text-sm sm:text-base md:text-[16px]">
+                  {children}
+                </ul>
+              ),
+              ol: ({ children }) => (
+                <ol className="list-decimal pl-5 space-y-1 text-gray-100 text-sm sm:text-base md:text-[16px]">
+                  {children}
+                </ol>
+              ),
+              li: ({ children }) => (
+                <li className="text-gray-100 text-sm sm:text-base md:text-[16px]">
+                  {children}
+                </li>
+              ),
+              blockquote: ({ children }) => (
+                <blockquote className="border-l-2 border-white/20 pl-3 text-white/80 text-sm sm:text-base md:text-[16px]">
+                  {children}
+                </blockquote>
+              ),
+            }}
+          >
             {post.content}
-          </p>
+          </ReactMarkdown>
         </div>
 
         {/* Post Media (Images, Videos, Audio) */}
@@ -203,13 +236,14 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
             {/* Images - Show one at a time with navigation if multiple */}
             {images.length > 0 && (
               <div className="relative mb-2 bg-blackimage.png">
-                <div className="relative rounded-lg overflow-hidden w-1/2 mx-auto" style={{ aspectRatio: "1 / 1" }}>
+                <div className="relative rounded-lg overflow-hidden w-full max-w-[280px] sm:w-3/4 md:w-1/2 mx-auto" style={{ aspectRatio: "1 / 1" }}>
                   {/* Current Image */}
                   <img
                     src={images[currentImageIndex]?.url}
                     alt={`Post image ${currentImageIndex + 1}`}
                     className="w-full h-full rounded-lg object-cover cursor-pointer transition-opacity hover:opacity-90"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setSelectedImageIndex(currentImageIndex);
                       setImageViewerOpen(true);
                     }}
@@ -340,11 +374,11 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
         )}
 
           {post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 flex-shrink-0">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 flex-shrink-0 mb-2 sm:mb-0">
               {post.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 rounded-md text-sm font-medium cursor-pointer transition-colors"
+                  className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-md text-xs sm:text-sm font-medium cursor-pointer transition-colors"
                   style={{
                     backgroundColor: "rgba(31, 43, 49, 0.56)",
                     color: "#E9F0F5",
@@ -357,17 +391,20 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
           )}
         <div 
           className={cn(
-            "flex items-center sm:items-center justify-between py-3 rounded-lg",
+            "flex items-center sm:items-center justify-between pt-2 sm:pt-3 rounded-lg",
             "bg-transparent"
           )}
         >
 
           {/* Engagement Metrics and Actions - right section */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 justify-end flex-wrap sm:flex-nowrap">
+          <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0 justify-end flex-wrap sm:flex-nowrap">
               <button
-                onClick={() => onGlow(post.id)}
+                onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                  e.stopPropagation();
+                  onGlow(post.id);
+                }}
                 className={cn(
-                  "flex items-center gap-1 px-2 py-2 rounded-[20px] cursor-pointer transition-colors flex-shrink-0",
+                  "flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-1.5 sm:py-2 rounded-[20px] cursor-pointer transition-colors flex-shrink-0",
                   post.hasGlowed 
                     ? "border" 
                     : ""
@@ -389,7 +426,7 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
                   
                 )}
                 <span
-                  className="text-[16px] font-light"
+                  className="text-sm sm:text-[16px] font-light"
                   style={{ color: post.hasGlowed ? "#FADEFD" : "#9BB6CC" }}
                 >
                   {post.glows}
@@ -397,9 +434,12 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
               </button>
 
               <button
-                onClick={() => onTip(post.id)}
+                onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                  e.stopPropagation();
+                  onTip(post.id);
+                }}
                 className={cn(
-                  "flex items-center gap-1 px-2 py-2 rounded-[20px] cursor-pointer transition-colors flex-shrink-0",
+                  "flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-1.5 sm:py-2 rounded-[20px] cursor-pointer transition-colors flex-shrink-0",
                   post.hasTipped 
                     ? "border" 
                     : ""
@@ -433,7 +473,7 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
                   </svg>
                 )}
                 <span
-                  className="text-[16px] font-light"
+                  className="text-sm sm:text-[16px] font-light"
                   style={{ color: post.hasTipped ? "#FADEFD" : "#9BB6CC" }}
                 >
                   {post.tips}
@@ -441,9 +481,12 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
               </button>
 
               <button 
-                onClick={() => setHasReplied(!hasReplied)}
+                onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                  e.stopPropagation();
+                  setHasReplied(!hasReplied);
+                }}
                 className={cn(
-                  "flex items-center gap-1 px-2 py-2 rounded-[20px] cursor-pointer transition-colors flex-shrink-0",
+                  "flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-1.5 sm:py-2 rounded-[20px] cursor-pointer transition-colors flex-shrink-0",
                   hasReplied 
                     ? "border" 
                     : ""
@@ -486,7 +529,8 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
               </button>
 
               <button 
-                className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0"
+                onClick={(e: MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0"
                 style={{
                   backgroundColor: "#FADEFD",
                 }}
@@ -499,6 +543,7 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip }) => {
               </button>
           </div>
           <button 
+            onClick={(e: MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
             className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-colors flex-shrink-0"
             style={{
               backgroundColor: "#FADEFD33",
