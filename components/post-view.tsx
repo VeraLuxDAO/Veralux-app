@@ -171,7 +171,7 @@ export function PostView({ post, comments }: PostViewProps) {
           <div className="flex-1 min-w-0 space-y-4 w-full max-w-full mx-auto lg:mx-0">
             <div className="flex items-center gap-2 sm:gap-3 text-white px-1 sm:px-0">
               <button
-                onClick={() => router.back()}
+                onClick={() => router.push("/")}
                 className="flex items-center gap-1.5 sm:gap-2 text-sm font-medium text-white hover:text-veralux-yellow transition-colors"
                 aria-label="Back"
               >

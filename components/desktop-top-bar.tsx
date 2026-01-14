@@ -20,6 +20,7 @@ import {
   Check,
   LogOut,
   Wallet,
+  ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
@@ -85,6 +86,14 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
 
   const handleLogoClick = () => {
     router.push("/");
+  };
+
+  const handlePrivateRoomsBack = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("private_rooms");
+    const nextSearch = params.toString();
+    const nextPath = pathname || "/";
+    router.push(nextSearch ? `${nextPath}?${nextSearch}` : nextPath);
   };
 
   const handleSearchIconClick = () => {
@@ -260,7 +269,22 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
           className
         )}
       >
-        <div className="flex items-center justify-center px-8 pt-4 pb-3.5 relative">
+        <div className="flex items-center justify-center px-8 pt-4 pb-3.5 relative" style={{backdropFilter:"16px"}}>
+          {/* Left Side - Back Button (only when private rooms overlay is open) */}
+          {isPrivateRoomsActive && (
+            <div className="fixed left-[24px]">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handlePrivateRoomsBack}
+                className="flex items-center gap-2 h-9 px-3 rounded-full text-white hover:bg-white/10 transition-colors"
+              >
+                <ArrowLeft className="h-5 w-5" />
+                <span className="text-sm font-medium">Back</span>
+              </Button>
+            </div>
+          )}
+
           {/* Center - Navigation Pills with Icons - Centered ignoring sidebar */}
           <nav className="flex items-center gap-3 bg-[#080E11]/40 border border-white/[0.08] rounded-[24px] p-3 backdrop-blur-[40px] h-[60px]">
             {navItems.map((item) => {

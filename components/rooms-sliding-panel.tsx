@@ -30,6 +30,7 @@ import {
   useRouter,
   useSearchParams,
   useParams,
+  usePathname,
 } from "next/navigation";
 import { RoomInfoView } from "@/components/room-info-view";
 import { ChatInput } from "@/components/chat/chat-input";
@@ -219,13 +220,8 @@ export function RoomsSlidingPanel({
     return undefined;
   }, [isOpen, isPage]);
 
-  // Resizable divider state
-  const [roomsListWidth, setRoomsListWidth] = useState(404); // Default width (matches design)
-  const [isResizing, setIsResizing] = useState(false);
-  const MIN_WIDTH = 240; // Minimum width for rooms list
-  const MAX_WIDTH = 500; // Maximum width for rooms list
-
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const params = useParams<{ roomSlug?: string }>();
   const roomSlugFromPath = params?.roomSlug;
@@ -279,45 +275,6 @@ export function RoomsSlidingPanel({
       document.body.style.overflow = "";
     };
   }, [isOpen, isPage]);
-
-  // Handle resizing - mouse events
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizing) return;
-
-      const panel = document.querySelector(".rooms-sliding-panel");
-      if (!panel) return;
-
-      const panelRect = panel.getBoundingClientRect();
-      const newWidth = e.clientX - panelRect.left;
-
-      // Clamp width between MIN_WIDTH and MAX_WIDTH
-      const clampedWidth = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, newWidth));
-      setRoomsListWidth(clampedWidth);
-    };
-
-    const handleMouseUp = () => {
-      setIsResizing(false);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-    };
-
-    if (isResizing) {
-      document.body.style.cursor = "col-resize";
-      document.body.style.userSelect = "none";
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-    }
-
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [isResizing, MIN_WIDTH, MAX_WIDTH]);
-
-  const handleMouseDown = () => {
-    setIsResizing(true);
-  };
 
   const handleSendMessage = (content: string, images?: File[]) => {
     if (!content.trim() && (!images || images.length === 0)) return;
@@ -434,6 +391,8 @@ export function RoomsSlidingPanel({
           style={
             {
           background: isOverlay ? "rgba(8, 14, 17, 0.72)" : undefined,
+          backdropFilter: isOverlay ? "blur(18px)" : undefined,
+          WebkitBackdropFilter: isOverlay ? "blur(18px)" : undefined,
             }
           }
         />
@@ -459,11 +418,6 @@ export function RoomsSlidingPanel({
             "md:left-[238px] lg:left-[258px] xl:left-[288px] md:right-[24px]"
         )}
         style={{
-          boxShadow: isPage 
-            ? "none" 
-            : "0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05)",
-          backdropFilter: isOverlay ? "blur(20px)" : undefined,
-          WebkitBackdropFilter: isOverlay ? "blur(20px)" : undefined,
           width: isOverlay ? "100%" : undefined,
         }}
       >
@@ -471,7 +425,8 @@ export function RoomsSlidingPanel({
           className={cn(
             "flex h-full overflow-hidden px-6",
             isPage ? "flex-col lg:flex-row gap-8" : "",
-            isOverlay && "w-full"
+            isOverlay && "w-full",
+            "gap-6 lg:gap-8"
           )}
         >
           {/* Rooms List - Left Side */}  
@@ -482,7 +437,7 @@ export function RoomsSlidingPanel({
               selectedRoom ? "hidden lg:flex" : "flex"
             )}
             style={{ 
-              width: isPage ? "min(420px, 100%)" : `${roomsListWidth}px`,
+              width: isPage ? "min(420px, 100%)" : "380px",
               background: "rgba(8, 14, 17, 0.85)",
               backdropFilter: "blur(24px)",
               WebkitBackdropFilter: "blur(24px)",
@@ -493,17 +448,7 @@ export function RoomsSlidingPanel({
             {/* Header */}
             <div className="px-4 pl-[6px] pt-5 pb-4 flex-shrink-0 w-full max-w-full overflow-hidden">
               <div className="flex items-center justify-between gap-3 mb-5 w-full">
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="link"
-                    size="sm"
-                    onClick={onClose}
-                    className="h-9 w-9 p-0 rounded-full  text-white "
-                    title="Close rooms"
-                  >
-                    <ArrowLeft className="h-5 w-5" />
-                  </Button>
-
+                <div className="flex items-center gap-2 pl-[12px]">
                   {/* Room meta: circular lock icon + title + subtitle */}
                   <div className="flex items-center gap-3">
                     <div className="h-9 w-9 rounded-full border border-white/10 bg-[#FADEFD] flex items-center justify-center">
@@ -565,7 +510,10 @@ export function RoomsSlidingPanel({
                       onClick={() => {
                         setSelectedRoom(room);
                         const slug = slugifyRoomName(room.name);
-                        router.push(`/?private_rooms=${slug}`);
+                        const params = new URLSearchParams(searchParams.toString());
+                        params.set("private_rooms", slug);
+                        const currentPath = pathname || "/";
+                        router.push(`${currentPath}?${params.toString()}`);
                       }}
                       className={cn(
                         "w-full flex items-start gap-3 py-4 cursor-pointer",
@@ -682,32 +630,6 @@ export function RoomsSlidingPanel({
               </div>
             </ScrollArea>
           </div>
-
-          {/* Resizable Divider */}
-          {!isPage && (
-            <div
-              className={cn(
-                "relative flex-shrink-0 w-[1px] bg-[#2b3642]/50 group hover:bg-[#5c6bc0] transition-colors duration-200",
-                "hidden lg:block",
-                isResizing && "bg-[#5c6bc0]"
-              )}
-              onMouseDown={handleMouseDown}
-              style={{
-                userSelect: "none",
-                cursor: "col-resize",
-              }}
-            >
-              {/* Visual indicator */}
-              <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-1 group-hover:w-[2px]  pointer-events-none">
-                <div className="h-full w-full bg-transparent group-hover:bg-[#5c6bc0]/50 " />
-              </div>
-              {/* Wider hit area for better UX */}
-              <div
-                className="absolute inset-y-0 -left-2 -right-2"
-                style={{ cursor: "col-resize" }}
-              />
-            </div>
-          )}
 
           {/* Chat Area - Right Side */}
           {selectedRoom ? (

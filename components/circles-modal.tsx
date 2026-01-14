@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Users, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { joinedCircles, discoverCircles, type Circle } from "@/lib/circles-data";
 
 interface CirclesModalProps {
@@ -29,6 +29,8 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("joined");
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -59,12 +61,13 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
   const handleCircleClick = (circle: Circle) => {
     if (circle.isJoined) {
       const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-      // On mobile, add #channel hash by default
-      if (isMobile) {
-        router.push(`/?circle=${slugifyCircleName(circle.name)}&channel=general#channel`);
-      } else {
-        router.push(`/?circle=${slugifyCircleName(circle.name)}&channel=general`);
-      }
+      const circleSlug = slugifyCircleName(circle.name);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("circle", circleSlug);
+      params.set("channel", "general");
+      const currentPath = pathname || "/";
+      const url = `${currentPath}?${params.toString()}${isMobile ? "#channel" : ""}`;
+      router.push(url);
       onClose();
     } else {
       // Handle join circle logic

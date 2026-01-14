@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -114,6 +114,8 @@ export function PrivateRoomsPopover({
   const [searchQuery, setSearchQuery] = useState("");
   const popoverRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const auth = useAuth();
 
   const userInitial = auth.user?.name?.charAt(0) || "U";
@@ -225,7 +227,11 @@ export function PrivateRoomsPopover({
                 <button
                   key={room.id}
                   onClick={() => {
-                    router.push(`/?private_rooms=${slugifyRoomName(room.name)}`);
+                    const slug = slugifyRoomName(room.name);
+                    const params = new URLSearchParams(searchParams.toString());
+                    params.set("private_rooms", slug);
+                    const currentPath = pathname || "/";
+                    router.push(`${currentPath}?${params.toString()}`);
                     onClose();
                   }}
                   className="w-full text-left"

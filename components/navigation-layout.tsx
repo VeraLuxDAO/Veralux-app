@@ -33,7 +33,7 @@ function NavigationLayoutContent({
   const searchParams = useSearchParams();
   const router = useRouter();
   const isPrivateRoomsOpen = searchParams.get("private_rooms") !== null;
-  const shouldHideSidebar = hideDesktopSidebar || isPrivateRoomsOpen;
+  const shouldHideSidebar = hideDesktopSidebar;
   
   // Compute shouldHideBottomBar directly - check if circle parameter exists and we're on mobile
   // Use both searchParams and window.location as fallback for reliability

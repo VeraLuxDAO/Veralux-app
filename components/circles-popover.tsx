@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Search, Users, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { joinedCircles, discoverCircles, type Circle } from "@/lib/circles-data";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +21,8 @@ export function CirclesPopover({ isOpen, onClose }: CirclesPopoverProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("joined");
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const popoverRef = useRef<HTMLDivElement>(null);
 
   const slugifyCircleName = (name: string) =>
@@ -32,12 +34,13 @@ export function CirclesPopover({ isOpen, onClose }: CirclesPopoverProps) {
   const handleCircleClick = (circle: Circle) => {
     if (circle.isJoined) {
       const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-      // On mobile, add #channel hash by default
-      if (isMobile) {
-        router.push(`/?circle=${slugifyCircleName(circle.name)}&channel=general#channel`);
-      } else {
-        router.push(`/?circle=${slugifyCircleName(circle.name)}&channel=general`);
-      }
+      const circleSlug = slugifyCircleName(circle.name);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("circle", circleSlug);
+      params.set("channel", "general");
+      const currentPath = pathname || "/";
+      const url = `${currentPath}?${params.toString()}${isMobile ? "#channel" : ""}`;
+      router.push(url);
       onClose();
     } else {
       // Handle join circle logic

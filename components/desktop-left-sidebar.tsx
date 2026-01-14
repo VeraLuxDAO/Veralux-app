@@ -97,7 +97,7 @@ export function DesktopLeftSidebar({ className }: DesktopLeftSidebarProps) {
   return (
     <aside
       className={cn(
-        "desktop-left-sidebar fixed z-[60]",
+        "desktop-left-sidebar fixed z-[40]",
         // Hide on all mobile and tablet sizes, only show on desktop (1024px+)
         "hidden lg:block",
         // Responsive positioning and sizing
