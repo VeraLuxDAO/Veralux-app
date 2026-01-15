@@ -5,8 +5,6 @@ import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { EmojiPicker } from "@/components/ui/emoji-picker";
 import {
   X,
@@ -40,11 +38,11 @@ import {
   usePathname,
 } from "next/navigation";
 import { RoomInfoView } from "@/components/room-info-view";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatInput } from "@/components/chat/chat-input";
 import { shouldDisplayAsEmoticonOnly } from "@/lib/emoji-utils";
 import { ImageViewer } from "@/components/chat/image-viewer";
 import { TelegramEmoji } from "@/components/chat/telegram-emoji";
-import { EMOJI_CATEGORIES } from "@/lib/emoji-data";
 
 interface Message {
   id: string;
@@ -79,6 +77,84 @@ interface RoomsSlidingPanelProps {
   onClose: () => void;
   variant?: "panel" | "page" | "overlay";
 }
+
+// Mock members for forwarding (all contacts)
+interface ForwardMember {
+  id: string;
+  name: string;
+  avatar?: string;
+  userId: string; // User ID for display
+  isOnline?: boolean;
+}
+
+const getAllForwardMembers = (): ForwardMember[] => {
+  return [
+    {
+      id: "1",
+      name: "Vitalik Buterin",
+      avatar: "/diverse-user-avatars.png",
+      userId: "@vitalik",
+      isOnline: true,
+    },
+    {
+      id: "2",
+      name: "Sarah Miller",
+      avatar: "/diverse-female-avatar.png",
+      userId: "@sarahm",
+      isOnline: true,
+    },
+    {
+      id: "3",
+      name: "Mike Chen",
+      avatar: "/developer-avatar.png",
+      userId: "@mikechen",
+      isOnline: false,
+    },
+    {
+      id: "4",
+      name: "Clara Jin",
+      userId: "@claraj",
+      isOnline: true,
+    },
+    {
+      id: "5",
+      name: "Maxwell",
+      userId: "@maxwell",
+      isOnline: false,
+    },
+    {
+      id: "6",
+      name: "John",
+      userId: "@john",
+      isOnline: true,
+    },
+    {
+      id: "7",
+      name: "Alice",
+      avatar: "/diverse-female-avatar.png",
+      userId: "@alice",
+      isOnline: true,
+    },
+    {
+      id: "8",
+      name: "David",
+      userId: "@david",
+      isOnline: false,
+    },
+    {
+      id: "9",
+      name: "Emma Wilson",
+      userId: "@emmaw",
+      isOnline: true,
+    },
+    {
+      id: "10",
+      name: "Ryan Park",
+      userId: "@ryanp",
+      isOnline: false,
+    },
+  ];
+};
 
 const mockRooms: Room[] = [
   {
@@ -207,13 +283,7 @@ export function RoomsSlidingPanel({
     x: number;
     y: number;
   }>({ open: false, x: 0, y: 0 });
-  const [reactionPicker, setReactionPicker] = useState<{
-    open: boolean;
-    x: number;
-    y: number;
-    search: string;
-  }>({ open: false, x: 0, y: 0, search: "" });
-  const reactionPickerRef = useRef<HTMLDivElement>(null);
+  const reactionPickerButtonRef = useRef<HTMLButtonElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [contextOpen, setContextOpen] = useState(false);
@@ -221,7 +291,20 @@ export function RoomsSlidingPanel({
   const [contextPos, setContextPos] = useState({ x: 0, y: 0 });
   const [actionPos, setActionPos] = useState({ x: 0, y: 0 });
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showReactionEmojiPicker, setShowReactionEmojiPicker] = useState(false);
   const [emojiPickerPos, setEmojiPickerPos] = useState({ x: 0, y: 0 });
+  const [isForwardPopupOpen, setIsForwardPopupOpen] = useState(false);
+  const [forwardMessageId, setForwardMessageId] = useState<string | null>(null);
+  const [forwardSearchQuery, setForwardSearchQuery] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   const addButtonRef = useRef<HTMLButtonElement>(null);
   const emojiPickerAnchorRef = useRef<HTMLDivElement>(null);
   const quickBarRef = useRef<HTMLDivElement>(null);
@@ -238,7 +321,7 @@ export function RoomsSlidingPanel({
     { label: "Edit", icon: Pencil },
   ];
 
-  const handleMessageContextMenu = (e: MouseEvent) => {
+  const handleMessageContextMenu = (e: MouseEvent, messageId?: string) => {
     e.preventDefault();
     const popupWidth = 362;
     const popupHeight = 60 + 8 + 224;
@@ -251,34 +334,12 @@ export function RoomsSlidingPanel({
       window.innerHeight - popupHeight - margin,
       Math.max(margin, e.clientY)
     );
+    if (messageId) {
+      setContextMessageId(messageId);
+    }
     setContextMenu({ open: true, x, y });
   };
 
-  const openEmojiPickerFromContext = () => {
-    setContextMenu((prev) => ({ ...prev, open: false }));
-    const pickerWidth = 404;
-    const pickerHeight = 396;
-    const margin = 8;
-    const x = Math.min(
-      window.innerWidth - pickerWidth - margin,
-      Math.max(margin, contextMenu.x)
-    );
-    const y = Math.min(
-      window.innerHeight - pickerHeight - margin,
-      Math.max(margin, contextMenu.y + 60 + 12) // below emoji bar
-    );
-    setReactionPicker({ open: true, x, y, search: "" });
-  };
-
-  const allEmojis = useMemo(
-    () => EMOJI_CATEGORIES.flatMap((c) => c.emojis),
-    []
-  );
-  const filteredEmojis = useMemo(() => {
-    if (!reactionPicker.search.trim()) return allEmojis;
-    const q = reactionPicker.search.toLowerCase();
-    return allEmojis.filter((e) => e.toLowerCase().includes(q));
-  }, [allEmojis, reactionPicker.search]);
 
   // Close context menus on outside interactions
   useEffect(() => {
@@ -296,20 +357,6 @@ export function RoomsSlidingPanel({
     };
   }, [contextMenu.open]);
 
-  // Close reaction picker on outside click
-  useEffect(() => {
-    if (!reactionPicker.open) return;
-    const handleOutside = (e: MouseEvent | globalThis.MouseEvent) => {
-      if (
-        reactionPickerRef.current &&
-        !reactionPickerRef.current.contains(e.target as Node)
-      ) {
-        setReactionPicker((prev) => (prev.open ? { ...prev, open: false } : prev));
-      }
-    };
-    document.addEventListener("mousedown", handleOutside);
-    return () => document.removeEventListener("mousedown", handleOutside);
-  }, [reactionPicker.open]);
 
   // Lock body scroll when panel is open
   useEffect(() => {
@@ -515,6 +562,13 @@ export function RoomsSlidingPanel({
     console.log("Action", action, "on message", contextMessageId);
     setContextOpen(false);
     setShowEmojiPicker(false);
+    
+    if (action === "forward" && contextMessageId) {
+      console.log("Opening forward popup for message:", contextMessageId);
+      setForwardMessageId(contextMessageId);
+      setIsForwardPopupOpen(true);
+      setForwardSearchQuery("");
+    }
   };
 
   const actions = [
@@ -947,7 +1001,7 @@ export function RoomsSlidingPanel({
                     return (
                       <div
                         key={message.id}
-                        onContextMenu={(e) => handleMessageContextMenu(e)}
+                        onContextMenu={(e) => handleMessageContextMenu(e, message.id)}
                         className={cn(
                           "flex gap-1  duration-300 ease-out",
                           message.isOwn ? "flex-row-reverse" : "flex-row",
@@ -1194,7 +1248,12 @@ export function RoomsSlidingPanel({
                         {actions.map(({ key, label, Icon }) => (
                           <button
                             key={key}
-                            onClick={() => handleAction(key)}
+                            onClick={() => {
+                              handleAction(key);
+                              if (key === "forward") {
+                                setContextOpen(false);
+                              }
+                            }}
                             className="flex items-center gap-2 text-sm font-medium text-[#9BB6CC] hover:text-white hover:bg-white/10 rounded-lg px-2 py-1 transition"
                           >
                             <Icon className="w-4 h-4" />
@@ -1285,8 +1344,12 @@ export function RoomsSlidingPanel({
               </button>
             ))}
             <button
-                  className="h-9 w-9 rounded-full bg-[#E5F7FD0F] flex items-center justify-center text-white hover:bg-white/10 transition-all"
-                  onClick={openEmojiPickerFromContext}
+              ref={reactionPickerButtonRef}
+              className="h-9 w-9 rounded-full bg-[#E5F7FD0F] flex items-center justify-center text-white hover:bg-white/10 transition-all"
+              onClick={() => {
+                setContextMenu((prev) => ({ ...prev, open: false }));
+                setShowReactionEmojiPicker(true);
+              }}
               title="Add reaction"
             >
               <Plus className="h-4 w-4" />
@@ -1308,8 +1371,19 @@ export function RoomsSlidingPanel({
             {actionOptions.map(({ label, icon: Icon }, idx) => (
               <button
                 key={label}
-                    className="flex items-center gap-3 text-sm px-2 py-2 rounded-lg text-[#9BB6CC] hover:bg-white/5 transition-colors"
-                onClick={() => setContextMenu((p) => ({ ...p, open: false }))}
+                className="flex items-center gap-3 text-sm px-2 py-2 rounded-lg text-[#9BB6CC] hover:bg-white/5 transition-colors"
+                onClick={() => {
+                  if (label === "Forward" && contextMessageId) {
+                    console.log("Forward button clicked, opening popup for message:", contextMessageId);
+                    setForwardMessageId(contextMessageId);
+                    setIsForwardPopupOpen(true);
+                    setForwardSearchQuery("");
+                    console.log("Forward popup state set to true");
+                  } else if (label === "Forward") {
+                    console.warn("Forward button clicked but no contextMessageId:", contextMessageId);
+                  }
+                  setContextMenu((p) => ({ ...p, open: false }));
+                }}
               >
                 <Icon className="h-4 w-4" />
                 <span>{label}</span>
@@ -1319,73 +1393,144 @@ export function RoomsSlidingPanel({
         </>
       )}
 
-      {reactionPicker.open && (
-        <div
-          ref={reactionPickerRef}
-          className="fixed z-[1001] flex flex-col"
-          style={{
-            top: reactionPicker.y,
-            left: reactionPicker.x,
-            width: "404px",
-            height: "396px",
-            borderRadius: "24px",
-            background: "#0000004A",
-            border: "1px solid #FFFFFF0F",
-          }}
-        >
-          <div
-            className="flex items-center justify-between px-4 py-3 border-b"
-            style={{ borderColor: "#FFFFFF0F" }}
-          >
-            <span className="text-sm font-semibold text-white">Emoji</span>
-            <button
-              className="h-8 w-8 rounded-full text-white hover:bg-white/10 flex items-center justify-center"
-              onClick={() => setReactionPicker((p) => ({ ...p, open: false }))}
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
+      {/* Emoji Picker for reaction picker button (from old context menu) */}
+      <EmojiPicker
+        onEmojiSelect={(emoji) => {
+          handleReact(emoji);
+          setShowReactionEmojiPicker(false);
+          setContextMenu((p) => ({ ...p, open: false }));
+        }}
+        isOpen={showReactionEmojiPicker}
+        onClose={() => {
+          setShowReactionEmojiPicker(false);
+          setContextMenu((p) => ({ ...p, open: false }));
+        }}
+        triggerRef={reactionPickerButtonRef}
+        align="left"
+      />
 
-          <div className="px-4 py-3 border-b" style={{ borderColor: "#FFFFFF0F" }}>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
+      {/* Forward Members Popup */}
+      {isForwardPopupOpen && isMounted && typeof document !== "undefined" && createPortal(
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0"
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              zIndex: 220010,
+              pointerEvents: "auto",
+            }}
+            onClick={() => {
+              setIsForwardPopupOpen(false);
+              setForwardMessageId(null);
+              setForwardSearchQuery("");
+            }}
+          />
+          
+          {/* Forward Popup - Responsive */}
+          <div
+            className="fixed"
+            style={{
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: 220011,
+              pointerEvents: "auto",
+              // Responsive width: 432px at 1512px viewport width (28.57% of 1512px)
+              // Formula: 432px / 1512px = 28.57vw
+              width: "clamp(320px, 28.57vw, 432px)",
+              maxWidth: "calc(100vw - 32px)",
+              // Responsive height: 520px max, scales down for smaller screens
+              height: "clamp(400px, 34.39vh, 520px)",
+              maxHeight: "calc(100vh - 120px)",
+              backgroundColor: "rgba(8, 14, 17, 0.4)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              borderRadius: "24px",
+              padding: "16px",
+              display: "flex",
+              flexDirection: "column",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4 flex-shrink-0">
+              <h3 className="text-lg font-semibold text-white" style={{ fontFamily: "'Geist'" }}>
+                Forward Message
+              </h3>
+              <button
+                onClick={() => {
+                  setIsForwardPopupOpen(false);
+                  setForwardMessageId(null);
+                  setForwardSearchQuery("");
+                }}
+                className="h-8 w-8 rounded-full text-white hover:bg-white/10 flex items-center justify-center transition-colors"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <div className="relative mb-4 flex-shrink-0">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9BB6CC99] pointer-events-none" />
               <Input
-                value={reactionPicker.search}
-                onChange={(e) =>
-                  setReactionPicker((p) => ({ ...p, search: e.target.value }))
-                }
-                placeholder="Search emoji"
-                className="h-10 pl-10 pr-3 bg-transparent border border-white/10 text-white placeholder:text-white/50 rounded-xl focus-visible:ring-0 focus-visible:border-white/30"
+                placeholder="Search members..."
+                value={forwardSearchQuery}
+                onChange={(e) => setForwardSearchQuery(e.target.value)}
+                className="pl-10 pr-4 h-10 bg-[rgba(229,247,253,0.06)] border border-white/10 rounded-full text-sm text-white placeholder:text-[#9BB6CC99] focus:ring-0 focus:border-white/30"
+                style={{ fontFamily: "'Geist'" }}
               />
             </div>
-          </div>
 
-          <div className="h-px" style={{ background: "#FFFFFF0F" }} />
-
-          <div className="flex-1 overflow-hidden">
-            <div className="h-full overflow-y-auto px-4 py-3">
-              <div
-                className="grid gap-2"
-                style={{
-                  gridTemplateColumns: "repeat(auto-fill, minmax(36px, 1fr))",
-                }}
-              >
-                {filteredEmojis.map((emoji, idx) => (
-                  <button
-                    key={`${emoji}-${idx}`}
-                    className="h-9 w-9 rounded-[10px] bg-[#E5F7FD0F] text-lg flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all text-white"
-                    onClick={() => {
-                      setReactionPicker((p) => ({ ...p, open: false }));
-                      setContextMenu((p) => ({ ...p, open: false }));
-                    }}
-                  >
-                    {emoji}
-                  </button>
-                ))}
+            {/* Members List - Scrollable */}
+            <ScrollArea className="flex-1 overflow-hidden min-h-0">
+              <div className="space-y-1 pr-2">
+                {getAllForwardMembers()
+                  .filter((member) =>
+                    member.name.toLowerCase().includes(forwardSearchQuery.toLowerCase()) ||
+                    member.userId.toLowerCase().includes(forwardSearchQuery.toLowerCase())
+                  )
+                  .map((member) => (
+                    <button
+                      key={member.id}
+                      onClick={() => {
+                        console.log("Forward message", forwardMessageId, "to", member.id, member.name);
+                        // TODO: Implement actual forward logic
+                        setIsForwardPopupOpen(false);
+                        setForwardMessageId(null);
+                        setForwardSearchQuery("");
+                        setContextOpen(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-[4px] py-[6px] rounded-lg hover:bg-white/5 transition-colors text-left"
+                    >
+                      <div className="relative flex-shrink-0">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={member.avatar} />
+                          <AvatarFallback className="bg-[#2b3642] text-white text-sm font-medium">
+                            {member.name[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        {member.isOnline && (
+                          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-[#45D4A7] rounded-full border-2 border-[#080E11]" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate" style={{ fontFamily: "'Geist'" }}>
+                          {member.name}
+                        </p>
+                        <p className="text-xs text-[#9BB6CC] truncate" style={{ fontFamily: "'Geist'" }}>
+                          {member.userId}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
               </div>
-            </div>
+            </ScrollArea>
           </div>
-        </div>
+        </>,
+        document.body
       )}
     </>
   );

@@ -44,6 +44,7 @@ interface ChatMessageProps {
   isGrouped?: boolean;
   onReact?: (messageId: string, emoji: string) => void;
   onAction?: (messageId: string, action: string) => void;
+  disableContextMenu?: boolean; // Disable right-click context menu (for circles)
 }
 
 export function ChatMessageComponent({
@@ -52,6 +53,7 @@ export function ChatMessageComponent({
   isGrouped = false,
   onReact = () => {},
   onAction = () => {},
+  disableContextMenu = false,
 }: ChatMessageProps) {
   const timeAgo = formatDistanceToNow(message.timestamp, { addSuffix: true });
   const isEmoticonOnly = shouldDisplayAsEmoticonOnly(message.content, message.images);
@@ -175,7 +177,7 @@ export function ChatMessageComponent({
         "group flex gap-3 px-4 py-2 hover:bg-white/5 transition-colors",
         isGrouped && "py-1"
       )}
-      onContextMenu={handleContextMenu}
+      onContextMenu={disableContextMenu ? undefined : handleContextMenu}
     >
       {/* Avatar */}
       <div className="flex-shrink-0">
@@ -321,8 +323,8 @@ export function ChatMessageComponent({
           onIndexChange={setCurrentImageIndex}
         />
       )}
-      {/* Contextual Popups */}
-      {(contextOpen || showEmojiPicker) && typeof document !== "undefined" && (
+      {/* Contextual Popups - Only show if context menu is enabled */}
+      {!disableContextMenu && (contextOpen || showEmojiPicker) && typeof document !== "undefined" && (
         <>
           {/* Quick reactions bar (only when context menu is open) */}
           {contextOpen && (
