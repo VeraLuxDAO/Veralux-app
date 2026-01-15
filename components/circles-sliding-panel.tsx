@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Search, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import { type ChatMessage } from "@/components/chat/chat-message";
 import { ChatInput } from "@/components/chat/chat-input";
@@ -48,6 +48,7 @@ export function CirclesSlidingPanel({
   const [leftSidebarWidth] = useState(300);
   const [rightSidebarWidth] = useState(270);
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const slugifyCircleName = (name: string) =>
@@ -74,13 +75,17 @@ export function CirclesSlidingPanel({
           if (channelSlug) {
             setActiveChannelId(channelSlug);
           } else {
-            if (typeof window !== 'undefined') {
-              const currentUrl = new URL(window.location.href);
-              currentUrl.searchParams.set("channel", "general");
+            // Only update URL if channel is not already set to general
+            if (activeChannelId !== "general") {
+              const params = new URLSearchParams(searchParams.toString());
+              params.delete("private_rooms");
+              params.set("channel", "general");
+              const currentPath = pathname || "/";
               if (isMobile) {
-                currentUrl.hash = "#channel";
+                router.push(`${currentPath}?${params.toString()}#channel`);
+              } else {
+                router.push(`${currentPath}?${params.toString()}`);
               }
-              router.replace(currentUrl.pathname + currentUrl.search + currentUrl.hash, { scroll: false });
             }
             setActiveChannelId("general");
           }
@@ -110,13 +115,13 @@ export function CirclesSlidingPanel({
         setMobileView("channel");
         setIsMembersVisible(false);
         if (!hash) {
-          const currentUrl = new URL(window.location.href);
-          currentUrl.hash = "#channel";
-          router.replace(currentUrl.pathname + currentUrl.search + currentUrl.hash, { scroll: false });
+          const params = new URLSearchParams(searchParams.toString());
+          const currentPath = pathname || "/";
+          router.push(`${currentPath}?${params.toString()}#channel`);
         }
       }
     }
-  }, [selectedCircle, router]);
+  }, [selectedCircle, router, searchParams, pathname]);
 
   // Listen to hash changes
   useEffect(() => {
@@ -186,7 +191,7 @@ export function CirclesSlidingPanel({
     };
   }, [isOpen]);
 
-  const handleSendMessage = (content: string, images?: File[]) => {
+  const handleSendMessage = useCallback((content: string, images?: File[]) => {
     if (!content.trim() && (!images || images.length === 0)) return;
 
     if (images && images.length > 0) {
@@ -227,7 +232,7 @@ export function CirclesSlidingPanel({
       };
       setMessages((prev) => [...prev, newMessage]);
     }
-  };
+  }, []);
 
   const handleExitCircle = () => {
     if (typeof window !== "undefined" && window.history.length > 1) {
@@ -237,18 +242,24 @@ export function CirclesSlidingPanel({
     onClose();
   };
 
-  const handleSwitchCircle = (circle: Circle) => {
+  const handleSwitchCircle = useCallback((circle: Circle) => {
     const circleSlug = slugifyCircleName(circle.name);
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const params = new URLSearchParams(searchParams.toString());
+    // Remove private_rooms parameter when switching to a circle
+    params.delete("private_rooms");
+    params.set("circle", circleSlug);
+    params.set("channel", "general");
+    const currentPath = pathname || "/";
     
     if (isMobile) {
-      router.push(`/?circle=${circleSlug}&channel=general#channel`);
+      router.push(`${currentPath}?${params.toString()}#channel`);
     } else {
-      router.push(`/?circle=${circleSlug}&channel=general`);
+      router.push(`${currentPath}?${params.toString()}`);
     }
-  };
+  }, [searchParams, pathname, router]);
 
-  const handleChannelSelect = (channelId: string, e?: React.MouseEvent) => {
+  const handleChannelSelect = useCallback((channelId: string, e?: React.MouseEvent) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
@@ -260,33 +271,30 @@ export function CirclesSlidingPanel({
     
     if (isMobile && selectedCircle) {
       const circleSlug = slugifyCircleName(selectedCircle.name);
-      const currentUrl = new URL(window.location.href);
-      currentUrl.searchParams.set("circle", circleSlug);
-      currentUrl.searchParams.set("channel", channelId);
-      currentUrl.hash = "#chatting";
-      router.replace(currentUrl.pathname + currentUrl.search + currentUrl.hash, { scroll: false });
+      const params = new URLSearchParams(searchParams.toString());
+      // Remove private_rooms parameter when switching channels
+      params.delete("private_rooms");
+      params.set("circle", circleSlug);
+      params.set("channel", channelId);
+      const currentPath = pathname || "/";
+      router.push(`${currentPath}?${params.toString()}#chatting`);
       setMobileView("chatting");
-      
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent("hash-updated"));
-        if (window.location.hash !== "#chatting") {
-          window.history.replaceState(null, "", currentUrl.pathname + currentUrl.search + currentUrl.hash);
-        }
-      }, 0);
-      
       return;
     }
     
     if (selectedCircle) {
       const circleSlug = slugifyCircleName(selectedCircle.name);
-      const currentUrl = new URL(window.location.href);
-      currentUrl.searchParams.set("circle", circleSlug);
-      currentUrl.searchParams.set("channel", channelId);
-      router.replace(currentUrl.pathname + currentUrl.search, { scroll: false });
+      const params = new URLSearchParams(searchParams.toString());
+      // Remove private_rooms parameter when switching channels
+      params.delete("private_rooms");
+      params.set("circle", circleSlug);
+      params.set("channel", channelId);
+      const currentPath = pathname || "/";
+      router.push(`${currentPath}?${params.toString()}`);
     }
-  };
+  }, [selectedCircle, searchParams, pathname, router]);
 
-  const handleCategoryToggle = (categoryId: string) => {
+  const handleCategoryToggle = useCallback((categoryId: string) => {
     setChannelCategories((prev) =>
       prev.map((category) =>
         category.id === categoryId
@@ -294,11 +302,13 @@ export function CirclesSlidingPanel({
           : category
       )
     );
-  };
+  }, []);
 
-  const activeChannel = channelCategories
-    .flatMap((cat) => cat.channels)
-    .find((ch) => ch.id === activeChannelId);
+  const activeChannel = useMemo(() => {
+    return channelCategories
+      .flatMap((cat) => cat.channels)
+      .find((ch) => ch.id === activeChannelId);
+  }, [channelCategories, activeChannelId]);
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   const shouldShowMobile = isMobile && selectedCircle;
@@ -311,7 +321,7 @@ export function CirclesSlidingPanel({
       {/* Backdrop - Desktop Only */}
       <div
         className={cn(
-          "fixed inset-0 z-[44] transition-opacity duration-300",
+          "fixed inset-0 z-[44]",
           "hidden md:block",
           "bg-[rgba(8,14,17,0.72)] backdrop-blur-[18px]",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -325,14 +335,14 @@ export function CirclesSlidingPanel({
           <div className="fixed inset-0 z-[130] md:hidden bg-[#05080d] flex flex-row pt-0">
             {/* Channel Sidebar - Show when hash is #channel */}
             {mobileView === "channel" && (
-              <div className="flex flex-col relative overflow-hidden w-full flex-shrink-0 transition-all duration-300 bg-[#0000004A]">
+              <div className="flex flex-col relative overflow-hidden w-full flex-shrink-0 bg-[#0000004A]">
                 <div className="px-4 pt-5 pb-4 flex-shrink-0">
                   <div className="flex items-center justify-between gap-2 mb-4">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={onClose}
-                      className="h-8 w-8 p-0 rounded-full text-white hover:bg-white/10 transition-all"
+                      className="h-8 w-8 p-0 rounded-full text-white hover:bg-white/10"
                       title="Close circle"
                     >
                       <ArrowLeft className="h-5 w-5" />
@@ -365,7 +375,7 @@ export function CirclesSlidingPanel({
 
             {/* Chat Area - Show when hash is #chatting */}
             {mobileView === "chatting" && activeChannelId && activeChannel && (
-              <div className="flex flex-col relative overflow-hidden w-full flex-shrink-0 transition-all duration-300">
+              <div className="flex flex-col relative overflow-hidden w-full flex-shrink-0">
                 <div className="flex-shrink-0 px-4 pt-8 pb-4 bg-[#0000004A] border-b border-[#FFFFFF14]">
                   <div className="flex items-center justify-between gap-3 mb-3">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -373,12 +383,12 @@ export function CirclesSlidingPanel({
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          const currentUrl = new URL(window.location.href);
-                          currentUrl.hash = "#channel";
-                          router.replace(currentUrl.pathname + currentUrl.search + currentUrl.hash, { scroll: false });
+                          const params = new URLSearchParams(searchParams.toString());
+                          const currentPath = pathname || "/";
+                          router.push(`${currentPath}?${params.toString()}#channel`);
                           setMobileView("channel");
                         }}
-                        className="h-8 w-8 p-0 rounded-full text-white hover:bg-white/10 transition-all mr-2"
+                        className="h-8 w-8 p-0 rounded-full text-white hover:bg-white/10 mr-2"
                         title="Back to channels"
                       >
                         <ArrowLeft className="h-5 w-5" />
@@ -401,13 +411,14 @@ export function CirclesSlidingPanel({
                     <Button
                       variant="ghost"
                       onClick={() => {
-                        const currentUrl = new URL(window.location.href);
-                        currentUrl.hash = window.location.hash === "#members" ? "#chatting" : "#members";
-                        router.replace(currentUrl.pathname + currentUrl.search + currentUrl.hash, { scroll: false });
-                        setMobileView(window.location.hash === "#members" ? "chatting" : "members");
-                        setIsMembersVisible(window.location.hash !== "#members");
+                        const newHash = window.location.hash === "#members" ? "#chatting" : "#members";
+                        const params = new URLSearchParams(searchParams.toString());
+                        const currentPath = pathname || "/";
+                        router.push(`${currentPath}?${params.toString()}${newHash}`);
+                        setMobileView(newHash === "#members" ? "members" : "chatting");
+                        setIsMembersVisible(newHash === "#members");
                       }}
-                      className="p-0 rounded-full text-white hover:bg-white/10 transition-all bg-gradient-to-b from-[#45D4A7] to-[#4DF3FF] flex-shrink-0 h-9 w-9"
+                      className="p-0 rounded-full text-white hover:bg-white/10 bg-gradient-to-b from-[#45D4A7] to-[#4DF3FF] flex-shrink-0 h-9 w-9"
                       title={isMembersVisible ? "Hide members" : "Show members"}
                     >
                       <Users className="h-5 w-5 transition-colors text-white" />
@@ -465,7 +476,6 @@ export function CirclesSlidingPanel({
       <div
         className={cn(
           "fixed inset-0 z-[48]",
-          "transform transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]",
           "hidden md:block overflow-hidden",
           isOpen ? "translate-x-0" : "translate-x-full"
         )}

@@ -12,15 +12,6 @@ export function CircleHeader({ circle, onBack }: CircleHeaderProps) {
     <div className="px-4 pt-6 pb-4 flex-shrink-0 relative">
       <div className="flex items-center justify-between gap-2 mb-4">
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            className="h-8 w-8 p-0 rounded-full text-white hover:bg-white/10 transition-all"
-            title="Back"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
           <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
             <span className="text-lg">{circle.icon}</span>
           </div>

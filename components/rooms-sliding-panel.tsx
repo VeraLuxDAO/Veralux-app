@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo, type MouseEvent } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,10 +29,7 @@ import {
   Mic,
   Plus,
   ArrowLeft,
-  Reply,
-  Forward,
   CheckSquare,
-  Pencil,
   Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -400,11 +396,11 @@ export function RoomsSlidingPanel({
         setShowEmojiPicker(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEscape);
+    document.addEventListener("mousedown", handleClickOutside as unknown as unknown as EventListener);
+    document.addEventListener("keydown", handleEscape as unknown as unknown as EventListener);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("mousedown", handleClickOutside as unknown as unknown as EventListener);
+      document.removeEventListener("keydown", handleEscape as unknown as unknown as EventListener);
     };
   }, [contextOpen]);
 
@@ -720,6 +716,9 @@ export function RoomsSlidingPanel({
                         setSelectedRoom(room);
                         const slug = slugifyRoomName(room.name);
                         const params = new URLSearchParams(searchParams.toString());
+                        // Remove circle and channel parameters when opening a private room
+                        params.delete("circle");
+                        params.delete("channel");
                         params.set("private_rooms", slug);
                         const currentPath = pathname || "/";
                         router.push(`${currentPath}?${params.toString()}`);
@@ -948,7 +947,7 @@ export function RoomsSlidingPanel({
                     return (
                       <div
                         key={message.id}
-                        onContextMenu={handleMessageContextMenu}
+                        onContextMenu={(e) => handleMessageContextMenu(e)}
                         className={cn(
                           "flex gap-1  duration-300 ease-out",
                           message.isOwn ? "flex-row-reverse" : "flex-row",
@@ -957,7 +956,6 @@ export function RoomsSlidingPanel({
                             ? "slide-in-from-right-4"
                             : "slide-in-from-left-4"
                         )}
-                        onContextMenu={(e) => handleContextMenu(e, message.id)}
                       >
                         {/* Avatar */}
                         <div className="flex-shrink-0 w-6 md:w-7 lg:w-8 mt-auto">
