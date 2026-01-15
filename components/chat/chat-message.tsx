@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import type React from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,15 @@ import { formatDistanceToNow } from "date-fns";
 import { shouldDisplayAsEmoticonOnly } from "@/lib/emoji-utils";
 import { ImageViewer } from "@/components/chat/image-viewer";
 import { TelegramEmoji } from "@/components/chat/telegram-emoji";
+import { EmojiPicker } from "@/components/ui/emoji-picker";
+import {
+  Reply,
+  Forward,
+  Paperclip,
+  CheckSquare,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 
 export interface ChatMessage {
   id: string;
@@ -32,17 +42,122 @@ interface ChatMessageProps {
   message: ChatMessage;
   showAvatar?: boolean;
   isGrouped?: boolean;
+  onReact?: (messageId: string, emoji: string) => void;
+  onAction?: (messageId: string, action: string) => void;
 }
 
 export function ChatMessageComponent({
   message,
   showAvatar = true,
   isGrouped = false,
+  onReact = () => {},
+  onAction = () => {},
 }: ChatMessageProps) {
   const timeAgo = formatDistanceToNow(message.timestamp, { addSuffix: true });
   const isEmoticonOnly = shouldDisplayAsEmoticonOnly(message.content, message.images);
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [contextOpen, setContextOpen] = useState(false);
+  const [contextPos, setContextPos] = useState({ x: 0, y: 0 });
+  const [actionPos, setActionPos] = useState({ x: 0, y: 0 });
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const addButtonRef = useRef<HTMLButtonElement>(null);
+  const quickBarRef = useRef<HTMLDivElement>(null);
+  const actionsRef = useRef<HTMLDivElement>(null);
+
+  const quickFallback = ["👍", "❤️", "😂", "😮", "😢", "😡"];
+  const quickReactions = useMemo(() => {
+    if (typeof window === "undefined") return quickFallback.slice(0, 6);
+    try {
+      const stored = JSON.parse(
+        window.localStorage.getItem("recentEmojis") || "[]"
+      ) as string[];
+      const unique = Array.from(new Set(stored));
+      const combined = [...unique, ...quickFallback];
+      return combined.slice(0, 6);
+    } catch {
+      return quickFallback.slice(0, 6);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!contextOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (
+        (addButtonRef.current && addButtonRef.current.contains(target)) ||
+        (quickBarRef.current && quickBarRef.current.contains(target)) ||
+        (actionsRef.current && actionsRef.current.contains(target)) ||
+        (target instanceof HTMLElement &&
+          target.closest('[data-emoji-picker="true"]'))
+      ) {
+        return;
+      }
+      setContextOpen(false);
+      setShowEmojiPicker(false);
+    };
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setContextOpen(false);
+        setShowEmojiPicker(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [contextOpen]);
+
+  const clamp = (value: number, min: number, max: number) =>
+    Math.min(Math.max(value, min), max);
+
+  const handleContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    const clickX = event.clientX;
+    const clickY = event.clientY;
+    const width = 362;
+    const height = 60;
+    const actionWidth = 130;
+    const actionHeight = 224;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    // Position quick bar above pointer by default
+    const quickLeft = clamp(clickX - width / 2, 8, vw - width - 8);
+    const quickTop = clamp(clickY - height - 10, 8, vh - height - 8);
+
+    // Position actions near pointer (slightly offset)
+    const actionLeft = clamp(clickX - actionWidth / 2, 8, vw - actionWidth - 8);
+    const actionTop = clamp(clickY + 8, 8, vh - actionHeight - 8);
+
+    setContextPos({
+      x: quickLeft,
+      y: quickTop,
+    });
+    setActionPos({
+      x: actionLeft,
+      y: actionTop,
+    });
+    setContextOpen(true);
+    setShowEmojiPicker(false);
+  };
+
+  const handleReact = (emoji: string) => {
+    onReact(message.id, emoji);
+    setContextOpen(false);
+    setShowEmojiPicker(false);
+  };
+
+  const actions = [
+    { key: "reply", label: "Reply", Icon: Reply },
+    { key: "forward", label: "Forward", Icon: Forward },
+    { key: "clip", label: "Clip", Icon: Paperclip },
+    { key: "select", label: "Select", Icon: CheckSquare },
+    { key: "edit", label: "Edit", Icon: Pencil },
+    { key: "delete", label: "Delete", Icon: Trash2 },
+  ];
 
   if (message.type === "system") {
     return (
@@ -60,6 +175,7 @@ export function ChatMessageComponent({
         "group flex gap-3 px-4 py-2 hover:bg-white/5 transition-colors",
         isGrouped && "py-1"
       )}
+      onContextMenu={handleContextMenu}
     >
       {/* Avatar */}
       <div className="flex-shrink-0">
@@ -204,6 +320,106 @@ export function ChatMessageComponent({
           currentIndex={currentImageIndex}
           onIndexChange={setCurrentImageIndex}
         />
+      )}
+      {/* Contextual Popups */}
+      {(contextOpen || showEmojiPicker) && typeof document !== "undefined" && (
+        <>
+          {/* Quick reactions bar (only when context menu is open) */}
+          {contextOpen && (
+            <div
+              ref={quickBarRef}
+              className="fixed"
+              style={{
+                top: contextPos.y,
+                left: contextPos.x,
+                width: 362,
+                height: 60,
+                backgroundColor: "#0000004A",
+                backdropFilter: "blur(18px)",
+                WebkitBackdropFilter: "blur(18px)",
+                borderRadius: 16,
+                display: "flex",
+                alignItems: "center",
+                padding: "12px",
+                gap: "12px",
+                zIndex: 120000,
+              }}
+            >
+              {quickReactions.map((emoji, idx) => (
+                <button
+                  key={`${emoji}-${idx}`}
+                  onClick={() => handleReact(emoji)}
+                  className="flex items-center justify-center bg-white/5 hover:bg-white/15 transition rounded-[10px]"
+                  style={{ width: 36, height: 36 }}
+                  aria-label={`React ${emoji}`}
+                >
+                  <span style={{ fontSize: 20 }}>{emoji}</span>
+                </button>
+              ))}
+              <button
+                ref={addButtonRef}
+                onClick={() => {
+                  setShowEmojiPicker(true);
+                  setContextOpen(false);
+                }}
+                className="flex items-center justify-center bg-white/10 hover:bg-white/20 transition rounded-full text-white/80"
+                style={{ width: 37, height: 37 }}
+                aria-label="Add reaction"
+              >
+                +
+              </button>
+            </div>
+          )}
+
+          {/* Emoji picker (can stay open after menus close) */}
+          <EmojiPicker
+            onEmojiSelect={(emoji) => handleReact(emoji)}
+            isOpen={showEmojiPicker}
+            onClose={() => setShowEmojiPicker(false)}
+            triggerRef={addButtonRef}
+            align="left"
+          />
+
+          {/* Actions menu (only when context menu is open) */}
+          {contextOpen && (
+            <div
+              ref={actionsRef}
+              className="fixed text-[#9BB6CC]"
+              style={{
+                top: actionPos.y,
+                left: actionPos.x,
+                width: 130,
+                height: 224,
+                background: "rgba(8, 14, 17, 0.6)",
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                borderRadius: 16,
+                padding: "16px 12px",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                boxShadow:
+                  "0px 334px 94px rgba(0,0,0,0.01), 0px 214px 86px rgba(0,0,0,0.04), 0px 120px 72px rgba(0,0,0,0.15), 0px 53px 53px rgba(0,0,0,0.26), 0px 13px 29px rgba(0,0,0,0.29)",
+                zIndex: 120001,
+              }}
+            >
+              {actions.map((action) => (
+                <button
+                  key={action.key}
+                  onClick={() => {
+                    onAction(message.id, action.key);
+                    setContextOpen(false);
+                    setShowEmojiPicker(false);
+                  }}
+                  className="flex items-center gap-2 text-sm font-medium text-[#9BB6CC] hover:text-white hover:bg-white/10 rounded-lg px-2 py-1 transition"
+                >
+                  <action.Icon className="w-4 h-4" />
+                  {action.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

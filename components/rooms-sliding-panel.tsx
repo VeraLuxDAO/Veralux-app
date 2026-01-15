@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo, type MouseEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -28,6 +30,11 @@ import {
   Mic,
   Plus,
   ArrowLeft,
+  Reply,
+  Forward,
+  CheckSquare,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -213,6 +220,16 @@ export function RoomsSlidingPanel({
   const reactionPickerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const [contextOpen, setContextOpen] = useState(false);
+  const [contextMessageId, setContextMessageId] = useState<string | null>(null);
+  const [contextPos, setContextPos] = useState({ x: 0, y: 0 });
+  const [actionPos, setActionPos] = useState({ x: 0, y: 0 });
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [emojiPickerPos, setEmojiPickerPos] = useState({ x: 0, y: 0 });
+  const addButtonRef = useRef<HTMLButtonElement>(null);
+  const emojiPickerAnchorRef = useRef<HTMLDivElement>(null);
+  const quickBarRef = useRef<HTMLDivElement>(null);
+  const actionsRef = useRef<HTMLDivElement>(null);
   const isPage = variant === "page";
   const isOverlay = variant === "overlay";
 
@@ -339,12 +356,57 @@ export function RoomsSlidingPanel({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const quickFallback = ["👍", "❤️", "😂", "😮", "😢", "😡"];
+  const quickReactions = useMemo(() => {
+    if (typeof window === "undefined") return quickFallback.slice(0, 6);
+    try {
+      const stored = JSON.parse(
+        window.localStorage.getItem("recentEmojis") || "[]"
+      ) as string[];
+      const unique = Array.from(new Set(stored));
+      const combined = [...unique, ...quickFallback];
+      return combined.slice(0, 6);
+    } catch {
+      return quickFallback.slice(0, 6);
+    }
+  }, []);
+
   useEffect(() => {
     if (messages.length > 0) {
       // Use setTimeout to ensure DOM has updated
       setTimeout(scrollToBottom, 100);
     }
   }, [messages]);
+
+  useEffect(() => {
+    if (!contextOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (
+        (addButtonRef.current && addButtonRef.current.contains(target)) ||
+        (quickBarRef.current && quickBarRef.current.contains(target)) ||
+        (actionsRef.current && actionsRef.current.contains(target)) ||
+        (target instanceof HTMLElement &&
+          target.closest('[data-emoji-picker="true"]'))
+      ) {
+        return;
+      }
+      setContextOpen(false);
+      setShowEmojiPicker(false);
+    };
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setContextOpen(false);
+        setShowEmojiPicker(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [contextOpen]);
 
   // Sync selectedRoom with URL when panel is open (?private_rooms=slug)
   useEffect(() => {
@@ -419,6 +481,54 @@ export function RoomsSlidingPanel({
       setMessages([...messages, newMessage]);
     }
   };
+
+  const clamp = (value: number, min: number, max: number) =>
+    Math.min(Math.max(value, min), max);
+
+  const handleContextMenu = (event: React.MouseEvent, messageId: string) => {
+    event.preventDefault();
+    const clickX = event.clientX;
+    const clickY = event.clientY;
+    const width = 362;
+    const height = 60;
+    const actionWidth = 130;
+    const actionHeight = 224;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    const quickLeft = clamp(clickX - width / 2, 8, vw - width - 8);
+    const quickTop = clamp(clickY - height - 10, 8, vh - height - 8);
+
+    const actionLeft = clamp(clickX - actionWidth / 2, 8, vw - actionWidth - 8);
+    const actionTop = clamp(clickY + 8, 8, vh - actionHeight - 8);
+
+    setContextMessageId(messageId);
+    setContextPos({ x: quickLeft, y: quickTop });
+    setActionPos({ x: actionLeft, y: actionTop });
+    setContextOpen(true);
+    setShowEmojiPicker(false);
+  };
+
+  const handleReact = (emoji: string) => {
+    console.log("Reacted to message", contextMessageId, "with", emoji);
+    setContextOpen(false);
+    setShowEmojiPicker(false);
+  };
+
+  const handleAction = (action: string) => {
+    console.log("Action", action, "on message", contextMessageId);
+    setContextOpen(false);
+    setShowEmojiPicker(false);
+  };
+
+  const actions = [
+    { key: "reply", label: "Reply", Icon: Reply },
+    { key: "forward", label: "Forward", Icon: Forward },
+    { key: "clip", label: "Clip", Icon: Paperclip },
+    { key: "select", label: "Select", Icon: CheckSquare },
+    { key: "edit", label: "Edit", Icon: Pencil },
+    { key: "delete", label: "Delete", Icon: Trash2 },
+  ];
 
   const formatTime = (date: Date) => {
     const now = new Date();
@@ -594,7 +704,7 @@ export function RoomsSlidingPanel({
 
             {/* Rooms List */}
             <ScrollArea className="flex-1 overflow-hidden w-full">
-              <div className="w-full max-w-full overflow-hidden pt-2">
+              <div className="w-full max-w-full overflow-hidden pt-1">
                 {filteredRooms.map((room, index) => {
                   const isSelected = selectedRoom?.id === room.id;
                   return (
@@ -620,7 +730,7 @@ export function RoomsSlidingPanel({
                         "group relative",
                         "[transition:none!important] [transform:none!important]",
                         isSelected 
-                          ? "opacity-100 bg-white/8 px-4 rounded-lg" 
+                          ? "opacity-100 bg-white/8 px-4" 
                           : "px-0"
                       )}
                       style={{
@@ -843,10 +953,11 @@ export function RoomsSlidingPanel({
                           "flex gap-1  duration-300 ease-out",
                           message.isOwn ? "flex-row-reverse" : "flex-row",
                           "",
-                          message.isOwn 
-                            ? "slide-in-from-right-4" 
+                          message.isOwn
+                            ? "slide-in-from-right-4"
                             : "slide-in-from-left-4"
                         )}
+                        onContextMenu={(e) => handleContextMenu(e, message.id)}
                       >
                         {/* Avatar */}
                         <div className="flex-shrink-0 w-6 md:w-7 lg:w-8 mt-auto">
@@ -981,6 +1092,122 @@ export function RoomsSlidingPanel({
                   forceDesktop={true}
                 />
               </div>
+
+              {/* Contextual Popups (private rooms) */}
+              {(contextOpen || showEmojiPicker) &&
+                typeof document !== "undefined" &&
+                createPortal(
+                  <>
+                    {/* Quick reactions bar */}
+                    {contextOpen && (
+                      <div
+                        ref={quickBarRef}
+                        className="fixed"
+                        style={{
+                          top: contextPos.y,
+                          left: contextPos.x,
+                          width: 362,
+                          height: 60,
+                          backgroundColor: "#0000004A",
+                          backdropFilter: "blur(18px)",
+                          WebkitBackdropFilter: "blur(18px)",
+                          borderRadius: 16,
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "12px",
+                          gap: "12px",
+                          zIndex: 220000,
+                        }}
+                      >
+                        {quickReactions.map((emoji, idx) => (
+                          <button
+                            key={`${emoji}-${idx}`}
+                            onClick={() => handleReact(emoji)}
+                            className="flex items-center justify-center bg-white/5 hover:bg-white/15 transition rounded-[10px]"
+                            style={{ width: 36, height: 36 }}
+                            aria-label={`React ${emoji}`}
+                          >
+                            <span style={{ fontSize: 20 }}>{emoji}</span>
+                          </button>
+                        ))}
+                        <button
+                          ref={addButtonRef}
+                          onClick={() => {
+                            if (addButtonRef.current) {
+                              const rect = addButtonRef.current.getBoundingClientRect();
+                              setEmojiPickerPos({ x: rect.left, y: rect.top });
+                            }
+                            setShowEmojiPicker(true);
+                            setContextOpen(false);
+                          }}
+                          className="flex items-center justify-center bg-white/10 hover:bg-white/20 transition rounded-full text-white/80"
+                          style={{ width: 37, height: 37 }}
+                          aria-label="Add reaction"
+                        >
+                          +
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Hidden anchor for emoji picker when context menu is closed */}
+                    {showEmojiPicker && !contextOpen && (
+                      <div
+                        ref={emojiPickerAnchorRef}
+                        className="fixed pointer-events-none"
+                        style={{
+                          left: emojiPickerPos.x,
+                          top: emojiPickerPos.y,
+                          width: 37,
+                          height: 37,
+                        }}
+                      />
+                    )}
+                    <EmojiPicker
+                      onEmojiSelect={(emoji) => handleReact(emoji)}
+                      isOpen={showEmojiPicker}
+                      onClose={() => setShowEmojiPicker(false)}
+                      triggerRef={contextOpen ? addButtonRef : emojiPickerAnchorRef}
+                      align="left"
+                    />
+
+                    {/* Actions menu */}
+                    {contextOpen && (
+                      <div
+                        ref={actionsRef}
+                        className="fixed text-[#9BB6CC]"
+                        style={{
+                          top: actionPos.y,
+                          left: actionPos.x,
+                          width: 130,
+                          height: 224,
+                          background: "rgba(8, 14, 17, 0.6)",
+                          backdropFilter: "blur(20px)",
+                          WebkitBackdropFilter: "blur(20px)",
+                          borderRadius: 16,
+                          padding: "16px 12px",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          boxShadow:
+                            "0px 334px 94px rgba(0,0,0,0.01), 0px 214px 86px rgba(0,0,0,0.04), 0px 120px 72px rgba(0,0,0,0.15), 0px 53px 53px rgba(0,0,0,0.26), 0px 13px 29px rgba(0,0,0,0.29)",
+                          zIndex: 220001,
+                        }}
+                      >
+                        {actions.map(({ key, label, Icon }) => (
+                          <button
+                            key={key}
+                            onClick={() => handleAction(key)}
+                            className="flex items-center gap-2 text-sm font-medium text-[#9BB6CC] hover:text-white hover:bg-white/10 rounded-lg px-2 py-1 transition"
+                          >
+                            <Icon className="w-4 h-4" />
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>,
+                  document.body
+                )}
               </div>
 
               {/* Room Info Panel - Right Sidebar */}
