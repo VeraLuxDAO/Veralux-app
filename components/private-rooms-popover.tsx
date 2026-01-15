@@ -229,6 +229,9 @@ export function PrivateRoomsPopover({
                   onClick={() => {
                     const slug = slugifyRoomName(room.name);
                     const params = new URLSearchParams(searchParams.toString());
+                    // Remove circle and channel parameters when opening a private room
+                    params.delete("circle");
+                    params.delete("channel");
                     params.set("private_rooms", slug);
                     const currentPath = pathname || "/";
                     router.push(`${currentPath}?${params.toString()}`);

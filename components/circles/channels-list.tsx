@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Hash, Volume2, Lock, ChevronDown } from "lucide-react";
@@ -11,7 +12,7 @@ interface ChannelsListProps {
   onCategoryToggle: (categoryId: string) => void;
 }
 
-export function ChannelsList({
+export const ChannelsList = memo(function ChannelsList({
   categories,
   activeChannelId,
   onChannelSelect,
@@ -73,4 +74,4 @@ export function ChannelsList({
       </div>
     </ScrollArea>
   );
-}
+});

@@ -63,6 +63,8 @@ export function CirclesModal({ isOpen, onClose }: CirclesModalProps) {
       const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
       const circleSlug = slugifyCircleName(circle.name);
       const params = new URLSearchParams(searchParams.toString());
+      // Remove private_rooms parameter when opening a circle
+      params.delete("private_rooms");
       params.set("circle", circleSlug);
       params.set("channel", "general");
       const currentPath = pathname || "/";

@@ -28,7 +28,6 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CirclesModal } from "@/components/circles-modal";
 import { CirclesPopover } from "@/components/circles-popover";
-import { CirclesSlidingPanel } from "@/components/circles-sliding-panel";
 import { NotificationCenterPopover } from "@/components/notification-center-popover";
 import { joinedCircles } from "@/lib/circles-data";
 import { PrivateRoomsPopover } from "@/components/private-rooms-popover";
@@ -679,11 +678,6 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
         onClose={() => setIsPrivateRoomsPopoverOpen(false)}
       />
 
-      {/* Circles Sliding Panel (desktop only, opened/closed based on ?circle parameter) */}
-      <CirclesSlidingPanel
-        isOpen={isCirclesPanelOpen}
-        onClose={() => router.push("/")}
-      />
 
       {/* Notification Center Popover */}
       <NotificationCenterPopover

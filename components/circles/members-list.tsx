@@ -1,3 +1,4 @@
+import { useMemo, memo } from "react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -14,22 +15,30 @@ interface MembersListProps {
   onMemberClick: (member: Member) => void;
 }
 
-export function MembersList({
+export const MembersList = memo(function MembersList({
   circle,
   members,
   searchQuery,
   onSearchChange,
   onMemberClick,
 }: MembersListProps) {
-  const filteredMembers = members.filter((member) =>
-    member.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  const onlineMembers = filteredMembers.filter(
-    (member) => member.status === "online" || member.status === "idle"
-  );
-  const offlineMembers = filteredMembers.filter(
-    (member) => member.status === "offline"
-  );
+  const filteredMembers = useMemo(() => {
+    return members.filter((member) =>
+      member.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [members, searchQuery]);
+
+  const onlineMembers = useMemo(() => {
+    return filteredMembers.filter(
+      (member) => member.status === "online" || member.status === "idle"
+    );
+  }, [filteredMembers]);
+
+  const offlineMembers = useMemo(() => {
+    return filteredMembers.filter(
+      (member) => member.status === "offline"
+    );
+  }, [filteredMembers]);
 
   return (
     <>
@@ -145,4 +154,4 @@ export function MembersList({
       </ScrollArea>
     </>
   );
-}
+});

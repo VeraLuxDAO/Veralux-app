@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useMemo, memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Hash, Volume2, Lock, Search, Users } from "lucide-react";
@@ -18,7 +18,7 @@ interface CircleChatAreaProps {
   mobileView?: string;
 }
 
-export function CircleChatArea({
+export const CircleChatArea = memo(function CircleChatArea({
   channel,
   messages,
   searchQuery,
@@ -36,9 +36,12 @@ export function CircleChatArea({
 
   useEffect(() => {
     if (messages.length > 0) {
-      setTimeout(scrollToBottom, 100);
+      // Use requestAnimationFrame for better performance
+      requestAnimationFrame(() => {
+        scrollToBottom();
+      });
     }
-  }, [messages]);
+  }, [messages.length]); // Only depend on length, not the entire array
 
   return (
     <div className="flex-1 flex flex-col min-w-0 relative ml-8 mr-8" style={{ marginRight: isMembersVisible ? "32px" : "0px" }}>
@@ -72,11 +75,11 @@ export function CircleChatArea({
             <Button
               variant="ghost"
               onClick={onToggleMembers}
-              className="p-0 rounded-full text-white hover:bg-white/10 transition-all flex-shrink-0 h-9 w-9"
+              className="p-0 rounded-full text-white hover:bg-white/10 flex-shrink-0 h-9 w-9"
               title={isMembersVisible ? "Hide members" : "Show members"}
             >
               <Users className={cn(
-                "h-5 w-5 md:h-4 md:w-4 transition-colors",
+                "h-5 w-5 md:h-4 md:w-4",
                 (isMembersVisible || mobileView === "members") ? "text-white" : "text-[#9BB6CC]"
               )} />
             </Button>
@@ -118,4 +121,4 @@ export function CircleChatArea({
       </div>
     </div>
   );
-}
+});
