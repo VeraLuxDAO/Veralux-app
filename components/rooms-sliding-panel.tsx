@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useRef, useMemo, type MouseEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,10 @@ import {
   Smile,
   Paperclip,
   Send,
+  Reply,
+  Forward,
+  Hand,
+  Pencil,
   Check,
   CheckCheck,
   Pin,
@@ -43,6 +48,7 @@ import { ChatInput } from "@/components/chat/chat-input";
 import { shouldDisplayAsEmoticonOnly } from "@/lib/emoji-utils";
 import { ImageViewer } from "@/components/chat/image-viewer";
 import { TelegramEmoji } from "@/components/chat/telegram-emoji";
+import { EMOJI_CATEGORIES } from "@/lib/emoji-data";
 
 interface Message {
   id: string;
@@ -200,6 +206,18 @@ export function RoomsSlidingPanel({
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentImageList, setCurrentImageList] = useState<string[]>([]);
+  const [contextMenu, setContextMenu] = useState<{
+    open: boolean;
+    x: number;
+    y: number;
+  }>({ open: false, x: 0, y: 0 });
+  const [reactionPicker, setReactionPicker] = useState<{
+    open: boolean;
+    x: number;
+    y: number;
+    search: string;
+  }>({ open: false, x: 0, y: 0, search: "" });
+  const reactionPickerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [contextOpen, setContextOpen] = useState(false);
@@ -214,6 +232,88 @@ export function RoomsSlidingPanel({
   const actionsRef = useRef<HTMLDivElement>(null);
   const isPage = variant === "page";
   const isOverlay = variant === "overlay";
+
+  const emojiOptions = ["👍", "❤️", "😂", "😮", "😢", "🔥"];
+  const actionOptions = [
+    { label: "Reply", icon: Reply },
+    { label: "Forward", icon: Forward },
+    { label: "Clip", icon: Paperclip },
+    { label: "Select", icon: Hand },
+    { label: "Edit", icon: Pencil },
+  ];
+
+  const handleMessageContextMenu = (e: MouseEvent) => {
+    e.preventDefault();
+    const popupWidth = 362;
+    const popupHeight = 60 + 8 + 224;
+    const margin = 8;
+    const x = Math.min(
+      window.innerWidth - popupWidth - margin,
+      Math.max(margin, e.clientX)
+    );
+    const y = Math.min(
+      window.innerHeight - popupHeight - margin,
+      Math.max(margin, e.clientY)
+    );
+    setContextMenu({ open: true, x, y });
+  };
+
+  const openEmojiPickerFromContext = () => {
+    setContextMenu((prev) => ({ ...prev, open: false }));
+    const pickerWidth = 404;
+    const pickerHeight = 396;
+    const margin = 8;
+    const x = Math.min(
+      window.innerWidth - pickerWidth - margin,
+      Math.max(margin, contextMenu.x)
+    );
+    const y = Math.min(
+      window.innerHeight - pickerHeight - margin,
+      Math.max(margin, contextMenu.y + 60 + 12) // below emoji bar
+    );
+    setReactionPicker({ open: true, x, y, search: "" });
+  };
+
+  const allEmojis = useMemo(
+    () => EMOJI_CATEGORIES.flatMap((c) => c.emojis),
+    []
+  );
+  const filteredEmojis = useMemo(() => {
+    if (!reactionPicker.search.trim()) return allEmojis;
+    const q = reactionPicker.search.toLowerCase();
+    return allEmojis.filter((e) => e.toLowerCase().includes(q));
+  }, [allEmojis, reactionPicker.search]);
+
+  // Close context menus on outside interactions
+  useEffect(() => {
+    const closeMenu = () =>
+      setContextMenu((prev) => (prev.open ? { ...prev, open: false } : prev));
+    if (contextMenu.open) {
+      document.addEventListener("click", closeMenu);
+      document.addEventListener("contextmenu", closeMenu);
+      document.addEventListener("scroll", closeMenu, true);
+    }
+    return () => {
+      document.removeEventListener("click", closeMenu);
+      document.removeEventListener("contextmenu", closeMenu);
+      document.removeEventListener("scroll", closeMenu, true);
+    };
+  }, [contextMenu.open]);
+
+  // Close reaction picker on outside click
+  useEffect(() => {
+    if (!reactionPicker.open) return;
+    const handleOutside = (e: MouseEvent | globalThis.MouseEvent) => {
+      if (
+        reactionPickerRef.current &&
+        !reactionPickerRef.current.contains(e.target as Node)
+      ) {
+        setReactionPicker((prev) => (prev.open ? { ...prev, open: false } : prev));
+      }
+    };
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [reactionPicker.open]);
 
   // Lock body scroll when panel is open
   useEffect(() => {
@@ -848,6 +948,7 @@ export function RoomsSlidingPanel({
                     return (
                       <div
                         key={message.id}
+                        onContextMenu={handleMessageContextMenu}
                         className={cn(
                           "flex gap-1  duration-300 ease-out",
                           message.isOwn ? "flex-row-reverse" : "flex-row",
@@ -1159,6 +1260,135 @@ export function RoomsSlidingPanel({
           )}
         </div>
       </div>
+
+      {contextMenu.open && (
+        <>
+          <div
+            className="fixed z-[1000] flex items-center gap-3 px-4 py-3"
+            style={{
+              top: contextMenu.y,
+              left: contextMenu.x,
+              width: "362px",
+              height: "60px",
+              borderRadius: "16px",
+              background: "#0000004A",
+              backdropFilter: "blur(16px)",
+              border: "1px solid #FFFFFF0F",
+            }}
+          >
+            {emojiOptions.map((emoji, idx) => (
+              <button
+                key={idx}
+                className="h-9 w-9 rounded-[10px] bg-[#E5F7FD0F] flex items-center justify-center text-lg text-white hover:bg-white/10 transition-all"
+                onClick={() => setContextMenu((p) => ({ ...p, open: false }))}
+                title={`React with ${emoji}`}
+              >
+                {emoji}
+              </button>
+            ))}
+            <button
+                  className="h-9 w-9 rounded-full bg-[#E5F7FD0F] flex items-center justify-center text-white hover:bg-white/10 transition-all"
+                  onClick={openEmojiPickerFromContext}
+              title="Add reaction"
+            >
+              <Plus className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div
+            className="fixed z-[999] flex flex-col overflow-hidden px-2 py-3 gap-2"
+            style={{
+              top: contextMenu.y + 60 + 8,
+              left: contextMenu.x,
+              width: "130px",
+              borderRadius: "16px",
+              background: "#0000004A",
+              border: "1px solid #FFFFFF0F",
+              backdropFilter: "blur(16px)",
+            }}
+          >
+            {actionOptions.map(({ label, icon: Icon }, idx) => (
+              <button
+                key={label}
+                    className="flex items-center gap-3 text-sm px-2 py-2 rounded-lg text-[#9BB6CC] hover:bg-white/5 transition-colors"
+                onClick={() => setContextMenu((p) => ({ ...p, open: false }))}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{label}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {reactionPicker.open && (
+        <div
+          ref={reactionPickerRef}
+          className="fixed z-[1001] flex flex-col"
+          style={{
+            top: reactionPicker.y,
+            left: reactionPicker.x,
+            width: "404px",
+            height: "396px",
+            borderRadius: "24px",
+            background: "#0000004A",
+            border: "1px solid #FFFFFF0F",
+          }}
+        >
+          <div
+            className="flex items-center justify-between px-4 py-3 border-b"
+            style={{ borderColor: "#FFFFFF0F" }}
+          >
+            <span className="text-sm font-semibold text-white">Emoji</span>
+            <button
+              className="h-8 w-8 rounded-full text-white hover:bg-white/10 flex items-center justify-center"
+              onClick={() => setReactionPicker((p) => ({ ...p, open: false }))}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="px-4 py-3 border-b" style={{ borderColor: "#FFFFFF0F" }}>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
+              <Input
+                value={reactionPicker.search}
+                onChange={(e) =>
+                  setReactionPicker((p) => ({ ...p, search: e.target.value }))
+                }
+                placeholder="Search emoji"
+                className="h-10 pl-10 pr-3 bg-transparent border border-white/10 text-white placeholder:text-white/50 rounded-xl focus-visible:ring-0 focus-visible:border-white/30"
+              />
+            </div>
+          </div>
+
+          <div className="h-px" style={{ background: "#FFFFFF0F" }} />
+
+          <div className="flex-1 overflow-hidden">
+            <div className="h-full overflow-y-auto px-4 py-3">
+              <div
+                className="grid gap-2"
+                style={{
+                  gridTemplateColumns: "repeat(auto-fill, minmax(36px, 1fr))",
+                }}
+              >
+                {filteredEmojis.map((emoji, idx) => (
+                  <button
+                    key={`${emoji}-${idx}`}
+                    className="h-9 w-9 rounded-[10px] bg-[#E5F7FD0F] text-lg flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all text-white"
+                    onClick={() => {
+                      setReactionPicker((p) => ({ ...p, open: false }));
+                      setContextMenu((p) => ({ ...p, open: false }));
+                    }}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

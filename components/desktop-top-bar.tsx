@@ -96,6 +96,16 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
     router.push(nextSearch ? `${nextPath}?${nextSearch}` : nextPath);
   };
 
+  // Leave circle page: drop circle/channel query params
+  const handleCircleBack = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("circle");
+    params.delete("channel");
+    const nextSearch = params.toString();
+    const nextPath = pathname || "/";
+    router.push(nextSearch ? `${nextPath}?${nextSearch}` : nextPath);
+  };
+
   const handleSearchIconClick = () => {
     setIsSearchExpanded(true);
     setTimeout(() => {
@@ -270,18 +280,34 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
         )}
       >
         <div className="flex items-center justify-center px-8 pt-4 pb-3.5 relative" style={{backdropFilter:"16px"}}>
-          {/* Left Side - Back Button (only when private rooms overlay is open) */}
-          {isPrivateRoomsActive && (
-            <div className="fixed left-[24px]">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handlePrivateRoomsBack}
-                className="flex items-center gap-2 h-9 px-3 rounded-full text-white hover:bg-white/10 transition-colors"
-              >
-                <ArrowLeft className="h-5 w-5" />
-                <span className="text-sm font-medium">Back</span>
-              </Button>
+          {/* Left Side - Back Buttons */}
+          {(isCirclesPanelOpen || isPrivateRoomsActive) && (
+            <div className="fixed left-[24px] flex items-center gap-2">
+              {isCirclesPanelOpen && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleCircleBack}
+                  className="flex items-center gap-2 h-9 px-3 rounded-full text-white hover:bg-white/10 transition-colors"
+                  title="Back"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                  <span className="text-sm font-medium">Back</span>
+                </Button>
+              )}
+
+              {isPrivateRoomsActive && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handlePrivateRoomsBack}
+                  className="flex items-center gap-2 h-9 px-3 rounded-full text-white hover:bg-white/10 transition-colors"
+                  title="Back"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                  <span className="text-sm font-medium">Back</span>
+                </Button>
+              )}
             </div>
           )}
 
