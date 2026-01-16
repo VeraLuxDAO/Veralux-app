@@ -707,15 +707,15 @@ export function RoomsSlidingPanel({
             {/* Header */}
             <div className="px-4 pl-[6px] pt-5 pb-4 flex-shrink-0 w-full max-w-full overflow-hidden">
               <div className="flex items-center justify-between gap-3 mb-5 w-full">
-                <div className="flex items-center gap-2 pl-[12px]">
+                <div className="flex items-center gap-2 pl-[12px] flex-1 min-w-0">
                   {/* Room meta: circular lock icon + title + subtitle */}
-                  <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-full border border-white/10 bg-[#FADEFD] flex items-center justify-center">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="h-9 w-9 rounded-full border border-white/10 bg-[#FADEFD] flex items-center justify-center flex-shrink-0">
                       <Lock className="h-4 w-4 text-[#001422]" />
                     </div>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col min-w-0">
                       <h2
-                        className="text-[15px] font-semibold leading-tight text-white"
+                        className="text-[15px] font-semibold leading-tight text-white truncate"
                         style={{
                           fontFamily: "'Geist'",
                         }}
@@ -731,6 +731,22 @@ export function RoomsSlidingPanel({
                     </div>
                   </div>
                 </div>
+                <button
+                  type="button"
+                  className={cn(
+                    "w-[70px] h-[36px] flex-shrink-0",
+                    "flex items-center justify-center",
+                    "text-sm font-medium text-[#FADEFD]",
+                    "rounded-[18px] border border-[#E5F7FD33]",
+                    "bg-transparent hover:bg-white/5 transition-colors"
+                  )}
+                  onClick={() => {
+                    console.log("Create new private room");
+                    // TODO: Implement new room creation
+                  }}
+                >
+                  + New
+                </button>
               </div>
 
               {/* Search */}
