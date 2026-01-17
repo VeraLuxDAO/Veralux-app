@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo, type MouseEvent } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,6 @@ import {
   VolumeX,
   Lock,
   Mic,
-  Plus,
   ArrowLeft,
   CheckSquare,
   Trash2,
@@ -44,6 +43,8 @@ import { ChatInput } from "@/components/chat/chat-input";
 import { shouldDisplayAsEmoticonOnly } from "@/lib/emoji-utils";
 import { ImageViewer } from "@/components/chat/image-viewer";
 import { TelegramEmoji } from "@/components/chat/telegram-emoji";
+import { MessageContextMenu } from "@/components/rooms/message-context-menu";
+import { useMessageContextMenu } from "@/components/rooms/use-message-context-menu";
 
 interface Message {
   id: string;
@@ -280,21 +281,10 @@ export function RoomsSlidingPanel({
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentImageList, setCurrentImageList] = useState<string[]>([]);
-  const [contextMenu, setContextMenu] = useState<{
-    open: boolean;
-    x: number;
-    y: number;
-  }>({ open: false, x: 0, y: 0 });
   const reactionPickerButtonRef = useRef<HTMLButtonElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const [contextOpen, setContextOpen] = useState(false);
-  const [contextMessageId, setContextMessageId] = useState<string | null>(null);
-  const [contextPos, setContextPos] = useState({ x: 0, y: 0 });
-  const [actionPos, setActionPos] = useState({ x: 0, y: 0 });
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showReactionEmojiPicker, setShowReactionEmojiPicker] = useState(false);
-  const [emojiPickerPos, setEmojiPickerPos] = useState({ x: 0, y: 0 });
   const [isForwardPopupOpen, setIsForwardPopupOpen] = useState(false);
   const [forwardMessageId, setForwardMessageId] = useState<string | null>(null);
   const [forwardSearchQuery, setForwardSearchQuery] = useState("");
@@ -305,14 +295,11 @@ export function RoomsSlidingPanel({
   const [replyToMessageId, setReplyToMessageId] = useState<string | null>(null);
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editingDraft, setEditingDraft] = useState("");
+  const messageContextMenu = useMessageContextMenu();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
-  const addButtonRef = useRef<HTMLButtonElement>(null);
-  const emojiPickerAnchorRef = useRef<HTMLDivElement>(null);
-  const quickBarRef = useRef<HTMLDivElement>(null);
-  const actionsRef = useRef<HTMLDivElement>(null);
   const isPage = variant === "page";
   const isOverlay = variant === "overlay";
 
@@ -323,44 +310,8 @@ export function RoomsSlidingPanel({
     { label: "Clip", icon: Paperclip },
     { label: "Select", icon: Hand },
     { label: "Edit", icon: Pencil },
+    { label: "Delete", icon: Trash2 },
   ];
-
-  const handleMessageContextMenu = (e: MouseEvent, messageId?: string) => {
-    e.preventDefault();
-    const popupWidth = 362;
-    const popupHeight = 60 + 8 + 224;
-    const margin = 8;
-    const x = Math.min(
-      window.innerWidth - popupWidth - margin,
-      Math.max(margin, e.clientX)
-    );
-    const y = Math.min(
-      window.innerHeight - popupHeight - margin,
-      Math.max(margin, e.clientY)
-    );
-    if (messageId) {
-      setContextMessageId(messageId);
-    }
-    setContextMenu({ open: true, x, y });
-  };
-
-
-  // Close context menus on outside interactions
-  useEffect(() => {
-    const closeMenu = () =>
-      setContextMenu((prev) => (prev.open ? { ...prev, open: false } : prev));
-    if (contextMenu.open) {
-      document.addEventListener("click", closeMenu);
-      document.addEventListener("contextmenu", closeMenu);
-      document.addEventListener("scroll", closeMenu, true);
-    }
-    return () => {
-      document.removeEventListener("click", closeMenu);
-      document.removeEventListener("contextmenu", closeMenu);
-      document.removeEventListener("scroll", closeMenu, true);
-    };
-  }, [contextMenu.open]);
-
 
   // Lock body scroll when panel is open
   useEffect(() => {
@@ -403,57 +354,12 @@ export function RoomsSlidingPanel({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const quickFallback = ["👍", "❤️", "😂", "😮", "😢", "😡"];
-  const quickReactions = useMemo(() => {
-    if (typeof window === "undefined") return quickFallback.slice(0, 6);
-    try {
-      const stored = JSON.parse(
-        window.localStorage.getItem("recentEmojis") || "[]"
-      ) as string[];
-      const unique = Array.from(new Set(stored));
-      const combined = [...unique, ...quickFallback];
-      return combined.slice(0, 6);
-    } catch {
-      return quickFallback.slice(0, 6);
-    }
-  }, []);
-
   useEffect(() => {
     if (messages.length > 0) {
       // Use setTimeout to ensure DOM has updated
       setTimeout(scrollToBottom, 100);
     }
   }, [messages]);
-
-  useEffect(() => {
-    if (!contextOpen) return;
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (
-        (addButtonRef.current && addButtonRef.current.contains(target)) ||
-        (quickBarRef.current && quickBarRef.current.contains(target)) ||
-        (actionsRef.current && actionsRef.current.contains(target)) ||
-        (target instanceof HTMLElement &&
-          target.closest('[data-emoji-picker="true"]'))
-      ) {
-        return;
-      }
-      setContextOpen(false);
-      setShowEmojiPicker(false);
-    };
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setContextOpen(false);
-        setShowEmojiPicker(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside as unknown as unknown as EventListener);
-    document.addEventListener("keydown", handleEscape as unknown as unknown as EventListener);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside as unknown as unknown as EventListener);
-      document.removeEventListener("keydown", handleEscape as unknown as unknown as EventListener);
-    };
-  }, [contextOpen]);
 
   // Sync selectedRoom with URL when panel is open (?private_rooms=slug)
   useEffect(() => {
@@ -546,36 +452,8 @@ export function RoomsSlidingPanel({
     setReplyToMessageId(null);
   };
 
-  const clamp = (value: number, min: number, max: number) =>
-    Math.min(Math.max(value, min), max);
-
-  const handleContextMenu = (event: React.MouseEvent, messageId: string) => {
-    event.preventDefault();
-    const clickX = event.clientX;
-    const clickY = event.clientY;
-    const width = 362;
-    const height = 60;
-    const actionWidth = 130;
-    const actionHeight = 224;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-
-    const quickLeft = clamp(clickX - width / 2, 8, vw - width - 8);
-    const quickTop = clamp(clickY - height - 10, 8, vh - height - 8);
-
-    const actionLeft = clamp(clickX - actionWidth / 2, 8, vw - actionWidth - 8);
-    const actionTop = clamp(clickY + 8, 8, vh - actionHeight - 8);
-
-    setContextMessageId(messageId);
-    setContextPos({ x: quickLeft, y: quickTop });
-    setActionPos({ x: actionLeft, y: actionTop });
-    setContextOpen(true);
-    setShowEmojiPicker(false);
-  };
-
   const handleReact = (emoji: string) => {
-    setContextOpen(false);
-    setShowEmojiPicker(false);
+    messageContextMenu.closeMenu();
   };
 
   const handlePinMessage = (messageId: string) => {
@@ -588,10 +466,27 @@ export function RoomsSlidingPanel({
     });
   };
 
-  const handleAction = (action: string) => {
-    setContextOpen(false);
-    setShowEmojiPicker(false);
+  const handleDeleteMessage = (messageId: string) => {
+    setMessages((prev) => prev.filter((message) => message.id !== messageId));
+    setPinnedByRoom((prev) => {
+      if (!selectedRoom) return prev;
+      const roomId = selectedRoom.id;
+      const existing = prev[roomId];
+      if (!existing) return prev;
+      return { ...prev, [roomId]: existing.filter((id) => id !== messageId) };
+    });
+    if (replyToMessageId === messageId) {
+      setReplyToMessageId(null);
+    }
+    if (editingMessageId === messageId) {
+      setEditingMessageId(null);
+      setEditingDraft("");
+    }
+  };
 
+  const handleAction = (action: string) => {
+    messageContextMenu.closeMenu();
+    const contextMessageId = messageContextMenu.messageId;
     if (!contextMessageId) return;
 
     if (action === "forward") {
@@ -616,31 +511,32 @@ export function RoomsSlidingPanel({
       setReplyToMessageId(null);
     }
   }
+
+  if (action === "delete") {
+    const target = messageById.get(contextMessageId);
+    if (target?.isOwn) {
+      handleDeleteMessage(contextMessageId);
+    }
+  }
   };
 
   const messageById = useMemo(() => {
     return new Map(messages.map((message) => [message.id, message]));
   }, [messages]);
 
-  const actions = [
-    { key: "reply", label: "Reply", Icon: Reply },
-    { key: "forward", label: "Forward", Icon: Forward },
-    { key: "clip", label: "Clip", Icon: Paperclip },
-    { key: "select", label: "Select", Icon: CheckSquare },
-    { key: "edit", label: "Edit", Icon: Pencil },
-    { key: "delete", label: "Delete", Icon: Trash2 },
-  ];
-
   const canEditContextMessage = useMemo(() => {
+    const contextMessageId = messageContextMenu.messageId;
     if (!contextMessageId) return false;
     const message = messageById.get(contextMessageId);
     return Boolean(message?.isOwn);
-  }, [contextMessageId, messageById]);
+  }, [messageById, messageContextMenu.messageId]);
 
-  const contextMenuActions = useMemo(() => {
-    if (canEditContextMessage) return actions;
-    return actions.filter((action) => action.key !== "edit");
-  }, [actions, canEditContextMessage]);
+  const contextMenuActionOptions = useMemo(() => {
+    if (canEditContextMessage) return actionOptions;
+    return actionOptions.filter(
+      (action) => action.label !== "Edit" && action.label !== "Delete"
+    );
+  }, [actionOptions, canEditContextMessage]);
 
   const formatTime = (date: Date) => {
     const now = new Date();
@@ -1134,7 +1030,7 @@ export function RoomsSlidingPanel({
                     return (
                       <div
                         key={message.id}
-                        onContextMenu={(e) => handleMessageContextMenu(e, message.id)}
+                        onContextMenu={(e) => messageContextMenu.openMenu(e, message.id)}
                         className={cn(
                           "flex gap-1  duration-300 ease-out",
                           message.isOwn ? "flex-row-reverse" : "flex-row",
@@ -1347,126 +1243,6 @@ export function RoomsSlidingPanel({
                 />
               </div>
 
-              {/* Contextual Popups (private rooms) */}
-              {(contextOpen || showEmojiPicker) &&
-                typeof document !== "undefined" &&
-                createPortal(
-                  <>
-                    {/* Quick reactions bar */}
-                    {contextOpen && (
-                      <div
-                        ref={quickBarRef}
-                        className="fixed"
-                        style={{
-                          top: contextPos.y,
-                          left: contextPos.x,
-                          width: 362,
-                          height: 60,
-                          backgroundColor: "#0000004A",
-                          backdropFilter: "blur(18px)",
-                          WebkitBackdropFilter: "blur(18px)",
-                          borderRadius: 16,
-                          display: "flex",
-                          alignItems: "center",
-                          padding: "12px",
-                          gap: "12px",
-                          zIndex: 220000,
-                        }}
-                      >
-                        {quickReactions.map((emoji, idx) => (
-                          <button
-                            key={`${emoji}-${idx}`}
-                            onClick={() => handleReact(emoji)}
-                            className="flex items-center justify-center bg-white/5 hover:bg-white/15 transition rounded-[10px]"
-                            style={{ width: 36, height: 36 }}
-                            aria-label={`React ${emoji}`}
-                          >
-                            <span style={{ fontSize: 20 }}>{emoji}</span>
-                          </button>
-                        ))}
-                        <button
-                          ref={addButtonRef}
-                          onClick={() => {
-                            if (addButtonRef.current) {
-                              const rect = addButtonRef.current.getBoundingClientRect();
-                              setEmojiPickerPos({ x: rect.left, y: rect.top });
-                            }
-                            setShowEmojiPicker(true);
-                            setContextOpen(false);
-                          }}
-                          className="flex items-center justify-center bg-white/10 hover:bg-white/20 transition rounded-full text-white/80"
-                          style={{ width: 37, height: 37 }}
-                          aria-label="Add reaction"
-                        >
-                          +
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Hidden anchor for emoji picker when context menu is closed */}
-                    {showEmojiPicker && !contextOpen && (
-                      <div
-                        ref={emojiPickerAnchorRef}
-                        className="fixed pointer-events-none"
-                        style={{
-                          left: emojiPickerPos.x,
-                          top: emojiPickerPos.y,
-                          width: 37,
-                          height: 37,
-                        }}
-                      />
-                    )}
-                    <EmojiPicker
-                      onEmojiSelect={(emoji) => handleReact(emoji)}
-                      isOpen={showEmojiPicker}
-                      onClose={() => setShowEmojiPicker(false)}
-                      triggerRef={contextOpen ? addButtonRef : emojiPickerAnchorRef}
-                      align="left"
-                    />
-
-                    {/* Actions menu */}
-                    {contextOpen && (
-                      <div
-                        ref={actionsRef}
-                        className="fixed text-[#9BB6CC]"
-                        style={{
-                          top: actionPos.y,
-                          left: actionPos.x,
-                          width: 130,
-                          height: 224,
-                          background: "rgba(8, 14, 17, 0.6)",
-                          backdropFilter: "blur(20px)",
-                          WebkitBackdropFilter: "blur(20px)",
-                          borderRadius: 16,
-                          padding: "16px 12px",
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "space-between",
-                          boxShadow:
-                            "0px 334px 94px rgba(0,0,0,0.01), 0px 214px 86px rgba(0,0,0,0.04), 0px 120px 72px rgba(0,0,0,0.15), 0px 53px 53px rgba(0,0,0,0.26), 0px 13px 29px rgba(0,0,0,0.29)",
-                          zIndex: 220001,
-                        }}
-                      >
-                        {contextMenuActions.map(({ key, label, Icon }) => (
-                          <button
-                            key={key}
-                            onClick={() => {
-                              handleAction(key);
-                              if (key === "forward") {
-                                setContextOpen(false);
-                              }
-                            }}
-                            className="flex items-center gap-2 text-sm font-medium text-[#9BB6CC] hover:text-white hover:bg-white/10 rounded-lg px-2 py-1 transition"
-                          >
-                            <Icon className="w-4 h-4" />
-                            {label}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </>,
-                  document.body
-                )}
               </div>
 
               {/* Room Info Panel - Right Sidebar */}
@@ -1520,104 +1296,31 @@ export function RoomsSlidingPanel({
         </div>
       </div>
 
-      {contextMenu.open && (
-        <>
-          <div
-            className="fixed z-[1000] flex items-center gap-3 px-4 py-3"
-            style={{
-              top: contextMenu.y,
-              left: contextMenu.x,
-              width: "362px",
-              height: "60px",
-              borderRadius: "16px",
-              background: "#0000004A",
-              backdropFilter: "blur(16px)",
-              border: "1px solid #FFFFFF0F",
-            }}
-          >
-            {emojiOptions.map((emoji, idx) => (
-              <button
-                key={idx}
-                className="h-9 w-9 rounded-[10px] bg-[#E5F7FD0F] flex items-center justify-center text-lg text-white hover:bg-white/10 transition-all"
-                onClick={() => setContextMenu((p) => ({ ...p, open: false }))}
-                title={`React with ${emoji}`}
-              >
-                {emoji}
-              </button>
-            ))}
-            <button
-              ref={reactionPickerButtonRef}
-              className="h-9 w-9 rounded-full bg-[#E5F7FD0F] flex items-center justify-center text-white hover:bg-white/10 transition-all"
-              onClick={() => {
-                setContextMenu((prev) => ({ ...prev, open: false }));
-                setShowReactionEmojiPicker(true);
-              }}
-              title="Add reaction"
-            >
-              <Plus className="h-4 w-4" />
-            </button>
-          </div>
-
-          <div
-            className="fixed z-[999] flex flex-col overflow-hidden px-2 py-3 gap-2"
-            style={{
-              top: contextMenu.y + 60 + 8,
-              left: contextMenu.x,
-              width: "130px",
-              borderRadius: "16px",
-              background: "#0000004A",
-              border: "1px solid #FFFFFF0F",
-              backdropFilter: "blur(16px)",
-            }}
-          >
-            {actionOptions
-              .filter((action) => (action.label === "Edit" ? canEditContextMessage : true))
-              .map(({ label, icon: Icon }) => (
-              <button
-                key={label}
-                className="flex items-center gap-3 text-sm px-2 py-2 rounded-lg text-[#9BB6CC] hover:bg-white/5 transition-colors"
-                onClick={() => {
-                  if (label === "Forward" && contextMessageId) {
-                    setForwardMessageId(contextMessageId);
-                    setIsForwardPopupOpen(true);
-                    setForwardSearchQuery("");
-                  }
-                  if (label === "Clip" && contextMessageId) {
-                    handlePinMessage(contextMessageId);
-                  }
-                  if (label === "Reply" && contextMessageId) {
-                    setReplyToMessageId(contextMessageId);
-                  }
-                  if (label === "Edit" && contextMessageId) {
-                    const target = messageById.get(contextMessageId);
-                    if (target?.isOwn) {
-                      setEditingMessageId(contextMessageId);
-                      setEditingDraft(target.content);
-                      setReplyToMessageId(null);
-                    }
-                  }
-                  setContextMenu((p) => ({ ...p, open: false }));
-                }}
-              >
-                <Icon className="h-4 w-4" />
-                <span>{label}</span>
-              </button>
-            ))}
-          </div>
-        </>
-      )}
+      <MessageContextMenu
+        isOpen={messageContextMenu.isOpen}
+        position={messageContextMenu.position}
+        emojiOptions={emojiOptions}
+        actions={contextMenuActionOptions}
+        reactionButtonRef={reactionPickerButtonRef}
+        onEmojiSelect={(emoji) => handleReact(emoji)}
+        onAddReaction={() => {
+          messageContextMenu.closeMenu();
+          setShowReactionEmojiPicker(true);
+        }}
+        onActionSelect={(label) => handleAction(label.toLowerCase())}
+      />
 
       {/* Emoji Picker for reaction picker button (from old context menu) */}
       <EmojiPicker
         onEmojiSelect={(emoji) => {
           handleReact(emoji);
           setShowReactionEmojiPicker(false);
-          setContextMenu((p) => ({ ...p, open: false }));
+          messageContextMenu.closeMenu();
         }}
         isOpen={showReactionEmojiPicker}
         onClose={() => {
           setShowReactionEmojiPicker(false);
-          setContextMenu((p) => ({ ...p, open: false }));
+          messageContextMenu.closeMenu();
         }}
         triggerRef={reactionPickerButtonRef}
         align="left"
@@ -1714,7 +1417,6 @@ export function RoomsSlidingPanel({
                         setIsForwardPopupOpen(false);
                         setForwardMessageId(null);
                         setForwardSearchQuery("");
-                        setContextOpen(false);
                       }}
                       className="w-full flex items-center gap-3 px-[4px] py-[6px] rounded-lg hover:bg-white/5 transition-colors text-left"
                     >
