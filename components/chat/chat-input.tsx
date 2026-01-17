@@ -23,6 +23,8 @@ interface ChatInputProps {
   disabled?: boolean;
   className?: string;
   forceDesktop?: boolean;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
 export function ChatInput({
@@ -31,6 +33,8 @@ export function ChatInput({
   disabled = false,
   className,
   forceDesktop = false,
+  value,
+  onChange,
 }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -52,11 +56,22 @@ export function ChatInput({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  const isControlled = typeof value === "string" && typeof onChange === "function";
+  const currentMessage = isControlled ? value : message;
+
+  const setMessageValue = (nextValue: string) => {
+    if (isControlled && onChange) {
+      onChange(nextValue);
+    } else {
+      setMessage(nextValue);
+    }
+  };
+
   const handleSend = () => {
-    const trimmedMessage = message.trim();
+    const trimmedMessage = currentMessage.trim();
     if ((trimmedMessage || selectedImages.length > 0) && !disabled) {
       onSendMessage(trimmedMessage || "", selectedImages.length > 0 ? selectedImages : undefined);
-      setMessage("");
+      setMessageValue("");
       setSelectedImages([]);
       setImagePreviews([]);
       setIsExpanded(false);
@@ -117,12 +132,12 @@ export function ChatInput({
   };
 
   const handleInputChange = (value: string) => {
-    setMessage(value);
+    setMessageValue(value);
   };
 
   const handleEmojiSelect = (emoji: string) => {
     // For mobile Input, just append emoji to the end
-    setMessage((prev) => prev + emoji);
+    setMessageValue(currentMessage + emoji);
   };
 
   return (
@@ -198,7 +213,7 @@ export function ChatInput({
               {/* Text Input */}
               <Textarea
                 ref={textareaRef}
-                value={message}
+                value={currentMessage}
                 onChange={(e) => handleInputChange(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={placeholder}
@@ -320,7 +335,7 @@ export function ChatInput({
 
             {/* Input Field */}
             <Input
-              value={message}
+              value={currentMessage}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {

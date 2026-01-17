@@ -29,6 +29,7 @@ import {
   ArrowLeft,
   CheckSquare,
   Trash2,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -54,6 +55,7 @@ interface Message {
   isRead: boolean;
   isOwn: boolean;
   images?: string[]; // Array of image URLs or data URLs
+  replyToId?: string;
 }
 
 interface Room {
@@ -297,10 +299,12 @@ export function RoomsSlidingPanel({
   const [forwardMessageId, setForwardMessageId] = useState<string | null>(null);
   const [forwardSearchQuery, setForwardSearchQuery] = useState("");
   const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const [isNewConversationModalOpen, setIsNewConversationModalOpen] = useState(false);
+  const [newConversationSearchQuery, setNewConversationSearchQuery] = useState("");
+  const [pinnedByRoom, setPinnedByRoom] = useState<Record<string, string[]>>({});
+  const [replyToMessageId, setReplyToMessageId] = useState<string | null>(null);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editingDraft, setEditingDraft] = useState("");
 
   useEffect(() => {
     setIsMounted(true);
@@ -483,6 +487,20 @@ export function RoomsSlidingPanel({
   const handleSendMessage = (content: string, images?: File[]) => {
     if (!content.trim() && (!images || images.length === 0)) return;
 
+    if (editingMessageId) {
+      const trimmedContent = content.trim();
+      if (!trimmedContent) return;
+      setMessages((prev) =>
+        prev.map((message) =>
+          message.id === editingMessageId
+            ? { ...message, content: trimmedContent }
+            : message
+        )
+      );
+      setEditingMessageId(null);
+      setEditingDraft("");
+      return;
+    }
     // Convert images to data URLs
     if (images && images.length > 0) {
       const imagePromises = Array.from(images).map((file) => {
@@ -507,6 +525,7 @@ export function RoomsSlidingPanel({
           isRead: false,
           isOwn: true,
           images: imageUrls,
+          ...(replyToMessageId ? { replyToId: replyToMessageId } : {}),
         };
         setMessages((prev) => [...prev, newMessage]);
       });
@@ -520,9 +539,11 @@ export function RoomsSlidingPanel({
         timestamp: new Date(),
         isRead: false,
         isOwn: true,
+        ...(replyToMessageId ? { replyToId: replyToMessageId } : {}),
       };
       setMessages([...messages, newMessage]);
     }
+    setReplyToMessageId(null);
   };
 
   const clamp = (value: number, min: number, max: number) =>
@@ -553,23 +574,53 @@ export function RoomsSlidingPanel({
   };
 
   const handleReact = (emoji: string) => {
-    console.log("Reacted to message", contextMessageId, "with", emoji);
     setContextOpen(false);
     setShowEmojiPicker(false);
   };
 
+  const handlePinMessage = (messageId: string) => {
+    if (!selectedRoom) return;
+    setPinnedByRoom((prev) => {
+      const roomId = selectedRoom.id;
+      const existing = prev[roomId] ?? [];
+      if (existing.includes(messageId)) return prev;
+      return { ...prev, [roomId]: [messageId, ...existing] };
+    });
+  };
+
   const handleAction = (action: string) => {
-    console.log("Action", action, "on message", contextMessageId);
     setContextOpen(false);
     setShowEmojiPicker(false);
-    
-    if (action === "forward" && contextMessageId) {
-      console.log("Opening forward popup for message:", contextMessageId);
+
+    if (!contextMessageId) return;
+
+    if (action === "forward") {
       setForwardMessageId(contextMessageId);
       setIsForwardPopupOpen(true);
       setForwardSearchQuery("");
     }
+
+    if (action === "clip") {
+      handlePinMessage(contextMessageId);
+    }
+
+    if (action === "reply") {
+      setReplyToMessageId(contextMessageId);
+    }
+
+  if (action === "edit") {
+    const target = messageById.get(contextMessageId);
+    if (target?.isOwn) {
+      setEditingMessageId(contextMessageId);
+      setEditingDraft(target.content);
+      setReplyToMessageId(null);
+    }
+  }
   };
+
+  const messageById = useMemo(() => {
+    return new Map(messages.map((message) => [message.id, message]));
+  }, [messages]);
 
   const actions = [
     { key: "reply", label: "Reply", Icon: Reply },
@@ -579,6 +630,17 @@ export function RoomsSlidingPanel({
     { key: "edit", label: "Edit", Icon: Pencil },
     { key: "delete", label: "Delete", Icon: Trash2 },
   ];
+
+  const canEditContextMessage = useMemo(() => {
+    if (!contextMessageId) return false;
+    const message = messageById.get(contextMessageId);
+    return Boolean(message?.isOwn);
+  }, [contextMessageId, messageById]);
+
+  const contextMenuActions = useMemo(() => {
+    if (canEditContextMessage) return actions;
+    return actions.filter((action) => action.key !== "edit");
+  }, [actions, canEditContextMessage]);
 
   const formatTime = (date: Date) => {
     const now = new Date();
@@ -607,6 +669,43 @@ export function RoomsSlidingPanel({
       room.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       room.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const pinnedMessages = useMemo(() => {
+    if (!selectedRoom) return [];
+    const ids = pinnedByRoom[selectedRoom.id] ?? [];
+    if (ids.length === 0) return [];
+    return ids
+      .map((id) => messageById.get(id))
+      .filter((message): message is Message => Boolean(message));
+  }, [messageById, pinnedByRoom, selectedRoom?.id]);
+
+  const pinnedPreviewText = useMemo(() => {
+    const pinned = pinnedMessages[0];
+    if (!pinned) return "";
+    const trimmed = pinned.content?.trim();
+    if (trimmed) return trimmed;
+    if (pinned.images?.length) return "Photo";
+    return "Pinned message";
+  }, [pinnedMessages]);
+
+  const replyTarget = useMemo(() => {
+    if (!replyToMessageId) return null;
+    return messageById.get(replyToMessageId) ?? null;
+  }, [messageById, replyToMessageId]);
+
+  const editTarget = useMemo(() => {
+    if (!editingMessageId) return null;
+    return messageById.get(editingMessageId) ?? null;
+  }, [editingMessageId, messageById]);
+
+  const getReplyPreview = (message: Message) => {
+    if (!message.replyToId) return null;
+    const target = messageById.get(message.replyToId);
+    if (!target) return null;
+    const trimmed = target.content?.trim();
+    const preview = trimmed || (target.images?.length ? "Photo" : "Message");
+    return { name: target.senderName, preview };
+  };
 
   // Hide AI button when rooms panel is open
   useEffect(() => {
@@ -741,8 +840,8 @@ export function RoomsSlidingPanel({
                     "bg-transparent hover:bg-white/5 transition-colors"
                   )}
                   onClick={() => {
-                    console.log("Create new private room");
-                    // TODO: Implement new room creation
+                    setIsNewConversationModalOpen(true);
+                    setNewConversationSearchQuery("");
                   }}
                 >
                   + New
@@ -992,6 +1091,24 @@ export function RoomsSlidingPanel({
                       </div>
                     </div>
                   </div>
+                {pinnedMessages.length > 0 && (
+                  <div
+                    className="mt-3 flex items-center gap-2 px-3 py-2 border-l"
+                    style={{ borderLeftColor: "#FADEFD" }}
+                  >
+                    <Pin className="h-3.5 w-3.5 text-[#E5F7FD66] flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] text-white truncate">
+                        {pinnedPreviewText}
+                      </p>
+                    </div>
+                    {pinnedMessages.length > 1 && (
+                      <span className="text-[11px] text-[#9BB6CC] flex-shrink-0">
+                        {pinnedMessages.length}
+                      </span>
+                    )}
+                  </div>
+                )}
                   <div className="h-px w-full" />
                 </div>
               </div>
@@ -1077,6 +1194,23 @@ export function RoomsSlidingPanel({
                                   </p>
                                 )}
                               
+                              {(() => {
+                                const replyPreview = getReplyPreview(message);
+                                if (!replyPreview) return null;
+                                return (
+                                  <div className="px-2.5 pt-2 md:px-3">
+                                    <div className="flex flex-col gap-0.5 rounded-[8px] bg-[rgba(69,212,167,0.1)] border-l-[8px] border-[#45D4A7] px-3 py-1.5">
+                                      <p className="text-[11px] text-[#45D4A7] leading-tight truncate">
+                                        {replyPreview.name}
+                                      </p>
+                                      <p className="text-[11px] text-[#9BB6CC] truncate leading-tight">
+                                        {replyPreview.preview}
+                                      </p>
+                                    </div>
+                                  </div>
+                                );
+                              })()}
+
                               {/* Images */}
                               {message.images && message.images.length > 0 && (
                                 <div className={cn(
@@ -1154,10 +1288,62 @@ export function RoomsSlidingPanel({
                   background: "transparent"
                 }}
               >
+                {editTarget && (
+                  <div className="mb-3 px-4 lg:px-6">
+                    <div className="flex items-start justify-between gap-2 rounded-[8px] bg-[rgba(69,212,167,0.1)] px-3 py-1.5">
+                      <div className="min-w-0">
+                        <p className="text-[11px] text-[#45D4A7] leading-tight">
+                          Editing message
+                        </p>
+                        <p className="text-[12px] text-[#9BB6CC] truncate leading-tight">
+                          {editTarget.content?.trim() ||
+                            (editTarget.images?.length ? "Photo" : "Message")}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingMessageId(null);
+                          setEditingDraft("");
+                        }}
+                        className="h-6 w-6 rounded-full text-white/70 hover:bg-white/10 flex items-center justify-center flex-shrink-0"
+                        aria-label="Cancel edit"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {!editTarget && replyTarget && (
+                  <div className="mb-3 px-4 lg:px-6">
+                    <div className="flex items-start justify-between gap-2 rounded-[8px] bg-[rgba(69,212,167,0.1)] px-3 py-1.5">
+                      <div className="min-w-0">
+                        <p className="text-[11px] text-[#45D4A7] leading-tight">
+                          {replyTarget.senderName}
+                        </p>
+                        <p className="text-[12px] text-[#9BB6CC] truncate leading-tight">
+                          {replyTarget.content?.trim() ||
+                            (replyTarget.images?.length ? "Photo" : "Message")}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setReplyToMessageId(null)}
+                        className="h-6 w-6 rounded-full text-white/70 hover:bg-white/10 flex items-center justify-center flex-shrink-0"
+                        aria-label="Cancel reply"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <ChatInput
                   onSendMessage={handleSendMessage}
                   placeholder="Write a message..."
                   forceDesktop={true}
+                  {...(editingMessageId
+                    ? { value: editingDraft, onChange: setEditingDraft }
+                    : {})}
                 />
               </div>
 
@@ -1261,7 +1447,7 @@ export function RoomsSlidingPanel({
                           zIndex: 220001,
                         }}
                       >
-                        {actions.map(({ key, label, Icon }) => (
+                        {contextMenuActions.map(({ key, label, Icon }) => (
                           <button
                             key={key}
                             onClick={() => {
@@ -1384,19 +1570,31 @@ export function RoomsSlidingPanel({
               backdropFilter: "blur(16px)",
             }}
           >
-            {actionOptions.map(({ label, icon: Icon }, idx) => (
+            {actionOptions
+              .filter((action) => (action.label === "Edit" ? canEditContextMessage : true))
+              .map(({ label, icon: Icon }) => (
               <button
                 key={label}
                 className="flex items-center gap-3 text-sm px-2 py-2 rounded-lg text-[#9BB6CC] hover:bg-white/5 transition-colors"
                 onClick={() => {
                   if (label === "Forward" && contextMessageId) {
-                    console.log("Forward button clicked, opening popup for message:", contextMessageId);
                     setForwardMessageId(contextMessageId);
                     setIsForwardPopupOpen(true);
                     setForwardSearchQuery("");
-                    console.log("Forward popup state set to true");
-                  } else if (label === "Forward") {
-                    console.warn("Forward button clicked but no contextMessageId:", contextMessageId);
+                  }
+                  if (label === "Clip" && contextMessageId) {
+                    handlePinMessage(contextMessageId);
+                  }
+                  if (label === "Reply" && contextMessageId) {
+                    setReplyToMessageId(contextMessageId);
+                  }
+                  if (label === "Edit" && contextMessageId) {
+                    const target = messageById.get(contextMessageId);
+                    if (target?.isOwn) {
+                      setEditingMessageId(contextMessageId);
+                      setEditingDraft(target.content);
+                      setReplyToMessageId(null);
+                    }
                   }
                   setContextMenu((p) => ({ ...p, open: false }));
                 }}
@@ -1512,7 +1710,6 @@ export function RoomsSlidingPanel({
                     <button
                       key={member.id}
                       onClick={() => {
-                        console.log("Forward message", forwardMessageId, "to", member.id, member.name);
                         // TODO: Implement actual forward logic
                         setIsForwardPopupOpen(false);
                         setForwardMessageId(null);
@@ -1520,6 +1717,136 @@ export function RoomsSlidingPanel({
                         setContextOpen(false);
                       }}
                       className="w-full flex items-center gap-3 px-[4px] py-[6px] rounded-lg hover:bg-white/5 transition-colors text-left"
+                    >
+                      <div className="relative flex-shrink-0">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={member.avatar} />
+                          <AvatarFallback className="bg-[#2b3642] text-white text-sm font-medium">
+                            {member.name[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        {member.isOnline && (
+                          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-[#45D4A7] rounded-full border-2 border-[#080E11]" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate" style={{ fontFamily: "'Geist'" }}>
+                          {member.name}
+                        </p>
+                        <p className="text-xs text-[#9BB6CC] truncate" style={{ fontFamily: "'Geist'" }}>
+                          {member.userId}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+              </div>
+            </ScrollArea>
+          </div>
+        </>,
+        document.body
+      )}
+
+      {/* New Conversation Modal */}
+      {isNewConversationModalOpen && isMounted && typeof document !== "undefined" && createPortal(
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0"
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              zIndex: 220010,
+              pointerEvents: "auto",
+            }}
+            onClick={() => {
+              setIsNewConversationModalOpen(false);
+              setNewConversationSearchQuery("");
+            }}
+          />
+          
+          {/* Modal */}
+          <div
+            className="fixed"
+            style={{
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: 220011,
+              pointerEvents: "auto",
+              width: "432px",
+              height: "520px",
+              borderRadius: "24px",
+              backgroundColor: "#0000004A",
+              backdropFilter: "blur(40px)",
+              WebkitBackdropFilter: "blur(40px)",
+              border: "1px solid #FFFFFF14",
+              display: "flex",
+              flexDirection: "column",
+              padding: "16px",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4 flex-shrink-0">
+              <h3 className="text-lg font-semibold text-white" style={{ fontFamily: "'Geist'" }}>
+                New Conversation
+              </h3>
+              <button
+                onClick={() => {
+                  setIsNewConversationModalOpen(false);
+                  setNewConversationSearchQuery("");
+                }}
+                className="h-8 w-8 rounded-full text-white hover:bg-white/10 flex items-center justify-center transition-colors"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <div className="relative mb-4 flex-shrink-0">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9BB6CC99] pointer-events-none" />
+              <Input
+                placeholder="Search name"
+                value={newConversationSearchQuery}
+                onChange={(e) => setNewConversationSearchQuery(e.target.value)}
+                className="pl-10 pr-4 h-10 bg-[rgba(229,247,253,0.06)] border border-white/10 rounded-full text-sm text-white placeholder:text-[#9BB6CC99] focus:ring-0 focus:border-white/30"
+                style={{ fontFamily: "'Geist'" }}
+              />
+            </div>
+
+            {/* Create Group Button */}
+            <button
+              type="button"
+              onClick={() => {
+                // TODO: Implement group creation
+              }}
+              className="mb-4 flex items-center justify-start gap-2 h-10 rounded-lg text-sm font-medium transition-colors hover:bg-white/5 px-3"
+              style={{
+                color: "#9BB6CC",
+                fontFamily: "'Geist'",
+              }}
+            >
+              <Users className="h-4 w-4" />
+              <span>+Create Group</span>
+            </button>
+
+            {/* Users List - Scrollable */}
+            <ScrollArea className="flex-1 overflow-hidden min-h-0">
+              <div className="space-y-1 pr-2">
+                {getAllForwardMembers()
+                  .filter((member) =>
+                    member.name.toLowerCase().includes(newConversationSearchQuery.toLowerCase()) ||
+                    member.userId.toLowerCase().includes(newConversationSearchQuery.toLowerCase())
+                  )
+                  .map((member) => (
+                    <button
+                      key={member.id}
+                      onClick={() => {
+                        // TODO: Implement conversation creation
+                        setIsNewConversationModalOpen(false);
+                        setNewConversationSearchQuery("");
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-white/5 transition-colors text-left"
                     >
                       <div className="relative flex-shrink-0">
                         <Avatar className="h-10 w-10">
