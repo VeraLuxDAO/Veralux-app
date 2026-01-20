@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ImageViewer } from "@/components/chat/image-viewer";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, MoreHorizontal, Camera, Quote, TrendingUp, Flag } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { FlowPost } from "@/lib/posts-data";
+import { FlowPost, Author, getCommentsForPost } from "@/lib/posts-data";
+import { UserListPopup } from "@/components/user-list-popup";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -26,12 +27,75 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip, href }) => {
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [glowHovered, setGlowHovered] = useState(false);
+  const [commentHovered, setCommentHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+  const moreButtonRef = useRef<HTMLButtonElement>(null);
+  const glowButtonRef = useRef<HTMLButtonElement>(null);
+  const commentButtonRef = useRef<HTMLButtonElement>(null);
   const hasAnimated = useRef(false);
 
   // Filter images from media
   const images = post.media?.filter(m => m.type === "image") || [];
   const hasMultipleImages = images.length > 1;
+
+  // Generate mock users who glowed (based on glow count)
+  const getUsersWhoGlowed = (): Author[] => {
+    const mockUsers: Author[] = [
+      {
+        name: "Alice Johnson",
+        username: "@alicej",
+        avatar: "/diverse-user-avatars.png",
+        verified: true,
+        badges: ["Creator"],
+      },
+      {
+        name: "Bob Smith",
+        username: "@bobsmith",
+        avatar: "/developer-avatar.png",
+        verified: false,
+        badges: ["Developer"],
+      },
+      {
+        name: "Charlie Brown",
+        username: "@charlieb",
+        avatar: "/diverse-female-avatar.png",
+        verified: true,
+        badges: ["Designer"],
+      },
+      {
+        name: "Diana Prince",
+        username: "@dianap",
+        avatar: "/diverse-user-avatars.png",
+        verified: false,
+        badges: [],
+      },
+      {
+        name: "Eve Wilson",
+        username: "@evew",
+        avatar: "/developer-avatar.png",
+        verified: true,
+        badges: ["Artist"],
+      },
+    ];
+    // Return a subset based on glow count, but limit to available users
+    return mockUsers.slice(0, Math.min(post.glows, mockUsers.length));
+  };
+
+  // Get users who commented (from actual comments)
+  const getUsersWhoCommented = (): Author[] => {
+    const comments = getCommentsForPost(post.id);
+    // Extract unique authors from comments
+    const uniqueAuthors = new Map<string, Author>();
+    comments.forEach((comment) => {
+      if (!uniqueAuthors.has(comment.author.username)) {
+        uniqueAuthors.set(comment.author.username, comment.author);
+      }
+    });
+    return Array.from(uniqueAuthors.values());
+  };
 
   // Reset image index when post changes
   useEffect(() => {
@@ -109,6 +173,28 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip, href }) => {
     };
   }, []);
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: globalThis.MouseEvent) => {
+      if (
+        moreMenuRef.current &&
+        !moreMenuRef.current.contains(event.target as Node) &&
+        moreButtonRef.current &&
+        !moreButtonRef.current.contains(event.target as Node)
+      ) {
+        setMoreMenuOpen(false);
+      }
+    };
+
+    if (moreMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+    return undefined;
+  }, [moreMenuOpen]);
+
   return (
     <Card
       ref={cardRef}
@@ -140,7 +226,7 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip, href }) => {
       <CardContent className="p-3 sm:p-5 md:py-0.5 md:p-3">
         {/* Post Header */}
         <div className="flex items-center space-x-3 mb-6">
-          <Avatar className="w-8 h-8 sm:w-9 sm:h-9 flex-shrink-0">
+          <Avatar className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0">
             <AvatarImage src={post.author.avatar || "/placeholder.svg"} />
             <AvatarFallback className="text-xs sm:text-sm">
               {post.author.name
@@ -150,40 +236,125 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip, href }) => {
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span 
-                className="font-semibold text-white"
-                style={{ fontSize: "14px" }}
-              >
-                {post.author.name}
-              </span>
-              <span 
-                className="text-gray-400"
-                style={{ fontSize: "12px" }}
-              >
-                {post.author.username}
-              </span>
-              {post.author.verified && isMounted && (
-                <svg
-                  className="w-4 h-4 flex-shrink-0"
-                  style={{ color: "rgba(250, 222, 253, 1)" }}
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  xmlns="http://www.w3.org/2000/svg"
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span 
+                  className="font-semibold text-white"
+                  style={{ fontSize: "16px" }}
                 >
-                  <path
-                    fillRule="evenodd"
-                    d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              )}
-              <span 
-                className="text-gray-500"
-                style={{ fontSize: "12px" }}
-              >
-                • {post.timestamp}
-              </span>
+                  {post.author.name}
+                </span>
+                <span 
+                  className="text-[#9BB6CC]"
+                  style={{ fontSize: "14px" }}
+                >
+                  {post.author.username}
+                </span>
+                {post.author.verified && isMounted && (
+                  <svg
+                    className="w-4 h-4 flex-shrink-0"
+                    style={{ color: "rgba(250, 222, 253, 1)" }}
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <span 
+                  className="text-[#9BB6CC]"
+                  style={{ fontSize: "14px" }}
+                >
+                  {post.timestamp}
+                </span>
+                <div className="relative">
+                  <button
+                    ref={moreButtonRef}
+                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                      e.stopPropagation();
+                      setMoreMenuOpen(!moreMenuOpen);
+                    }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-colors hover:bg-white/10 flex-shrink-0"
+                    aria-label="More options"
+                  >
+                    <MoreHorizontal className="w-4 h-4 text-[#9BB6CC]" />
+                  </button>
+                  
+                  {/* More Menu Popup */}
+                  {moreMenuOpen && (
+                    <div
+                      ref={moreMenuRef}
+                      className="absolute right-0 top-full mt-2 z-50 py-2"
+                      style={{
+                        width: "187px",
+                        borderRadius: "12px",
+                        border: "1px solid #E5F7FD33",
+                        backgroundColor: "#080E11E5",
+                        backdropFilter: "blur(8px)",
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                          e.stopPropagation();
+                          setMoreMenuOpen(false);
+                          // TODO: Implement Take a Screenshot
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/5 transition-colors"
+                        style={{ color: "#9BB6CC" }}
+                      >
+                        <Camera className="w-4 h-4" />
+                        <span className="text-sm">Take a Screenshot</span>
+                      </button>
+                      
+                      <button
+                        onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                          e.stopPropagation();
+                          setMoreMenuOpen(false);
+                          // TODO: Implement Quote
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/5 transition-colors"
+                        style={{ color: "#9BB6CC" }}
+                      >
+                        <Quote className="w-4 h-4" />
+                        <span className="text-sm">Quote</span>
+                      </button>
+                      
+                      <button
+                        onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                          e.stopPropagation();
+                          setMoreMenuOpen(false);
+                          // TODO: Implement Promote
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/5 transition-colors"
+                        style={{ color: "#9BB6CC" }}
+                      >
+                        <TrendingUp className="w-4 h-4" />
+                        <span className="text-sm">Promote</span>
+                      </button>
+                      
+                      <button
+                        onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                          e.stopPropagation();
+                          setMoreMenuOpen(false);
+                          // TODO: Implement Report
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/5 transition-colors"
+                        style={{ color: "#9BB6CC" }}
+                      >
+                        <Flag className="w-4 h-4" />
+                        <span className="text-sm">Report</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -398,27 +569,33 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip, href }) => {
 
           {/* Engagement Metrics and Actions - right section */}
           <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0 justify-end flex-wrap sm:flex-nowrap">
-              <button
-                onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                  e.stopPropagation();
-                  onGlow(post.id);
-                }}
-                className={cn(
-                  "flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-1.5 sm:py-2 rounded-[20px] cursor-pointer transition-colors flex-shrink-0",
-                  post.hasGlowed 
-                    ? "border" 
-                    : ""
-                )}
-                style={
-                  post.hasGlowed
-                    ? {
-                        backgroundColor: "#FADEFD33",
-                        borderColor: "#FADEFD66",
-                        borderWidth: "1px",
-                      }
-                    : {}
-                }
+              <div 
+                className="relative"
+                onMouseEnter={() => setGlowHovered(true)}
+                onMouseLeave={() => setGlowHovered(false)}
               >
+                <button
+                  ref={glowButtonRef}
+                  onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                    e.stopPropagation();
+                    onGlow(post.id);
+                  }}
+                  className={cn(
+                    "flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-1.5 sm:py-2 rounded-[20px] cursor-pointer transition-colors flex-shrink-0",
+                    post.hasGlowed 
+                      ? "border" 
+                      : ""
+                  )}
+                  style={
+                    post.hasGlowed
+                      ? {
+                          backgroundColor: "#FADEFD33",
+                          borderColor: "#FADEFD66",
+                          borderWidth: "1px",
+                        }
+                      : {}
+                  }
+                >
                 {isMounted && (
                   <svg width="18" height="18" viewBox="0 0 24 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg" style={{ color: post.hasGlowed ? "#FADEFD" : "#9BB6CC" }}>
                   <path d="M16.8261 2.09319C16.4004 1.66736 15.8951 1.32956 15.3389 1.09909C14.7827 0.868623 14.1865 0.75 13.5844 0.75C12.9823 0.75 12.3862 0.868623 11.8299 1.09909C11.2737 1.32956 10.7684 1.66736 10.3427 2.09319L9.45941 2.97652L8.57608 2.09319C7.71633 1.23344 6.55027 0.750446 5.33441 0.750446C4.11855 0.750446 2.95249 1.23344 2.09274 2.09319C1.233 2.95293 0.75 4.11899 0.75 5.33485C0.75 6.55071 1.233 7.71678 2.09274 8.57652L9.45941 15.9432L16.8261 8.57652C17.2519 8.15089 17.5897 7.64553 17.8202 7.08932C18.0506 6.5331 18.1693 5.93693 18.1693 5.33485C18.1693 4.73278 18.0506 4.13661 17.8202 3.58039C17.5897 3.02418 17.2519 2.51882 16.8261 2.09319Z" />
@@ -431,7 +608,14 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip, href }) => {
                 >
                   {post.glows}
                 </span>
-              </button>
+                </button>
+                <UserListPopup
+                  users={getUsersWhoGlowed()}
+                  isVisible={glowHovered && post.glows > 0}
+                  buttonRef={glowButtonRef}
+                  align="right"
+                />
+              </div>
 
               <button
                 onClick={(e: MouseEvent<HTMLButtonElement>) => {
@@ -480,27 +664,33 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip, href }) => {
                 </span>
               </button>
 
-              <button 
-                onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                  e.stopPropagation();
-                  setHasReplied(!hasReplied);
-                }}
-                className={cn(
-                  "flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-1.5 sm:py-2 rounded-[20px] cursor-pointer transition-colors flex-shrink-0",
-                  hasReplied 
-                    ? "border" 
-                    : ""
-                )}
-                style={
-                  hasReplied
-                    ? {
-                        backgroundColor: "#FADEFD33",
-                        borderColor: "#FADEFD66",
-                        borderWidth: "1px",
-                      }
-                    : {}
-                }
+              <div 
+                className="relative"
+                onMouseEnter={() => setCommentHovered(true)}
+                onMouseLeave={() => setCommentHovered(false)}
               >
+                <button
+                  ref={commentButtonRef}
+                  onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                    e.stopPropagation();
+                    setHasReplied(!hasReplied);
+                  }}
+                  className={cn(
+                    "flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-1.5 sm:py-2 rounded-[20px] cursor-pointer transition-colors flex-shrink-0",
+                    hasReplied 
+                      ? "border" 
+                      : ""
+                  )}
+                  style={
+                    hasReplied
+                      ? {
+                          backgroundColor: "#FADEFD33",
+                          borderColor: "#FADEFD66",
+                          borderWidth: "1px",
+                        }
+                      : {}
+                  }
+                >
                 {isMounted && (
                   <svg
                     className="w-4 h-4"
@@ -526,7 +716,14 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip, href }) => {
                 >
                   {post.replies}
                 </span>
-              </button>
+                </button>
+                <UserListPopup
+                  users={getUsersWhoCommented()}
+                  isVisible={commentHovered && post.replies > 0}
+                  buttonRef={commentButtonRef}
+                  align="right"
+                />
+              </div>
 
               <button 
                 onClick={(e: MouseEvent<HTMLButtonElement>) => e.stopPropagation()}

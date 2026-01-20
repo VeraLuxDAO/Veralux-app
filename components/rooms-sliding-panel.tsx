@@ -29,6 +29,9 @@ import {
   CheckSquare,
   Trash2,
   Users,
+  BellOff,
+  User,
+  Palette,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -296,10 +299,53 @@ export function RoomsSlidingPanel({
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [editingDraft, setEditingDraft] = useState("");
   const messageContextMenu = useMessageContextMenu();
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+  const moreButtonRef = useRef<HTMLButtonElement>(null);
+  const [moreMenuPosition, setMoreMenuPosition] = useState<{ top: number; right: number } | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!isMoreMenuOpen) {
+      setMoreMenuPosition(null);
+      return;
+    }
+
+    const calculatePosition = () => {
+      if (moreButtonRef.current) {
+        const rect = moreButtonRef.current.getBoundingClientRect();
+        setMoreMenuPosition({
+          top: rect.bottom + 8, // mt-2 = 8px
+          right: window.innerWidth - rect.right,
+        });
+      }
+    };
+
+    calculatePosition();
+    window.addEventListener("resize", calculatePosition);
+    window.addEventListener("scroll", calculatePosition, true);
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        moreMenuRef.current &&
+        !moreMenuRef.current.contains(event.target as Node) &&
+        moreButtonRef.current &&
+        !moreButtonRef.current.contains(event.target as Node)
+      ) {
+        setIsMoreMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("resize", calculatePosition);
+      window.removeEventListener("scroll", calculatePosition, true);
+    };
+  }, [isMoreMenuOpen]);
   const isPage = variant === "page";
   const isOverlay = variant === "overlay";
 
@@ -970,7 +1016,7 @@ export function RoomsSlidingPanel({
                       </div>
                     </button>
 
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0 relative">
                       <div className="hidden lg:block">
                         <div className="relative">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
@@ -984,6 +1030,45 @@ export function RoomsSlidingPanel({
                             }}
                           />
                         </div>
+                      </div>
+                      <div className="hidden lg:flex">
+                        <button
+                          ref={moreButtonRef}
+                          type="button"
+                          className="h-9 w-9 flex items-center justify-center rounded-full text-white/80 hover:bg-white/10 transition-colors"
+                          aria-label="More"
+                          onClick={() => setIsMoreMenuOpen((prev) => !prev)}
+                        >
+                          <svg
+                            width="4"
+                            height="18"
+                            viewBox="0 0 4 18"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M1.75 9.75C2.30228 9.75 2.75 9.30228 2.75 8.75C2.75 8.19772 2.30228 7.75 1.75 7.75C1.19772 7.75 0.75 8.19772 0.75 8.75C0.75 9.30228 1.19772 9.75 1.75 9.75Z"
+                              stroke="#9BB6CC"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M1.75 2.75C2.30228 2.75 2.75 2.30228 2.75 1.75C2.75 1.19772 2.30228 0.75 1.75 0.75C1.19772 0.75 0.75 1.19772 0.75 1.75C0.75 2.30228 1.19772 2.75 1.75 2.75Z"
+                              stroke="#9BB6CC"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M1.75 16.75C2.30228 16.75 2.75 16.3023 2.75 15.75C2.75 15.1977 2.30228 14.75 1.75 14.75C1.19772 14.75 0.75 15.1977 0.75 15.75C0.75 16.3023 1.19772 16.75 1.75 16.75Z"
+                              stroke="#9BB6CC"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -1575,6 +1660,52 @@ export function RoomsSlidingPanel({
             </ScrollArea>
           </div>
         </>,
+        document.body
+      )}
+
+      {/* More Menu Popup - Portal */}
+      {isMoreMenuOpen && isMounted && moreMenuPosition && typeof document !== "undefined" && createPortal(
+        <div
+          ref={moreMenuRef}
+          className="fixed w-[240px] text-[#9BB6CC] z-[60] bg-[rgba(8,14,17,0.6)] border border-[rgba(255,255,255,0.06)] rounded-[16px] backdrop-blur-[20px] shadow-[0px_334px_94px_rgba(0,0,0,0.01),_0px_214px_86px_rgba(0,0,0,0.04),_0px_120px_72px_rgba(0,0,0,0.15),_0px_53px_53px_rgba(0,0,0,0.26),_0px_13px_29px_rgba(0,0,0,0.29)]"
+          style={{
+            top: `${moreMenuPosition.top}px`,
+            right: `${moreMenuPosition.right}px`,
+          }}
+        >
+          <button
+            type="button"
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm hover:bg-white/10 transition-colors first:rounded-t-[16px]"
+            onClick={() => setIsMoreMenuOpen(false)}
+          >
+            <BellOff className="h-4 w-4" />
+            Mute Notification
+          </button>
+          <button
+            type="button"
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm hover:bg-white/10 transition-colors"
+            onClick={() => setIsMoreMenuOpen(false)}
+          >
+            <User className="h-4 w-4" />
+            View User Info
+          </button>
+          <button
+            type="button"
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm hover:bg-white/10 transition-colors"
+            onClick={() => setIsMoreMenuOpen(false)}
+          >
+            <Palette className="h-4 w-4" />
+            Change Theme
+          </button>
+          <button
+            type="button"
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm hover:bg-white/10 transition-colors last:rounded-b-[16px]"
+            onClick={() => setIsMoreMenuOpen(false)}
+          >
+            <Trash2 className="h-4 w-4" />
+            Clear Chat
+          </button>
+        </div>,
         document.body
       )}
     </>
