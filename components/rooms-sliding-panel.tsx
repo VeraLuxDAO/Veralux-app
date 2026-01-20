@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo, type MouseEvent } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { EmojiPicker } from "@/components/ui/emoji-picker";
 import {
   X,
@@ -27,10 +25,13 @@ import {
   VolumeX,
   Lock,
   Mic,
-  Plus,
   ArrowLeft,
   CheckSquare,
   Trash2,
+  Users,
+  BellOff,
+  User,
+  Palette,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -40,11 +41,13 @@ import {
   usePathname,
 } from "next/navigation";
 import { RoomInfoView } from "@/components/room-info-view";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatInput } from "@/components/chat/chat-input";
 import { shouldDisplayAsEmoticonOnly } from "@/lib/emoji-utils";
 import { ImageViewer } from "@/components/chat/image-viewer";
 import { TelegramEmoji } from "@/components/chat/telegram-emoji";
-import { EMOJI_CATEGORIES } from "@/lib/emoji-data";
+import { MessageContextMenu } from "@/components/rooms/message-context-menu";
+import { useMessageContextMenu } from "@/components/rooms/use-message-context-menu";
 
 interface Message {
   id: string;
@@ -56,6 +59,7 @@ interface Message {
   isRead: boolean;
   isOwn: boolean;
   images?: string[]; // Array of image URLs or data URLs
+  replyToId?: string;
 }
 
 interface Room {
@@ -79,6 +83,84 @@ interface RoomsSlidingPanelProps {
   onClose: () => void;
   variant?: "panel" | "page" | "overlay";
 }
+
+// Mock members for forwarding (all contacts)
+interface ForwardMember {
+  id: string;
+  name: string;
+  avatar?: string;
+  userId: string; // User ID for display
+  isOnline?: boolean;
+}
+
+const getAllForwardMembers = (): ForwardMember[] => {
+  return [
+    {
+      id: "1",
+      name: "Vitalik Buterin",
+      avatar: "/diverse-user-avatars.png",
+      userId: "@vitalik",
+      isOnline: true,
+    },
+    {
+      id: "2",
+      name: "Sarah Miller",
+      avatar: "/diverse-female-avatar.png",
+      userId: "@sarahm",
+      isOnline: true,
+    },
+    {
+      id: "3",
+      name: "Mike Chen",
+      avatar: "/developer-avatar.png",
+      userId: "@mikechen",
+      isOnline: false,
+    },
+    {
+      id: "4",
+      name: "Clara Jin",
+      userId: "@claraj",
+      isOnline: true,
+    },
+    {
+      id: "5",
+      name: "Maxwell",
+      userId: "@maxwell",
+      isOnline: false,
+    },
+    {
+      id: "6",
+      name: "John",
+      userId: "@john",
+      isOnline: true,
+    },
+    {
+      id: "7",
+      name: "Alice",
+      avatar: "/diverse-female-avatar.png",
+      userId: "@alice",
+      isOnline: true,
+    },
+    {
+      id: "8",
+      name: "David",
+      userId: "@david",
+      isOnline: false,
+    },
+    {
+      id: "9",
+      name: "Emma Wilson",
+      userId: "@emmaw",
+      isOnline: true,
+    },
+    {
+      id: "10",
+      name: "Ryan Park",
+      userId: "@ryanp",
+      isOnline: false,
+    },
+  ];
+};
 
 const mockRooms: Room[] = [
   {
@@ -202,30 +284,68 @@ export function RoomsSlidingPanel({
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentImageList, setCurrentImageList] = useState<string[]>([]);
-  const [contextMenu, setContextMenu] = useState<{
-    open: boolean;
-    x: number;
-    y: number;
-  }>({ open: false, x: 0, y: 0 });
-  const [reactionPicker, setReactionPicker] = useState<{
-    open: boolean;
-    x: number;
-    y: number;
-    search: string;
-  }>({ open: false, x: 0, y: 0, search: "" });
-  const reactionPickerRef = useRef<HTMLDivElement>(null);
+  const reactionPickerButtonRef = useRef<HTMLButtonElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const [contextOpen, setContextOpen] = useState(false);
-  const [contextMessageId, setContextMessageId] = useState<string | null>(null);
-  const [contextPos, setContextPos] = useState({ x: 0, y: 0 });
-  const [actionPos, setActionPos] = useState({ x: 0, y: 0 });
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [emojiPickerPos, setEmojiPickerPos] = useState({ x: 0, y: 0 });
-  const addButtonRef = useRef<HTMLButtonElement>(null);
-  const emojiPickerAnchorRef = useRef<HTMLDivElement>(null);
-  const quickBarRef = useRef<HTMLDivElement>(null);
-  const actionsRef = useRef<HTMLDivElement>(null);
+  const [showReactionEmojiPicker, setShowReactionEmojiPicker] = useState(false);
+  const [isForwardPopupOpen, setIsForwardPopupOpen] = useState(false);
+  const [forwardMessageId, setForwardMessageId] = useState<string | null>(null);
+  const [forwardSearchQuery, setForwardSearchQuery] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
+  const [isNewConversationModalOpen, setIsNewConversationModalOpen] = useState(false);
+  const [newConversationSearchQuery, setNewConversationSearchQuery] = useState("");
+  const [pinnedByRoom, setPinnedByRoom] = useState<Record<string, string[]>>({});
+  const [replyToMessageId, setReplyToMessageId] = useState<string | null>(null);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editingDraft, setEditingDraft] = useState("");
+  const messageContextMenu = useMessageContextMenu();
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+  const moreButtonRef = useRef<HTMLButtonElement>(null);
+  const [moreMenuPosition, setMoreMenuPosition] = useState<{ top: number; right: number } | null>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMoreMenuOpen) {
+      setMoreMenuPosition(null);
+      return;
+    }
+
+    const calculatePosition = () => {
+      if (moreButtonRef.current) {
+        const rect = moreButtonRef.current.getBoundingClientRect();
+        setMoreMenuPosition({
+          top: rect.bottom + 8, // mt-2 = 8px
+          right: window.innerWidth - rect.right,
+        });
+      }
+    };
+
+    calculatePosition();
+    window.addEventListener("resize", calculatePosition);
+    window.addEventListener("scroll", calculatePosition, true);
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        moreMenuRef.current &&
+        !moreMenuRef.current.contains(event.target as Node) &&
+        moreButtonRef.current &&
+        !moreButtonRef.current.contains(event.target as Node)
+      ) {
+        setIsMoreMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("resize", calculatePosition);
+      window.removeEventListener("scroll", calculatePosition, true);
+    };
+  }, [isMoreMenuOpen]);
   const isPage = variant === "page";
   const isOverlay = variant === "overlay";
 
@@ -236,80 +356,8 @@ export function RoomsSlidingPanel({
     { label: "Clip", icon: Paperclip },
     { label: "Select", icon: Hand },
     { label: "Edit", icon: Pencil },
+    { label: "Delete", icon: Trash2 },
   ];
-
-  const handleMessageContextMenu = (e: MouseEvent) => {
-    e.preventDefault();
-    const popupWidth = 362;
-    const popupHeight = 60 + 8 + 224;
-    const margin = 8;
-    const x = Math.min(
-      window.innerWidth - popupWidth - margin,
-      Math.max(margin, e.clientX)
-    );
-    const y = Math.min(
-      window.innerHeight - popupHeight - margin,
-      Math.max(margin, e.clientY)
-    );
-    setContextMenu({ open: true, x, y });
-  };
-
-  const openEmojiPickerFromContext = () => {
-    setContextMenu((prev) => ({ ...prev, open: false }));
-    const pickerWidth = 404;
-    const pickerHeight = 396;
-    const margin = 8;
-    const x = Math.min(
-      window.innerWidth - pickerWidth - margin,
-      Math.max(margin, contextMenu.x)
-    );
-    const y = Math.min(
-      window.innerHeight - pickerHeight - margin,
-      Math.max(margin, contextMenu.y + 60 + 12) // below emoji bar
-    );
-    setReactionPicker({ open: true, x, y, search: "" });
-  };
-
-  const allEmojis = useMemo(
-    () => EMOJI_CATEGORIES.flatMap((c) => c.emojis),
-    []
-  );
-  const filteredEmojis = useMemo(() => {
-    if (!reactionPicker.search.trim()) return allEmojis;
-    const q = reactionPicker.search.toLowerCase();
-    return allEmojis.filter((e) => e.toLowerCase().includes(q));
-  }, [allEmojis, reactionPicker.search]);
-
-  // Close context menus on outside interactions
-  useEffect(() => {
-    const closeMenu = () =>
-      setContextMenu((prev) => (prev.open ? { ...prev, open: false } : prev));
-    if (contextMenu.open) {
-      document.addEventListener("click", closeMenu);
-      document.addEventListener("contextmenu", closeMenu);
-      document.addEventListener("scroll", closeMenu, true);
-    }
-    return () => {
-      document.removeEventListener("click", closeMenu);
-      document.removeEventListener("contextmenu", closeMenu);
-      document.removeEventListener("scroll", closeMenu, true);
-    };
-  }, [contextMenu.open]);
-
-  // Close reaction picker on outside click
-  useEffect(() => {
-    if (!reactionPicker.open) return;
-    const handleOutside = (e: MouseEvent | globalThis.MouseEvent) => {
-      if (
-        reactionPickerRef.current &&
-        !reactionPickerRef.current.contains(e.target as Node)
-      ) {
-        setReactionPicker((prev) => (prev.open ? { ...prev, open: false } : prev));
-      }
-    };
-    document.addEventListener("mousedown", handleOutside);
-    return () => document.removeEventListener("mousedown", handleOutside);
-  }, [reactionPicker.open]);
 
   // Lock body scroll when panel is open
   useEffect(() => {
@@ -352,57 +400,12 @@ export function RoomsSlidingPanel({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const quickFallback = ["👍", "❤️", "😂", "😮", "😢", "😡"];
-  const quickReactions = useMemo(() => {
-    if (typeof window === "undefined") return quickFallback.slice(0, 6);
-    try {
-      const stored = JSON.parse(
-        window.localStorage.getItem("recentEmojis") || "[]"
-      ) as string[];
-      const unique = Array.from(new Set(stored));
-      const combined = [...unique, ...quickFallback];
-      return combined.slice(0, 6);
-    } catch {
-      return quickFallback.slice(0, 6);
-    }
-  }, []);
-
   useEffect(() => {
     if (messages.length > 0) {
       // Use setTimeout to ensure DOM has updated
       setTimeout(scrollToBottom, 100);
     }
   }, [messages]);
-
-  useEffect(() => {
-    if (!contextOpen) return;
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (
-        (addButtonRef.current && addButtonRef.current.contains(target)) ||
-        (quickBarRef.current && quickBarRef.current.contains(target)) ||
-        (actionsRef.current && actionsRef.current.contains(target)) ||
-        (target instanceof HTMLElement &&
-          target.closest('[data-emoji-picker="true"]'))
-      ) {
-        return;
-      }
-      setContextOpen(false);
-      setShowEmojiPicker(false);
-    };
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setContextOpen(false);
-        setShowEmojiPicker(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside as unknown as unknown as EventListener);
-    document.addEventListener("keydown", handleEscape as unknown as unknown as EventListener);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside as unknown as unknown as EventListener);
-      document.removeEventListener("keydown", handleEscape as unknown as unknown as EventListener);
-    };
-  }, [contextOpen]);
 
   // Sync selectedRoom with URL when panel is open (?private_rooms=slug)
   useEffect(() => {
@@ -436,6 +439,20 @@ export function RoomsSlidingPanel({
   const handleSendMessage = (content: string, images?: File[]) => {
     if (!content.trim() && (!images || images.length === 0)) return;
 
+    if (editingMessageId) {
+      const trimmedContent = content.trim();
+      if (!trimmedContent) return;
+      setMessages((prev) =>
+        prev.map((message) =>
+          message.id === editingMessageId
+            ? { ...message, content: trimmedContent }
+            : message
+        )
+      );
+      setEditingMessageId(null);
+      setEditingDraft("");
+      return;
+    }
     // Convert images to data URLs
     if (images && images.length > 0) {
       const imagePromises = Array.from(images).map((file) => {
@@ -460,6 +477,7 @@ export function RoomsSlidingPanel({
           isRead: false,
           isOwn: true,
           images: imageUrls,
+          ...(replyToMessageId ? { replyToId: replyToMessageId } : {}),
         };
         setMessages((prev) => [...prev, newMessage]);
       });
@@ -473,58 +491,98 @@ export function RoomsSlidingPanel({
         timestamp: new Date(),
         isRead: false,
         isOwn: true,
+        ...(replyToMessageId ? { replyToId: replyToMessageId } : {}),
       };
       setMessages([...messages, newMessage]);
     }
-  };
-
-  const clamp = (value: number, min: number, max: number) =>
-    Math.min(Math.max(value, min), max);
-
-  const handleContextMenu = (event: React.MouseEvent, messageId: string) => {
-    event.preventDefault();
-    const clickX = event.clientX;
-    const clickY = event.clientY;
-    const width = 362;
-    const height = 60;
-    const actionWidth = 130;
-    const actionHeight = 224;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-
-    const quickLeft = clamp(clickX - width / 2, 8, vw - width - 8);
-    const quickTop = clamp(clickY - height - 10, 8, vh - height - 8);
-
-    const actionLeft = clamp(clickX - actionWidth / 2, 8, vw - actionWidth - 8);
-    const actionTop = clamp(clickY + 8, 8, vh - actionHeight - 8);
-
-    setContextMessageId(messageId);
-    setContextPos({ x: quickLeft, y: quickTop });
-    setActionPos({ x: actionLeft, y: actionTop });
-    setContextOpen(true);
-    setShowEmojiPicker(false);
+    setReplyToMessageId(null);
   };
 
   const handleReact = (emoji: string) => {
-    console.log("Reacted to message", contextMessageId, "with", emoji);
-    setContextOpen(false);
-    setShowEmojiPicker(false);
+    messageContextMenu.closeMenu();
+  };
+
+  const handlePinMessage = (messageId: string) => {
+    if (!selectedRoom) return;
+    setPinnedByRoom((prev) => {
+      const roomId = selectedRoom.id;
+      const existing = prev[roomId] ?? [];
+      if (existing.includes(messageId)) return prev;
+      return { ...prev, [roomId]: [messageId, ...existing] };
+    });
+  };
+
+  const handleDeleteMessage = (messageId: string) => {
+    setMessages((prev) => prev.filter((message) => message.id !== messageId));
+    setPinnedByRoom((prev) => {
+      if (!selectedRoom) return prev;
+      const roomId = selectedRoom.id;
+      const existing = prev[roomId];
+      if (!existing) return prev;
+      return { ...prev, [roomId]: existing.filter((id) => id !== messageId) };
+    });
+    if (replyToMessageId === messageId) {
+      setReplyToMessageId(null);
+    }
+    if (editingMessageId === messageId) {
+      setEditingMessageId(null);
+      setEditingDraft("");
+    }
   };
 
   const handleAction = (action: string) => {
-    console.log("Action", action, "on message", contextMessageId);
-    setContextOpen(false);
-    setShowEmojiPicker(false);
+    messageContextMenu.closeMenu();
+    const contextMessageId = messageContextMenu.messageId;
+    if (!contextMessageId) return;
+
+    if (action === "forward") {
+      setForwardMessageId(contextMessageId);
+      setIsForwardPopupOpen(true);
+      setForwardSearchQuery("");
+    }
+
+    if (action === "clip") {
+      handlePinMessage(contextMessageId);
+    }
+
+    if (action === "reply") {
+      setReplyToMessageId(contextMessageId);
+    }
+
+  if (action === "edit") {
+    const target = messageById.get(contextMessageId);
+    if (target?.isOwn) {
+      setEditingMessageId(contextMessageId);
+      setEditingDraft(target.content);
+      setReplyToMessageId(null);
+    }
+  }
+
+  if (action === "delete") {
+    const target = messageById.get(contextMessageId);
+    if (target?.isOwn) {
+      handleDeleteMessage(contextMessageId);
+    }
+  }
   };
 
-  const actions = [
-    { key: "reply", label: "Reply", Icon: Reply },
-    { key: "forward", label: "Forward", Icon: Forward },
-    { key: "clip", label: "Clip", Icon: Paperclip },
-    { key: "select", label: "Select", Icon: CheckSquare },
-    { key: "edit", label: "Edit", Icon: Pencil },
-    { key: "delete", label: "Delete", Icon: Trash2 },
-  ];
+  const messageById = useMemo(() => {
+    return new Map(messages.map((message) => [message.id, message]));
+  }, [messages]);
+
+  const canEditContextMessage = useMemo(() => {
+    const contextMessageId = messageContextMenu.messageId;
+    if (!contextMessageId) return false;
+    const message = messageById.get(contextMessageId);
+    return Boolean(message?.isOwn);
+  }, [messageById, messageContextMenu.messageId]);
+
+  const contextMenuActionOptions = useMemo(() => {
+    if (canEditContextMessage) return actionOptions;
+    return actionOptions.filter(
+      (action) => action.label !== "Edit" && action.label !== "Delete"
+    );
+  }, [actionOptions, canEditContextMessage]);
 
   const formatTime = (date: Date) => {
     const now = new Date();
@@ -553,6 +611,43 @@ export function RoomsSlidingPanel({
       room.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       room.lastMessage?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const pinnedMessages = useMemo(() => {
+    if (!selectedRoom) return [];
+    const ids = pinnedByRoom[selectedRoom.id] ?? [];
+    if (ids.length === 0) return [];
+    return ids
+      .map((id) => messageById.get(id))
+      .filter((message): message is Message => Boolean(message));
+  }, [messageById, pinnedByRoom, selectedRoom?.id]);
+
+  const pinnedPreviewText = useMemo(() => {
+    const pinned = pinnedMessages[0];
+    if (!pinned) return "";
+    const trimmed = pinned.content?.trim();
+    if (trimmed) return trimmed;
+    if (pinned.images?.length) return "Photo";
+    return "Pinned message";
+  }, [pinnedMessages]);
+
+  const replyTarget = useMemo(() => {
+    if (!replyToMessageId) return null;
+    return messageById.get(replyToMessageId) ?? null;
+  }, [messageById, replyToMessageId]);
+
+  const editTarget = useMemo(() => {
+    if (!editingMessageId) return null;
+    return messageById.get(editingMessageId) ?? null;
+  }, [editingMessageId, messageById]);
+
+  const getReplyPreview = (message: Message) => {
+    if (!message.replyToId) return null;
+    const target = messageById.get(message.replyToId);
+    if (!target) return null;
+    const trimmed = target.content?.trim();
+    const preview = trimmed || (target.images?.length ? "Photo" : "Message");
+    return { name: target.senderName, preview };
+  };
 
   // Hide AI button when rooms panel is open
   useEffect(() => {
@@ -653,15 +748,15 @@ export function RoomsSlidingPanel({
             {/* Header */}
             <div className="px-4 pl-[6px] pt-5 pb-4 flex-shrink-0 w-full max-w-full overflow-hidden">
               <div className="flex items-center justify-between gap-3 mb-5 w-full">
-                <div className="flex items-center gap-2 pl-[12px]">
+                <div className="flex items-center gap-2 pl-[12px] flex-1 min-w-0">
                   {/* Room meta: circular lock icon + title + subtitle */}
-                  <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-full border border-white/10 bg-[#FADEFD] flex items-center justify-center">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="h-9 w-9 rounded-full border border-white/10 bg-[#FADEFD] flex items-center justify-center flex-shrink-0">
                       <Lock className="h-4 w-4 text-[#001422]" />
                     </div>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col min-w-0">
                       <h2
-                        className="text-[15px] font-semibold leading-tight text-white"
+                        className="text-[15px] font-semibold leading-tight text-white truncate"
                         style={{
                           fontFamily: "'Geist'",
                         }}
@@ -677,6 +772,22 @@ export function RoomsSlidingPanel({
                     </div>
                   </div>
                 </div>
+                <button
+                  type="button"
+                  className={cn(
+                    "w-[70px] h-[36px] flex-shrink-0",
+                    "flex items-center justify-center",
+                    "text-sm font-medium text-[#FADEFD]",
+                    "rounded-[18px] border border-[#E5F7FD33]",
+                    "bg-transparent hover:bg-white/5 transition-colors"
+                  )}
+                  onClick={() => {
+                    setIsNewConversationModalOpen(true);
+                    setNewConversationSearchQuery("");
+                  }}
+                >
+                  + New
+                </button>
               </div>
 
               {/* Search */}
@@ -905,7 +1016,7 @@ export function RoomsSlidingPanel({
                       </div>
                     </button>
 
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 flex-shrink-0 relative">
                       <div className="hidden lg:block">
                         <div className="relative">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
@@ -920,8 +1031,65 @@ export function RoomsSlidingPanel({
                           />
                         </div>
                       </div>
+                      <div className="hidden lg:flex">
+                        <button
+                          ref={moreButtonRef}
+                          type="button"
+                          className="h-9 w-9 flex items-center justify-center rounded-full text-white/80 hover:bg-white/10 transition-colors"
+                          aria-label="More"
+                          onClick={() => setIsMoreMenuOpen((prev) => !prev)}
+                        >
+                          <svg
+                            width="4"
+                            height="18"
+                            viewBox="0 0 4 18"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M1.75 9.75C2.30228 9.75 2.75 9.30228 2.75 8.75C2.75 8.19772 2.30228 7.75 1.75 7.75C1.19772 7.75 0.75 8.19772 0.75 8.75C0.75 9.30228 1.19772 9.75 1.75 9.75Z"
+                              stroke="#9BB6CC"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M1.75 2.75C2.30228 2.75 2.75 2.30228 2.75 1.75C2.75 1.19772 2.30228 0.75 1.75 0.75C1.19772 0.75 0.75 1.19772 0.75 1.75C0.75 2.30228 1.19772 2.75 1.75 2.75Z"
+                              stroke="#9BB6CC"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                            <path
+                              d="M1.75 16.75C2.30228 16.75 2.75 16.3023 2.75 15.75C2.75 15.1977 2.30228 14.75 1.75 14.75C1.19772 14.75 0.75 15.1977 0.75 15.75C0.75 16.3023 1.19772 16.75 1.75 16.75Z"
+                              stroke="#9BB6CC"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
+                {pinnedMessages.length > 0 && (
+                  <div
+                    className="mt-3 flex items-center gap-2 px-3 py-2 border-l"
+                    style={{ borderLeftColor: "#FADEFD" }}
+                  >
+                    <Pin className="h-3.5 w-3.5 text-[#E5F7FD66] flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] text-white truncate">
+                        {pinnedPreviewText}
+                      </p>
+                    </div>
+                    {pinnedMessages.length > 1 && (
+                      <span className="text-[11px] text-[#9BB6CC] flex-shrink-0">
+                        {pinnedMessages.length}
+                      </span>
+                    )}
+                  </div>
+                )}
                   <div className="h-px w-full" />
                 </div>
               </div>
@@ -947,7 +1115,7 @@ export function RoomsSlidingPanel({
                     return (
                       <div
                         key={message.id}
-                        onContextMenu={(e) => handleMessageContextMenu(e)}
+                        onContextMenu={(e) => messageContextMenu.openMenu(e, message.id)}
                         className={cn(
                           "flex gap-1  duration-300 ease-out",
                           message.isOwn ? "flex-row-reverse" : "flex-row",
@@ -1007,6 +1175,23 @@ export function RoomsSlidingPanel({
                                   </p>
                                 )}
                               
+                              {(() => {
+                                const replyPreview = getReplyPreview(message);
+                                if (!replyPreview) return null;
+                                return (
+                                  <div className="px-2.5 pt-2 md:px-3">
+                                    <div className="flex flex-col gap-0.5 rounded-[8px] bg-[rgba(69,212,167,0.1)] border-l-[8px] border-[#45D4A7] px-3 py-1.5">
+                                      <p className="text-[11px] text-[#45D4A7] leading-tight truncate">
+                                        {replyPreview.name}
+                                      </p>
+                                      <p className="text-[11px] text-[#9BB6CC] truncate leading-tight">
+                                        {replyPreview.preview}
+                                      </p>
+                                    </div>
+                                  </div>
+                                );
+                              })()}
+
                               {/* Images */}
                               {message.images && message.images.length > 0 && (
                                 <div className={cn(
@@ -1084,128 +1269,65 @@ export function RoomsSlidingPanel({
                   background: "transparent"
                 }}
               >
+                {editTarget && (
+                  <div className="mb-3 px-4 lg:px-6">
+                    <div className="flex items-start justify-between gap-2 rounded-[8px] bg-[rgba(69,212,167,0.1)] px-3 py-1.5">
+                      <div className="min-w-0">
+                        <p className="text-[11px] text-[#45D4A7] leading-tight">
+                          Editing message
+                        </p>
+                        <p className="text-[12px] text-[#9BB6CC] truncate leading-tight">
+                          {editTarget.content?.trim() ||
+                            (editTarget.images?.length ? "Photo" : "Message")}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingMessageId(null);
+                          setEditingDraft("");
+                        }}
+                        className="h-6 w-6 rounded-full text-white/70 hover:bg-white/10 flex items-center justify-center flex-shrink-0"
+                        aria-label="Cancel edit"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {!editTarget && replyTarget && (
+                  <div className="mb-3 px-4 lg:px-6">
+                    <div className="flex items-start justify-between gap-2 rounded-[8px] bg-[rgba(69,212,167,0.1)] px-3 py-1.5">
+                      <div className="min-w-0">
+                        <p className="text-[11px] text-[#45D4A7] leading-tight">
+                          {replyTarget.senderName}
+                        </p>
+                        <p className="text-[12px] text-[#9BB6CC] truncate leading-tight">
+                          {replyTarget.content?.trim() ||
+                            (replyTarget.images?.length ? "Photo" : "Message")}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setReplyToMessageId(null)}
+                        className="h-6 w-6 rounded-full text-white/70 hover:bg-white/10 flex items-center justify-center flex-shrink-0"
+                        aria-label="Cancel reply"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <ChatInput
                   onSendMessage={handleSendMessage}
                   placeholder="Write a message..."
                   forceDesktop={true}
+                  {...(editingMessageId
+                    ? { value: editingDraft, onChange: setEditingDraft }
+                    : {})}
                 />
               </div>
 
-              {/* Contextual Popups (private rooms) */}
-              {(contextOpen || showEmojiPicker) &&
-                typeof document !== "undefined" &&
-                createPortal(
-                  <>
-                    {/* Quick reactions bar */}
-                    {contextOpen && (
-                      <div
-                        ref={quickBarRef}
-                        className="fixed"
-                        style={{
-                          top: contextPos.y,
-                          left: contextPos.x,
-                          width: 362,
-                          height: 60,
-                          backgroundColor: "#0000004A",
-                          backdropFilter: "blur(18px)",
-                          WebkitBackdropFilter: "blur(18px)",
-                          borderRadius: 16,
-                          display: "flex",
-                          alignItems: "center",
-                          padding: "12px",
-                          gap: "12px",
-                          zIndex: 220000,
-                        }}
-                      >
-                        {quickReactions.map((emoji, idx) => (
-                          <button
-                            key={`${emoji}-${idx}`}
-                            onClick={() => handleReact(emoji)}
-                            className="flex items-center justify-center bg-white/5 hover:bg-white/15 transition rounded-[10px]"
-                            style={{ width: 36, height: 36 }}
-                            aria-label={`React ${emoji}`}
-                          >
-                            <span style={{ fontSize: 20 }}>{emoji}</span>
-                          </button>
-                        ))}
-                        <button
-                          ref={addButtonRef}
-                          onClick={() => {
-                            if (addButtonRef.current) {
-                              const rect = addButtonRef.current.getBoundingClientRect();
-                              setEmojiPickerPos({ x: rect.left, y: rect.top });
-                            }
-                            setShowEmojiPicker(true);
-                            setContextOpen(false);
-                          }}
-                          className="flex items-center justify-center bg-white/10 hover:bg-white/20 transition rounded-full text-white/80"
-                          style={{ width: 37, height: 37 }}
-                          aria-label="Add reaction"
-                        >
-                          +
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Hidden anchor for emoji picker when context menu is closed */}
-                    {showEmojiPicker && !contextOpen && (
-                      <div
-                        ref={emojiPickerAnchorRef}
-                        className="fixed pointer-events-none"
-                        style={{
-                          left: emojiPickerPos.x,
-                          top: emojiPickerPos.y,
-                          width: 37,
-                          height: 37,
-                        }}
-                      />
-                    )}
-                    <EmojiPicker
-                      onEmojiSelect={(emoji) => handleReact(emoji)}
-                      isOpen={showEmojiPicker}
-                      onClose={() => setShowEmojiPicker(false)}
-                      triggerRef={contextOpen ? addButtonRef : emojiPickerAnchorRef}
-                      align="left"
-                    />
-
-                    {/* Actions menu */}
-                    {contextOpen && (
-                      <div
-                        ref={actionsRef}
-                        className="fixed text-[#9BB6CC]"
-                        style={{
-                          top: actionPos.y,
-                          left: actionPos.x,
-                          width: 130,
-                          height: 224,
-                          background: "rgba(8, 14, 17, 0.6)",
-                          backdropFilter: "blur(20px)",
-                          WebkitBackdropFilter: "blur(20px)",
-                          borderRadius: 16,
-                          padding: "16px 12px",
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "space-between",
-                          boxShadow:
-                            "0px 334px 94px rgba(0,0,0,0.01), 0px 214px 86px rgba(0,0,0,0.04), 0px 120px 72px rgba(0,0,0,0.15), 0px 53px 53px rgba(0,0,0,0.26), 0px 13px 29px rgba(0,0,0,0.29)",
-                          zIndex: 220001,
-                        }}
-                      >
-                        {actions.map(({ key, label, Icon }) => (
-                          <button
-                            key={key}
-                            onClick={() => handleAction(key)}
-                            className="flex items-center gap-2 text-sm font-medium text-[#9BB6CC] hover:text-white hover:bg-white/10 rounded-lg px-2 py-1 transition"
-                          >
-                            <Icon className="w-4 h-4" />
-                            {label}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </>,
-                  document.body
-                )}
               </div>
 
               {/* Room Info Panel - Right Sidebar */}
@@ -1259,133 +1381,332 @@ export function RoomsSlidingPanel({
         </div>
       </div>
 
-      {contextMenu.open && (
+      <MessageContextMenu
+        isOpen={messageContextMenu.isOpen}
+        position={messageContextMenu.position}
+        emojiOptions={emojiOptions}
+        actions={contextMenuActionOptions}
+        reactionButtonRef={reactionPickerButtonRef}
+        onEmojiSelect={(emoji) => handleReact(emoji)}
+        onAddReaction={() => {
+          messageContextMenu.closeMenu();
+          setShowReactionEmojiPicker(true);
+        }}
+        onActionSelect={(label) => handleAction(label.toLowerCase())}
+      />
+
+      {/* Emoji Picker for reaction picker button (from old context menu) */}
+      <EmojiPicker
+        onEmojiSelect={(emoji) => {
+          handleReact(emoji);
+          setShowReactionEmojiPicker(false);
+          messageContextMenu.closeMenu();
+        }}
+        isOpen={showReactionEmojiPicker}
+        onClose={() => {
+          setShowReactionEmojiPicker(false);
+          messageContextMenu.closeMenu();
+        }}
+        triggerRef={reactionPickerButtonRef}
+        align="left"
+      />
+
+      {/* Forward Members Popup */}
+      {isForwardPopupOpen && isMounted && typeof document !== "undefined" && createPortal(
         <>
+          {/* Backdrop */}
           <div
-            className="fixed z-[1000] flex items-center gap-3 px-4 py-3"
+            className="fixed inset-0"
             style={{
-              top: contextMenu.y,
-              left: contextMenu.x,
-              width: "362px",
-              height: "60px",
-              borderRadius: "16px",
-              background: "#0000004A",
-              backdropFilter: "blur(16px)",
-              border: "1px solid #FFFFFF0F",
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              zIndex: 220010,
+              pointerEvents: "auto",
             }}
-          >
-            {emojiOptions.map((emoji, idx) => (
-              <button
-                key={idx}
-                className="h-9 w-9 rounded-[10px] bg-[#E5F7FD0F] flex items-center justify-center text-lg text-white hover:bg-white/10 transition-all"
-                onClick={() => setContextMenu((p) => ({ ...p, open: false }))}
-                title={`React with ${emoji}`}
-              >
-                {emoji}
-              </button>
-            ))}
-            <button
-                  className="h-9 w-9 rounded-full bg-[#E5F7FD0F] flex items-center justify-center text-white hover:bg-white/10 transition-all"
-                  onClick={openEmojiPickerFromContext}
-              title="Add reaction"
-            >
-              <Plus className="h-4 w-4" />
-            </button>
-          </div>
-
+            onClick={() => {
+              setIsForwardPopupOpen(false);
+              setForwardMessageId(null);
+              setForwardSearchQuery("");
+            }}
+          />
+          
+          {/* Forward Popup - Responsive */}
           <div
-            className="fixed z-[999] flex flex-col overflow-hidden px-2 py-3 gap-2"
+            className="fixed"
             style={{
-              top: contextMenu.y + 60 + 8,
-              left: contextMenu.x,
-              width: "130px",
-              borderRadius: "16px",
-              background: "#0000004A",
-              border: "1px solid #FFFFFF0F",
-              backdropFilter: "blur(16px)",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: 220011,
+              pointerEvents: "auto",
+              // Responsive width: 432px at 1512px viewport width (28.57% of 1512px)
+              // Formula: 432px / 1512px = 28.57vw
+              width: "clamp(320px, 28.57vw, 432px)",
+              maxWidth: "calc(100vw - 32px)",
+              // Responsive height: 520px max, scales down for smaller screens
+              height: "clamp(400px, 34.39vh, 520px)",
+              maxHeight: "calc(100vh - 120px)",
+              backgroundColor: "rgba(8, 14, 17, 0.4)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              borderRadius: "24px",
+              padding: "16px",
+              display: "flex",
+              flexDirection: "column",
             }}
+            onClick={(e) => e.stopPropagation()}
           >
-            {actionOptions.map(({ label, icon: Icon }, idx) => (
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4 flex-shrink-0">
+              <h3 className="text-lg font-semibold text-white" style={{ fontFamily: "'Geist'" }}>
+                Forward Message
+              </h3>
               <button
-                key={label}
-                    className="flex items-center gap-3 text-sm px-2 py-2 rounded-lg text-[#9BB6CC] hover:bg-white/5 transition-colors"
-                onClick={() => setContextMenu((p) => ({ ...p, open: false }))}
+                onClick={() => {
+                  setIsForwardPopupOpen(false);
+                  setForwardMessageId(null);
+                  setForwardSearchQuery("");
+                }}
+                className="h-8 w-8 rounded-full text-white hover:bg-white/10 flex items-center justify-center transition-colors"
+                aria-label="Close"
               >
-                <Icon className="h-4 w-4" />
-                <span>{label}</span>
+                <X className="h-4 w-4" />
               </button>
-            ))}
-          </div>
-        </>
-      )}
+            </div>
 
-      {reactionPicker.open && (
-        <div
-          ref={reactionPickerRef}
-          className="fixed z-[1001] flex flex-col"
-          style={{
-            top: reactionPicker.y,
-            left: reactionPicker.x,
-            width: "404px",
-            height: "396px",
-            borderRadius: "24px",
-            background: "#0000004A",
-            border: "1px solid #FFFFFF0F",
-          }}
-        >
-          <div
-            className="flex items-center justify-between px-4 py-3 border-b"
-            style={{ borderColor: "#FFFFFF0F" }}
-          >
-            <span className="text-sm font-semibold text-white">Emoji</span>
-            <button
-              className="h-8 w-8 rounded-full text-white hover:bg-white/10 flex items-center justify-center"
-              onClick={() => setReactionPicker((p) => ({ ...p, open: false }))}
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-
-          <div className="px-4 py-3 border-b" style={{ borderColor: "#FFFFFF0F" }}>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
+            {/* Search Input */}
+            <div className="relative mb-4 flex-shrink-0">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9BB6CC99] pointer-events-none" />
               <Input
-                value={reactionPicker.search}
-                onChange={(e) =>
-                  setReactionPicker((p) => ({ ...p, search: e.target.value }))
-                }
-                placeholder="Search emoji"
-                className="h-10 pl-10 pr-3 bg-transparent border border-white/10 text-white placeholder:text-white/50 rounded-xl focus-visible:ring-0 focus-visible:border-white/30"
+                placeholder="Search members..."
+                value={forwardSearchQuery}
+                onChange={(e) => setForwardSearchQuery(e.target.value)}
+                className="pl-10 pr-4 h-10 bg-[rgba(229,247,253,0.06)] border border-white/10 rounded-full text-sm text-white placeholder:text-[#9BB6CC99] focus:ring-0 focus:border-white/30"
+                style={{ fontFamily: "'Geist'" }}
               />
             </div>
-          </div>
 
-          <div className="h-px" style={{ background: "#FFFFFF0F" }} />
-
-          <div className="flex-1 overflow-hidden">
-            <div className="h-full overflow-y-auto px-4 py-3">
-              <div
-                className="grid gap-2"
-                style={{
-                  gridTemplateColumns: "repeat(auto-fill, minmax(36px, 1fr))",
-                }}
-              >
-                {filteredEmojis.map((emoji, idx) => (
-                  <button
-                    key={`${emoji}-${idx}`}
-                    className="h-9 w-9 rounded-[10px] bg-[#E5F7FD0F] text-lg flex items-center justify-center hover:bg-white/10 active:scale-95 transition-all text-white"
-                    onClick={() => {
-                      setReactionPicker((p) => ({ ...p, open: false }));
-                      setContextMenu((p) => ({ ...p, open: false }));
-                    }}
-                  >
-                    {emoji}
-                  </button>
-                ))}
+            {/* Members List - Scrollable */}
+            <ScrollArea className="flex-1 overflow-hidden min-h-0">
+              <div className="space-y-1 pr-2">
+                {getAllForwardMembers()
+                  .filter((member) =>
+                    member.name.toLowerCase().includes(forwardSearchQuery.toLowerCase()) ||
+                    member.userId.toLowerCase().includes(forwardSearchQuery.toLowerCase())
+                  )
+                  .map((member) => (
+                    <button
+                      key={member.id}
+                      onClick={() => {
+                        // TODO: Implement actual forward logic
+                        setIsForwardPopupOpen(false);
+                        setForwardMessageId(null);
+                        setForwardSearchQuery("");
+                      }}
+                      className="w-full flex items-center gap-3 px-[4px] py-[6px] rounded-lg hover:bg-white/5 transition-colors text-left"
+                    >
+                      <div className="relative flex-shrink-0">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={member.avatar} />
+                          <AvatarFallback className="bg-[#2b3642] text-white text-sm font-medium">
+                            {member.name[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        {member.isOnline && (
+                          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-[#45D4A7] rounded-full border-2 border-[#080E11]" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate" style={{ fontFamily: "'Geist'" }}>
+                          {member.name}
+                        </p>
+                        <p className="text-xs text-[#9BB6CC] truncate" style={{ fontFamily: "'Geist'" }}>
+                          {member.userId}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
               </div>
-            </div>
+            </ScrollArea>
           </div>
-        </div>
+        </>,
+        document.body
+      )}
+
+      {/* New Conversation Modal */}
+      {isNewConversationModalOpen && isMounted && typeof document !== "undefined" && createPortal(
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0"
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              zIndex: 220010,
+              pointerEvents: "auto",
+            }}
+            onClick={() => {
+              setIsNewConversationModalOpen(false);
+              setNewConversationSearchQuery("");
+            }}
+          />
+          
+          {/* Modal */}
+          <div
+            className="fixed"
+            style={{
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: 220011,
+              pointerEvents: "auto",
+              width: "432px",
+              height: "520px",
+              borderRadius: "24px",
+              backgroundColor: "#0000004A",
+              backdropFilter: "blur(40px)",
+              WebkitBackdropFilter: "blur(40px)",
+              border: "1px solid #FFFFFF14",
+              display: "flex",
+              flexDirection: "column",
+              padding: "16px",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4 flex-shrink-0">
+              <h3 className="text-lg font-semibold text-white" style={{ fontFamily: "'Geist'" }}>
+                New Conversation
+              </h3>
+              <button
+                onClick={() => {
+                  setIsNewConversationModalOpen(false);
+                  setNewConversationSearchQuery("");
+                }}
+                className="h-8 w-8 rounded-full text-white hover:bg-white/10 flex items-center justify-center transition-colors"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <div className="relative mb-4 flex-shrink-0">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9BB6CC99] pointer-events-none" />
+              <Input
+                placeholder="Search name"
+                value={newConversationSearchQuery}
+                onChange={(e) => setNewConversationSearchQuery(e.target.value)}
+                className="pl-10 pr-4 h-10 bg-[rgba(229,247,253,0.06)] border border-white/10 rounded-full text-sm text-white placeholder:text-[#9BB6CC99] focus:ring-0 focus:border-white/30"
+                style={{ fontFamily: "'Geist'" }}
+              />
+            </div>
+
+            {/* Create Group Button */}
+            <button
+              type="button"
+              onClick={() => {
+                // TODO: Implement group creation
+              }}
+              className="mb-4 flex items-center justify-start gap-2 h-10 rounded-lg text-sm font-medium transition-colors hover:bg-white/5 px-3"
+              style={{
+                color: "#9BB6CC",
+                fontFamily: "'Geist'",
+              }}
+            >
+              <Users className="h-4 w-4" />
+              <span>+Create Group</span>
+            </button>
+
+            {/* Users List - Scrollable */}
+            <ScrollArea className="flex-1 overflow-hidden min-h-0">
+              <div className="space-y-1 pr-2">
+                {getAllForwardMembers()
+                  .filter((member) =>
+                    member.name.toLowerCase().includes(newConversationSearchQuery.toLowerCase()) ||
+                    member.userId.toLowerCase().includes(newConversationSearchQuery.toLowerCase())
+                  )
+                  .map((member) => (
+                    <button
+                      key={member.id}
+                      onClick={() => {
+                        // TODO: Implement conversation creation
+                        setIsNewConversationModalOpen(false);
+                        setNewConversationSearchQuery("");
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-white/5 transition-colors text-left"
+                    >
+                      <div className="relative flex-shrink-0">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={member.avatar} />
+                          <AvatarFallback className="bg-[#2b3642] text-white text-sm font-medium">
+                            {member.name[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        {member.isOnline && (
+                          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-[#45D4A7] rounded-full border-2 border-[#080E11]" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate" style={{ fontFamily: "'Geist'" }}>
+                          {member.name}
+                        </p>
+                        <p className="text-xs text-[#9BB6CC] truncate" style={{ fontFamily: "'Geist'" }}>
+                          {member.userId}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+              </div>
+            </ScrollArea>
+          </div>
+        </>,
+        document.body
+      )}
+
+      {/* More Menu Popup - Portal */}
+      {isMoreMenuOpen && isMounted && moreMenuPosition && typeof document !== "undefined" && createPortal(
+        <div
+          ref={moreMenuRef}
+          className="fixed w-[240px] text-[#9BB6CC] z-[60] bg-[rgba(8,14,17,0.6)] border border-[rgba(255,255,255,0.06)] rounded-[16px] backdrop-blur-[20px] shadow-[0px_334px_94px_rgba(0,0,0,0.01),_0px_214px_86px_rgba(0,0,0,0.04),_0px_120px_72px_rgba(0,0,0,0.15),_0px_53px_53px_rgba(0,0,0,0.26),_0px_13px_29px_rgba(0,0,0,0.29)]"
+          style={{
+            top: `${moreMenuPosition.top}px`,
+            right: `${moreMenuPosition.right}px`,
+          }}
+        >
+          <button
+            type="button"
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm hover:bg-white/10 transition-colors first:rounded-t-[16px]"
+            onClick={() => setIsMoreMenuOpen(false)}
+          >
+            <BellOff className="h-4 w-4" />
+            Mute Notification
+          </button>
+          <button
+            type="button"
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm hover:bg-white/10 transition-colors"
+            onClick={() => setIsMoreMenuOpen(false)}
+          >
+            <User className="h-4 w-4" />
+            View User Info
+          </button>
+          <button
+            type="button"
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm hover:bg-white/10 transition-colors"
+            onClick={() => setIsMoreMenuOpen(false)}
+          >
+            <Palette className="h-4 w-4" />
+            Change Theme
+          </button>
+          <button
+            type="button"
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm hover:bg-white/10 transition-colors last:rounded-b-[16px]"
+            onClick={() => setIsMoreMenuOpen(false)}
+          >
+            <Trash2 className="h-4 w-4" />
+            Clear Chat
+          </button>
+        </div>,
+        document.body
       )}
     </>
   );

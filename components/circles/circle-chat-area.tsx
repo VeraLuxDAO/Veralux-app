@@ -105,6 +105,7 @@ export const CircleChatArea = memo(function CircleChatArea({
                 message={message}
                 showAvatar={showAvatar}
                 isGrouped={isGrouped}
+                disableContextMenu={true}
               />
             );
           })}

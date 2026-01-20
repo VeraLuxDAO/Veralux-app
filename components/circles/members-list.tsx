@@ -46,7 +46,7 @@ export const MembersList = memo(function MembersList({
       <div className="px-4 py-6 flex-shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded bg-gradient-to-br from-[#5865F2] via-[#8B5CF6] to-[#EC4899] flex items-center justify-center">
+            <div className="w-5 h-5 rounded flex items-center justify-center">
               <Users className="h-3 w-3 text-white" />
             </div>
             <h3 className="text-[16px] font-semibold text-white font-['Geist']">
