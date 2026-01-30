@@ -215,7 +215,7 @@ export default function HomePage() {
       }
     >
       {/* Content Container - Constrained width with proper margins */}
-      <div className="w-full max-w-[1600px] mx-auto">
+      <div className="w-full max-w-[1600px] mx-auto px-4">
         {/* Mobile: Tabs Layout */}
         <div className="block lg:hidden">
           <Tabs defaultValue="feed" className="space-y-4 sm:space-y-6">

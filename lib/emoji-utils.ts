@@ -15,18 +15,21 @@
 const EMOJI_REGEX = /^[\p{Emoji}\p{Emoji_Presentation}\p{Emoji_Modifier_Base}\p{Emoji_Component}\p{Emoji_Modifier}\u200d\uFE0F\s]+$/u;
 
 /**
- * Checks if a string contains only emoticons (and whitespace)
+ * Checks if a string contains only emoticons (and whitespace).
+ * Numbers-only (digits 0-9) must never be treated as emoticons — they should display as normal bubbles.
  * @param text - The text to check
  * @returns true if the text contains only emoticons, false otherwise
  */
 export function isOnlyEmoticons(text: string): boolean {
   if (!text || !text.trim()) return false;
   
-  // Remove whitespace and check if remaining characters are all emojis
   const trimmed = text.trim();
   if (trimmed.length === 0) return false;
   
-  // Check if the entire string matches emoji pattern
+  // Numbers-only (digits and optional spaces) must always display as a normal bubble, not large emoticon
+  if (/^[\d\s]+$/.test(trimmed)) return false;
+  
+  // Check if the entire string matches emoji pattern (actual emoji/emoticon characters)
   return EMOJI_REGEX.test(trimmed);
 }
 

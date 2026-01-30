@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { EmojiPicker } from "@/components/ui/emoji-picker";
 import { MobileBottomBar } from "@/components/mobile-bottom-bar";
+import { NavigationLayout } from "@/components/navigation-layout";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { RoomInfoView } from "@/components/room-info-view";
 import { AvatarViewer } from "@/components/avatar-viewer";
@@ -14,11 +15,10 @@ import { ChatInput } from "@/components/chat/chat-input";
 import { ImageViewer } from "@/components/chat/image-viewer";
 import { TelegramEmoji } from "@/components/chat/telegram-emoji";
 import {
-  ArrowLeft,
   Search,
+  ChevronLeft,
   MoreVertical,
   Phone,
-  Plus,
   Smile,
   Paperclip,
   Send,
@@ -31,6 +31,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/contexts/auth-context";
+import { useMobileMenu } from "@/contexts/mobile-menu-context";
 import { shouldDisplayAsEmoticonOnly } from "@/lib/emoji-utils";
 
 interface Message {
@@ -202,6 +204,7 @@ function MessagesPageContent() {
   // URL state: room slug in query param
   const searchParams = useSearchParams();
   const router = useRouter();
+  const auth = useAuth();
 
   const slugifyRoomName = (name: string) =>
     name
@@ -225,6 +228,7 @@ function MessagesPageContent() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentImageList, setCurrentImageList] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { openMobileMenu } = useMobileMenu();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -308,59 +312,57 @@ function MessagesPageContent() {
     room.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Rooms List View - Rooms design (no room selected in URL)
+  // Rooms List View - Rooms design (no room selected in URL); top bar via NavigationLayout
   if (!selectedRoom) {
     return (
-      <>
-        <div className="flex flex-col min-h-screen bg-[#080E1199] pb-[120px]">
-          {/* Header - Maxwell's Private Room */}
-          <div className="flex-shrink-0 border-b border-white/5 bg-[#080E11]">
-            <div className="px-6 pt-4 pb-4">
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center"
-                  style={{ background: "#FADEFD" }}
+      <NavigationLayout>
+        <div className="flex flex-col bg-[#080E1199] min-h-0 h-[calc(100dvh-140px)] md:h-full p-4">
+          {/* Header - Maxwell's Private Room (green: fixed header) */}
+          <header className="flex-shrink-0 border-b border-white/5 bg-[#080E11] pb-4">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10 flex-shrink-0 border border-white/10">
+                <AvatarImage src={auth.user?.picture} />
+                <AvatarFallback className="bg-[#2b3642] text-white text-sm font-medium">
+                  {auth.user?.name?.charAt(0) || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <h1
+                  className="text-[16px] font-light truncate"
+                  style={{ color: "#FFFFFF", fontFamily: "'Geist'", fontSize: "16px" }}
                 >
-                  <Lock className="h-4 w-4 text-[#001422]" />
-                </div>
-                <div>
-                  <h1
-                    className="text-[16px] font-semibold"
-                    style={{ color: "#FFFFFF", fontFamily: "'Geist'", fontSize:"16px" }}
-                  >
-                    Maxwell&apos;s Private Room
-                  </h1>
-                  <p
-                    className="text-[12px]"
-                    style={{
-                      color: "rgba(155, 182, 204, 0.9)",
-                      fontFamily: "'Geist'",
-                    }}
-                  >
-                    Encrypted Messaging
-                  </p>
-                </div>
-              </div>
-
-              {/* Search rooms */}
-              <div className="relative mt-4">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9BB6CC99] pointer-events-none" />
-                <Input
-                  placeholder="Search rooms"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 pr-4 h-11 border border-white/10 text-[#9BB6CC99] text-[14px] placeholder:text-[#9BB6CC99] focus:ring-0 focus:border-white/30 rounded-full transition-all shadow-inner"
+                  Maxwell&apos;s Private Room
+                </h1>
+                <p
+                  className="text-[12px] truncate"
                   style={{
+                    color: "rgba(155, 182, 204, 0.9)",
                     fontFamily: "'Geist'",
-                    backgroundColor: "#E5F7FD0A",
                   }}
-                />
+                >
+                  Encrypted Messaging
+                </p>
               </div>
             </div>
-          </div>
 
-          {/* Rooms List */}
-          <div className="flex-1 overflow-y-auto">
+            {/* Search rooms */}
+            <div className="relative mt-4">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9BB6CC99] pointer-events-none" />
+              <Input
+                placeholder="Search rooms"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-4 pr-10 h-11 border border-white/10 text-[#9BB6CC99] text-[14px] placeholder:text-[#9BB6CC99] focus:ring-0 focus:border-white/30 rounded-full transition-all shadow-inner w-full"
+                style={{
+                  fontFamily: "'Geist'",
+                  backgroundColor: "#E5F7FD0A",
+                }}
+              />
+            </div>
+          </header>
+
+          {/* Channel list only - scrollable (red section) */}
+          <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pb-[100px]">
             <div className="pt-2">
               {filteredRooms.map((room) => (
                 <button
@@ -371,7 +373,7 @@ function MessagesPageContent() {
                     )
                   }
                   className={cn(
-                    "w-full flex items-start gap-3 px-6 py-4 cursor-pointer group relative",
+                    "w-full flex items-start gap-3 py-4 cursor-pointer group relative",
                     "transition-colors duration-300",
                     "hover:bg-white/5 active:bg-[#FFFFFF14]"
                   )}
@@ -464,29 +466,32 @@ function MessagesPageContent() {
             </div>
           </div>
         </div>
-
-        {/* Mobile Bottom Navigation - same as Social Hub / Notifications */}
-        <MobileBottomBar />
-      </>
+      </NavigationLayout>
     );
   }
 
-  // Chat View - Rooms Mobile Chat Design
+  // Chat View - Fills layout; header + messages (scroll) + input always visible
   return (
-    <div className="flex flex-col h-screen bg-[#05080d]">
-      {/* Chat Header */}
-      <div className="flex-shrink-0 bg-[#080E1199] border-b border-white/5">
-        <div className="flex items-center justify-between px-3 pt-4 pb-3">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push("/messages")}
-              className="hover:bg-white/10 text-white flex-shrink-0 rounded-full justify-start"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
+    <NavigationLayout className="p-0">
+    <div className="flex flex-col h-full min-h-0 flex-1 overflow-hidden w-full">
+      {/* Back button row - between app header and chatting header */}
+      <div className="flex-shrink-0 flex items-center px-3 md:px-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-white/95 hover:text-white hover:bg-white/10 -ml-1.5"
+          onClick={() => router.push("/messages")}
+          title="Back to rooms"
+        >
+          <ChevronLeft className="h-5 w-5 mr-0.5" />
+          <span className="text-[15px] font-medium">Back</span>
+        </Button>
+      </div>
 
+      {/* Single combined header: room info + actions + menu */}
+      <div className="flex-shrink-0 sticky top-0 z-10 md:block ml-3 p-2 mr-3 bg-[#080E1199] backdrop-blur-lg rounded-[48px] border border-white/5">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
             {/* Avatar - Clickable for avatar viewer */}
             <div 
               className="relative flex-shrink-0 cursor-pointer transition-transform hover:scale-105 active:scale-95"
@@ -529,23 +534,35 @@ function MessagesPageContent() {
             </button>
           </div>
 
-          {/* Search button on the right */}
-          <div 
-            className="h-4 w-4 p-0 hover:bg-white/10 text-white rounded-full flex-shrink-0 mx-3"
-            title="Search in chat"
-          >
-            <Search className="h-5 w-5 text-[#9BB6CC99]" />
+          {/* Far right: search and more options (3 dots) */}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-full text-[#9BB6CC99] hover:bg-white/10 hover:text-white"
+              title="Search in chat"
+            >
+              <Search className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-full text-white hover:bg-white/10 md:hidden"
+              title="More options"
+              onClick={openMobileMenu}
+            >
+              <MoreVertical className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Messages Area */}
+      {/* Messages Area - only scrollable region; tabIndex allows focus so wheel/touch scroll works */}
       <div
-        className="flex-1 overflow-y-auto px-6 py-4"
-        style={{
-          background:
-            "radial-gradient(circle at top, rgba(61,80,120,0.25), transparent 45%), #05080d",
-        }}
+        tabIndex={0}
+        role="region"
+        aria-label="Chat messages"
+        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain px-6 py-4 touch-pan-y"
       >
         <div className="space-y-3">
           {messages.map((message, index) => {
@@ -576,15 +593,15 @@ function MessagesPageContent() {
                   ) : null}
                 </div>
 
-                {/* Message Bubble - Telegram Style */}
+                {/* Message Bubble - Telegram Style; min-w-0 so long text wraps and bubble is responsive */}
                 <div
                   className={cn(
-                    "flex flex-col max-w-[75%]",
+                    "flex flex-col min-w-0 max-w-[75%]",
                     message.isOwn ? "items-end" : "items-start"
                   )}
                 >
                   {isEmoticonOnly ? (
-                    /* Emoticon-Only Display - Large, Prominent (No Bubble) with Telegram Emojis */
+                    /* Emoticon-Only Display - Large, Prominent (No Bubble); only for actual emoticons, not numbers */
                     <div
                       style={{
                         fontSize: "4rem",
@@ -599,7 +616,7 @@ function MessagesPageContent() {
                   ) : (
                     <div
                       className={cn(
-                        "rounded-lg shadow-sm overflow-hidden",
+                        "rounded-lg shadow-sm overflow-hidden min-w-0 w-full max-w-full",
                         message.isOwn
                           ? "bg-[#FADEFD] text-[#080E11] rounded-br-sm"
                           : "bg-[#9BB6CC0A] text-[#9BB6CC] rounded-bl-sm"
@@ -643,9 +660,9 @@ function MessagesPageContent() {
                         </div>
                       )}
                       
-                      {/* Message Text */}
+                      {/* Message Text - break-words and overflow-wrap so long text wraps; bubble stays responsive */}
                       {message.content && (
-                        <p className="text-[15px] break-words leading-[1.4] whitespace-pre-wrap px-3 py-2">
+                        <p className="text-[15px] break-words break-all leading-[1.4] whitespace-pre-wrap px-3 py-2 min-w-0">
                           <TelegramEmoji content={message.content} size={20} />
                         </p>
                       )}
@@ -680,12 +697,11 @@ function MessagesPageContent() {
         </div>
       </div>
 
-      {/* Input Area */}
-      <div className="flex-shrink-0 px-6 pt-3 pb-8">
+      {/* Input Area - always visible at bottom; flex-shrink-0 keeps it in view */}
+      <div className="flex-shrink-0 ">
         <ChatInput
           onSendMessage={handleSendMessage}
           placeholder="Send Message"
-          className="bg-[#080E1199] border-t border-white/5"
         />
       </div>
 
@@ -731,6 +747,7 @@ function MessagesPageContent() {
         />
       )}
     </div>
+    </NavigationLayout>
   );
 }
 

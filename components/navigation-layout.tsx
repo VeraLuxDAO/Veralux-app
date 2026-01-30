@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense, useEffect } from "react";
+import { useState, Suspense, useEffect, useCallback } from "react";
 import { MobileTopBar } from "@/components/mobile-top-bar";
 import { MobileBottomBar } from "@/components/mobile-bottom-bar";
 import { MobileHamburgerMenu } from "@/components/mobile-hamburger-menu";
@@ -10,6 +10,7 @@ import { DesktopLeftSidebar } from "@/components/desktop-left-sidebar";
 import { AIChat } from "@/components/ai-chat";
 import { CirclesSlidingPanel } from "@/components/circles-sliding-panel";
 import { RoomsSlidingPanel } from "@/components/rooms-sliding-panel";
+import { MobileMenuProvider } from "@/contexts/mobile-menu-context";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -35,11 +36,11 @@ function NavigationLayoutContent({
   const isPrivateRoomsOpen = searchParams.get("private_rooms") !== null;
   const shouldHideSidebar = hideDesktopSidebar;
   
-  // Compute shouldHideBottomBar directly - check if circle parameter exists and we're on mobile
-  // Use both searchParams and window.location as fallback for reliability
+  // Compute shouldHideBottomBar: hide on mobile when in circle view OR when in a private room chat
   const hasCircle = searchParams.get("circle") !== null;
+  const isMessagesChat = pathname === "/messages" && searchParams.get("room") != null;
   const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
-  const shouldHideBottomBar = isMobile && hasCircle;
+  const shouldHideBottomBar = isMobile && (hasCircle || isMessagesChat);
 
   const handleMobileMenuToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -48,6 +49,10 @@ function NavigationLayoutContent({
   const handleMobileMenuClose = () => {
     setIsMobileMenuOpen(false);
   };
+
+  const openMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(true);
+  }, []);
 
   // Circles panel is open when circle parameter is present (works on both mobile and desktop, on all pages)
   const isCirclesPanelOpen = searchParams.get("circle") !== null;
@@ -72,8 +77,22 @@ function NavigationLayoutContent({
   }, [hasCircle, isMobile]);
 
   return (
-    <div className={cn("min-h-screen", hideDesktopSidebar && "flex flex-col h-screen", className)}>
-      {/* Mobile Navigation */}
+    <MobileMenuProvider onOpenMenu={openMobileMenu}>
+    <div
+      className={cn(
+        "min-h-screen",
+        hideDesktopSidebar && "flex flex-col h-screen",
+        // When in messages chat: fixed height so chat fits viewport and only messages scroll
+        (shouldHideBottomBar || isMessagesChat) && "flex flex-col h-screen overflow-hidden",
+        className
+      )}
+      style={
+        (shouldHideBottomBar || isMessagesChat)
+          ? { height: "100dvh", maxHeight: "100dvh", minHeight: 0 }
+          : undefined
+      }
+    >
+      {/* Mobile Navigation - keep app top bar (XYNX + hamburger) for private room section */}
       <MobileTopBar
         onMenuToggle={handleMobileMenuToggle}
         isMenuOpen={isMobileMenuOpen}
@@ -83,7 +102,8 @@ function NavigationLayoutContent({
         isOpen={isMobileMenuOpen}
         onClose={handleMobileMenuClose}
       />
-      {!hideAIChat && <MobileAITab />}
+      {/* Hide AI chat button on private room (messages) page */}
+      {!hideAIChat && pathname !== "/messages" && <MobileAITab />}
 
       {/* Desktop Navigation */}
       <Suspense fallback={null}>
@@ -91,8 +111,8 @@ function NavigationLayoutContent({
       </Suspense>
       {!shouldHideSidebar && <DesktopLeftSidebar />}
 
-      {/* Desktop AI Chat (bottom-right popup) */}
-      {!hideAIChat && (
+      {/* Desktop AI Chat (bottom-right popup); hidden on private room (messages) page */}
+      {!hideAIChat && pathname !== "/messages" && (
         <div className="hidden md:block">
           <AIChat />
         </div>
@@ -142,17 +162,24 @@ function NavigationLayoutContent({
           // Use flexbox to fill available height when sidebar is hidden
           shouldHideSidebar && "flex flex-col",
           // Calculate height: viewport height minus top bar height (~90px with padding)
-          shouldHideSidebar && "md:h-[calc(100vh-90px)]"
+          shouldHideSidebar && "md:h-[calc(100vh-90px)]",
+          // When in messages chat (mobile or desktop): constrain height so messages area scrolls with mouse wheel
+          (shouldHideBottomBar || isMessagesChat) && "flex-1 min-h-0 overflow-hidden flex flex-col",
+          // Push content below fixed app top bar on mobile when in private room (list or chat)
         )}
       >
-        <div className={cn(
-          "w-full",
-          shouldHideSidebar ? "flex-1 flex flex-col min-h-0 overflow-hidden px-4 pt-4 sm:px-6 sm:pt-6 md:px-0 md:pt-8" : "px-4 pt-4 sm:px-6 sm:pt-6 md:px-0 md:pt-8"
-        )}>
+        <div
+          className={cn(
+            "w-full",
+            shouldHideSidebar ? "flex-1 flex flex-col min-h-0 overflow-hidden " : "",
+            isMessagesChat && "flex-1 flex flex-col min-h-0 overflow-hidden"
+          )}
+        >
           {children}
         </div>
       </main>
     </div>
+    </MobileMenuProvider>
   );
 }
 

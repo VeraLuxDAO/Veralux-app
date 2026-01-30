@@ -5,16 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { EmojiPicker } from "@/components/ui/emoji-picker";
-import {
-  ImagePlus,
-  Send,
-  Sticker,
-  MoreHorizontal,
-  X,
-  Smile,
-  Mic,
-  Paperclip,
-} from "lucide-react";
+import { ArrowUp, X, Smile, Paperclip } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ChatInputProps {
@@ -176,35 +167,41 @@ export function ChatInput({
         </div>
       )}
       <div className="flex gap-2 md:gap-3 max-w-full items-center">
-        {/* Desktop/Tablet Layout (>= 768px or forceDesktop) */}
+        {/* Desktop/Tablet Layout (>= 768px or forceDesktop) - Sample design: input bar + separate send circle */}
         <div
           className={cn(
-            "gap-2 md:gap-3 lg:gap-4 flex-1 items-center",
+            "gap-2 md:gap-3 flex-1 items-center w-full",
             forceDesktop ? "flex" : "hidden md:flex"
           )}
         >
-          {/* Message Input Container */}
+          {/* Message Input Bar - dark grey rounded rectangle, emoji left, paperclip right */}
           <div className="flex-1 relative min-w-0">
             <div
-              className={cn(
-                "relative rounded-2xl md:rounded-3xl transition-all duration-200",
-                "focus-within:bg-[rgba(229,247,253,0.06)]"
-              )}
+              className="relative rounded-full md:rounded-[22px] transition-all duration-200 min-h-[44px] flex items-center"
               style={{
-                backgroundColor: "rgba(229, 247, 253, 0.06)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
+                backgroundColor: "rgba(30, 38, 45, 0.95)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
               }}
             >
-              {/* Left: Emoji Picker - Inside input field */}
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageSelect}
+                className="hidden"
+              />
+              {/* Left: Emoji - light blue outline */}
+              <div className="flex-shrink-0 pl-3 md:pl-4">
                 <EmojiPicker
                   onEmojiSelect={handleEmojiSelect}
                   trigger={
                     <button
-                      className="w-4 h-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex items-center justify-center transition-colors cursor-pointer"
+                      type="button"
+                      className="w-8 h-8 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#7eb8e6] flex items-center justify-center transition-colors cursor-pointer"
                       title="Emoji"
                     >
-                      <Smile className="h-4 w-4" />
+                      <Smile className="h-5 w-5" />
                     </button>
                   }
                 />
@@ -219,11 +216,10 @@ export function ChatInput({
                 placeholder={placeholder}
                 disabled={disabled}
                 className={cn(
-                  "w-full min-h-[36px] max-h-40 resize-none bg-transparent",
+                  "flex-1 min-h-[36px] max-h-40 resize-none bg-transparent min-w-0",
                   "focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0",
-                  "leading-relaxed",
-                  "py-[10px] pl-10 pr-20 font-medium",
-                  "scrollbar-thin scrollbar-thumb-muted-foreground/20 rounded-2xl md:rounded-3xl",
+                  "py-2.5 pl-2 pr-3 font-normal",
+                  "scrollbar-thin scrollbar-thumb-muted-foreground/20 rounded-full md:rounded-[22px]",
                   "placeholder:text-[#9BB6CC99]",
                   "border-none"
                 )}
@@ -232,86 +228,61 @@ export function ChatInput({
                   fontSize: "14px",
                   wordWrap: "break-word",
                   overflowWrap: "break-word",
-                  color: "#9BB6CC99",
+                  color: "#e8eef2",
                   fontFamily: "'Geist'",
                 }}
               />
 
-              {/* Right: Action Buttons - Inside input field */}
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center gap-2">
-                {/* Voice Message Button */}
+              {/* Right: Paperclip only inside bar - light blue */}
+              <div className="flex-shrink-0 pr-3 md:pr-4">
                 <button
-                  onClick={() => {
-                    // Handle voice message recording
-                    console.log("Voice message recording");
-                    // TODO: Implement voice recording logic
-                  }}
-                  className="w-4 h-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex items-center justify-center transition-colors cursor-pointer"
-                  title="Voice message"
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-8 h-8 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#7eb8e6] flex items-center justify-center transition-colors cursor-pointer"
+                  title="Attach image"
                 >
-                  <Mic className="h-4 w-4" />
-                </button>
-
-                {/* Upload File Button - Telegram style Paperclip */}
-                <>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleImageSelect}
-                    className="hidden"
-                  />
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-4 h-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex items-center justify-center transition-colors cursor-pointer"
-                    title="Attach image"
-                  >
-                    <Paperclip className="h-4 w-4" />
-                  </button>
-                </>
-
-                {/* Send Button */}
-                <button
-                  onClick={handleSend}
-                  disabled={(!message.trim() && selectedImages.length === 0) || disabled}
-                  className={cn(
-                    "w-4 h-4 p-0 rounded-full transition-all duration-300",
-                    "hover:scale-105 active:scale-95",
-                    (message.trim() || selectedImages.length > 0)
-                      ? [
-                          "bg-transparent hover:bg-white/10",
-                          "text-[#9BB6CC99]",
-                        ]
-                      : [
-                          "bg-transparent",
-                          "text-[#9BB6CC99] opacity-60 cursor-not-allowed",
-                        ],
-                    disabled && "opacity-50 cursor-not-allowed"
-                  )}
-                  title="Send message"
-                >
-                  <Send
-                    className={cn(
-                      "h-4 w-4 transition-all duration-200"
-                    )}
-                  />
+                  <Paperclip className="h-5 w-5" />
                 </button>
               </div>
             </div>
           </div>
+
+          {/* Separate circular Send button - dark grey, light pink outline, upward arrow */}
+          <button
+            type="button"
+            onClick={handleSend}
+            disabled={(!currentMessage.trim() && selectedImages.length === 0) || disabled}
+            className={cn(
+              "flex-shrink-0 w-11 h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-200",
+              "hover:scale-105 active:scale-95",
+              "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100",
+              (!currentMessage.trim() && selectedImages.length === 0) && !disabled && "opacity-70"
+            )}
+            style={{
+              backgroundColor: "rgba(30, 38, 45, 0.95)",
+              border: "1.5px solid rgba(216, 164, 196, 0.75)",
+              color: "rgba(216, 164, 196, 0.95)",
+            }}
+            title="Send message"
+          >
+            <ArrowUp className="h-5 w-5 md:h-6 md:w-6" />
+          </button>
         </div>
 
-        {/* Mobile Layout (< 768px and not forceDesktop) - Matching Private Room Design */}
+        {/* Mobile Layout (< 768px) - Same sample design: input bar + separate send circle */}
         <div
           className={cn(
-            "flex items-center flex-1 relative",
+            "flex items-center flex-1 gap-2 w-full",
             forceDesktop ? "hidden" : "flex md:hidden"
           )}
         >
-          {/* Input Container - Matching Private Room Style */}
-          <div className="flex w-full items-center rounded-full bg-[#E5F7FD0A] border border-white/10 px-3 gap-2">
-            {/* Hidden file input for mobile */}
+          {/* Input Bar - dark grey rounded pill */}
+          <div className="flex flex-1 items-center min-h-[44px] rounded-full px-3 min-w-0"
+            style={{
+              backgroundColor: "rgba(30, 38, 45, 0.95)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+            }}
+          >
             <input
               ref={fileInputRef}
               type="file"
@@ -320,73 +291,63 @@ export function ChatInput({
               onChange={handleImageSelect}
               className="hidden"
             />
-            {/* Emoji Picker */}
             <EmojiPicker
               onEmojiSelect={handleEmojiSelect}
               trigger={
-                <div
-                  className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 cursor-pointer"
+                <button
+                  type="button"
+                  className="w-8 h-8 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#7eb8e6] flex-shrink-0 flex items-center justify-center cursor-pointer"
                   title="Emoji"
                 >
-                  <Smile className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
-                </div>
+                  <Smile className="h-5 w-5" />
+                </button>
               }
             />
-
-            {/* Input Field */}
             <Input
               value={currentMessage}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={(e) => setMessageValue(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   handleSend();
                 }
               }}
-              placeholder="Send Message"
+              placeholder={placeholder}
               disabled={disabled}
-              className="flex-1 h-6  border-none text-[#9BB6CC99] text-[14px] placeholder:text-[#9BB6CC99] focus:ring-0 focus-visible:ring-0 px-2 py-0 shadow-none"
+              className="flex-1 min-w-0 h-8 border-none bg-transparent text-[#e8eef2] text-[14px] placeholder:text-[#9BB6CC99] focus:ring-0 focus-visible:ring-0 px-2 py-0 shadow-none"
               autoComplete="off"
-              style={{ fontFamily: "'Geist'", fontSize: "14px !important" }}
+              style={{ fontFamily: "'Geist'" }}
             />
-
-            {/* Right icon group: Mic, Paperclip, Send */}
-            <div className="flex items-center gap-3 flex-shrink-0">
-              {/* Mic */}
-              <div
-                className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 flex items-center justify-center cursor-pointer"
-                title="Voice message"
-                style={{ maxWidth: "16px !important", maxHeight: "16px !important" }}
-                onClick={() => {
-                  // Handle microphone click
-                }}
-              >
-                <Mic className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
-              </div>
-
-              {/* Paperclip */}
-              <div
-                className="h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#9BB6CC99] flex-shrink-0 flex items-center justify-center cursor-pointer"
-                title="Attach image"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Paperclip className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3" />
-              </div>
-
-              {/* Send */}
-              <div
-                onClick={handleSend}
-                className={cn(
-                  "h-4 w-4 max-[512px]:h-4 max-[512px]:w-4 p-0 rounded-full bg-transparent hover:bg-white/10 flex-shrink-0 flex items-center justify-center cursor-pointer",
-                  (!message.trim() && selectedImages.length === 0) && "opacity-60 cursor-not-allowed",
-                  disabled && "opacity-50 cursor-not-allowed"
-                )}
-                title="Send message"
-              >
-                <Send className="h-4 w-4 max-[430px]:h-3.5 max-[430px]:w-3.5 max-[360px]:h-3 max-[360px]:w-3 text-[#9BB6CC99]" />
-              </div>
-            </div>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-8 h-8 p-0 rounded-full bg-transparent hover:bg-white/10 text-[#7eb8e6] flex-shrink-0 flex items-center justify-center cursor-pointer"
+              title="Attach image"
+            >
+              <Paperclip className="h-5 w-5" />
+            </button>
           </div>
+
+          {/* Separate circular Send button - pink outline, upward arrow */}
+          <button
+            type="button"
+            onClick={handleSend}
+            disabled={(!currentMessage.trim() && selectedImages.length === 0) || disabled}
+            className={cn(
+              "flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200",
+              "hover:scale-105 active:scale-95",
+              "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100",
+              (!currentMessage.trim() && selectedImages.length === 0) && !disabled && "opacity-70"
+            )}
+            style={{
+              backgroundColor: "rgba(30, 38, 45, 0.95)",
+              border: "1.5px solid rgba(216, 164, 196, 0.75)",
+              color: "rgba(216, 164, 196, 0.95)",
+            }}
+            title="Send message"
+          >
+            <ArrowUp className="h-5 w-5" />
+          </button>
         </div>
       </div>
     </div>
