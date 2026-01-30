@@ -164,7 +164,7 @@ export function ChatMessageComponent({
   if (message.type === "system") {
     return (
       <div className="flex justify-center py-4">
-        <div className="bg-gradient-to-r from-[#5865F2] to-[#8B5CF6] px-6 py-2.5 rounded-lg text-sm text-white font-medium shadow-lg">
+        <div className="px-6 py-2.5 rounded-lg text-sm text-white font-medium shadow-lg">
           {message.content}
         </div>
       </div>

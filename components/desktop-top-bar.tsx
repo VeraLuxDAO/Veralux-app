@@ -186,9 +186,9 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
       <PopoverContent
         align="end"
         sideOffset={10}
-        className="w-[260px] border border-white/10 bg-[#0B1317] text-white shadow-xl"
+        className="w-[260px] border border-white/10 bg-[#0B1317]/50 backdrop-blur-[50px] text-white shadow-xl rounded-b-[46px]"
       >
-        <div className="flex items-start gap-3">
+        <div className="flex flex-col items-center">
           <Avatar className="h-11 w-11 border border-white/10">
             <AvatarImage src={auth.user?.picture} />
             <AvatarFallback className="bg-primary/20 text-primary text-base font-medium">
@@ -196,11 +196,11 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-1">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col justify-center items-center">
+              <span className="text-[11px] text-veralux-green mb-3">Online</span>
               <p className="text-sm font-semibold leading-tight">
                 {auth.user?.name || "Unnamed user"}
               </p>
-              <span className="text-[11px] text-veralux-green">Online</span>
             </div>
             {walletAddress && (
               <div className="flex items-center gap-2 rounded-lg bg-white/5 px-2 py-1">
@@ -220,9 +220,6 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
                 </button>
               </div>
             )}
-            <p className="text-xs text-[#9BB6CC]">
-              Signed in with Google · zkLogin
-            </p>
           </div>
         </div>
         <div className="mt-4 space-y-2">
@@ -239,18 +236,18 @@ export function DesktopTopBar({ className }: DesktopTopBarProps) {
               Manage wallet
             </Button>
           )}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-0 w-full">
             <Button
               variant="secondary"
               onClick={() => router.push("/profile")}
-              className="h-9 text-sm bg-white/10 hover:bg-white/15 border border-white/10"
+              className="h-9 text-sm bg-white/10 hover:bg-white/15 border border-white/10 rounded-r-none rounded-l-[16px]"
             >
               View profile
             </Button>
             <Button
               variant="ghost"
               onClick={handleSignOut}
-              className="h-9 text-sm text-red-200 hover:bg-red-500/10 border border-white/5"
+              className="h-9 text-sm text-red-200  hover:bg-red-500/10 border border-white/5 rounded-l-none rounded-r-[16px]"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Log out

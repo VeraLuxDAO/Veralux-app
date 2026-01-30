@@ -690,7 +690,7 @@ export function RoomsSlidingPanel({
           onClick={onClose}
           style={
             {
-          background: isOverlay ? "rgba(8, 14, 17, 0.72)" : undefined,
+          background: isOverlay ? "rgba(8, 14, 17, 0.92)" : undefined,
           backdropFilter: isOverlay ? "blur(18px)" : undefined,
           WebkitBackdropFilter: isOverlay ? "blur(18px)" : undefined,
             }

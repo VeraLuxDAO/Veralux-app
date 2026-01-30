@@ -21,6 +21,7 @@ import {
   Copy,
   Trash2,
   Check,
+  Feather,
 } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -312,8 +313,9 @@ export function MobileAITab({ className }: MobileAITabProps) {
         )}
         data-open={isOpen}
         style={{
-          top: "50%",
-          transform: isOpen ? "translateY(-50%) scale(0.9)" : "translateY(-50%) scale(1)",
+          // Bottom bar is bottom-4 (16px) + h-[88px], so top of bar = 104px. Place button 16px above that.
+          bottom: "120px",
+          transform: isOpen ? "scale(0.9)" : "scale(1)",
           willChange: "transform, opacity",
           opacity: isOpen ? 0 : 1,
         }}
@@ -321,42 +323,13 @@ export function MobileAITab({ className }: MobileAITabProps) {
         <Button
           onClick={handleToggle}
           className={cn(
-            "ai-tab-button group relative cursor-pointer transform-gpu",
-            "shadow-xl text-white/90",
-            "flex items-center justify-center backdrop-blur-sm border border-white/10",
-            "h-14 w-14 rounded-full bg-gradient-to-br from-[#3B245A] via-[#5B2C74] to-[#161E2C]",
-            "overflow-visible",
-            "transition-all duration-300 hover:scale-110 active:scale-95"
+            "ai-tab-button flex h-12 w-12 items-center justify-center rounded-full",
+            "transition-all duration-300 hover:opacity-90 active:scale-95"
           )}
+          style={{ backgroundColor: "#E8D5E7" }}
           aria-label="Open AI chat"
         >
-          <div className="absolute inset-0 rounded-full opacity-50 group-hover:opacity-80 transition-opacity duration-300 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.12)_0%,transparent_65%)]" />
-          <div className="relative z-10 flex items-center justify-center">
-            <Image
-              src="/Container.png"
-              alt="YNX AI"
-              width={24}
-              height={24}
-              className="transition-all duration-300 group-hover:scale-110 group-hover:rotate-6"
-            />
-            <div
-              className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 shadow-lg"
-              style={{
-                backgroundColor: "#22C55E",
-                borderColor: "rgba(8, 14, 17, 0.8)",
-                boxShadow: "0 0 8px rgba(34, 197, 94, 0.6), 0 0 12px rgba(34, 197, 94, 0.4)",
-                animation: "pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-              }}
-            >
-              <div
-                className="absolute inset-0 rounded-full"
-                style={{
-                  backgroundColor: "rgba(34, 197, 94, 0.35)",
-                  animation: "ping 2s cubic-bezier(0, 0, 0.2, 1) infinite",
-                }}
-              />
-            </div>
-          </div>
+          <Feather className="h-6 w-6 text-black" strokeWidth={1.5} />
         </Button>
       </div>
 
@@ -365,7 +338,7 @@ export function MobileAITab({ className }: MobileAITabProps) {
         <div
           className={cn(
             "fixed z-[120] md:hidden flex flex-col",
-            "bg-[#0A1118]/15 backdrop-blur-xl border border-white/10 rounded-2xl",
+            "bg-[#0A1118]/50 backdrop-blur-xl border border-white/10 rounded-2xl",
             "shadow-[0_25px_60px_rgba(0,0,0,0.65)]"
           )}
           style={{

@@ -323,7 +323,7 @@ export function CirclesSlidingPanel({
         className={cn(
           "fixed inset-0 z-[44]",
           "hidden md:block",
-          "bg-[rgba(8,14,17,0.72)] backdrop-blur-[18px]",
+          "bg-[rgba(8,14,17,0.92)] backdrop-blur-[18px]",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         onClick={onClose}

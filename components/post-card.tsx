@@ -8,7 +8,8 @@ import { ImageViewer } from "@/components/chat/image-viewer";
 import { ArrowLeft, ArrowRight, MoreHorizontal, Camera, Quote, TrendingUp, Flag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FlowPost, Author, getCommentsForPost } from "@/lib/posts-data";
-import { UserListPopup } from "@/components/user-list-popup";
+import { UserListModal, type UserWithTimestamp } from "@/components/user-list-modal";
+import { UserListPreviewPopup } from "@/components/user-list-preview-popup";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -29,72 +30,71 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip, href }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [glowHovered, setGlowHovered] = useState(false);
+  const [tipHovered, setTipHovered] = useState(false);
   const [commentHovered, setCommentHovered] = useState(false);
+  const [glowPreviewHovered, setGlowPreviewHovered] = useState(false);
+  const [tipPreviewHovered, setTipPreviewHovered] = useState(false);
+  const [commentPreviewHovered, setCommentPreviewHovered] = useState(false);
+  const [glowModalOpen, setGlowModalOpen] = useState(false);
+  const [tipModalOpen, setTipModalOpen] = useState(false);
+  const [commentModalOpen, setCommentModalOpen] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const moreMenuRef = useRef<HTMLDivElement>(null);
   const moreButtonRef = useRef<HTMLButtonElement>(null);
   const glowButtonRef = useRef<HTMLButtonElement>(null);
+  const tipButtonRef = useRef<HTMLButtonElement>(null);
   const commentButtonRef = useRef<HTMLButtonElement>(null);
+  const glowLongPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tipLongPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const commentLongPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const glowLongPressTriggeredRef = useRef(false);
+  const tipLongPressTriggeredRef = useRef(false);
+  const commentLongPressTriggeredRef = useRef(false);
+  const glowLeaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tipLeaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const commentLeaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const ignoreNextCardClickRef = useRef(false);
+  const ignoreCardClickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasAnimated = useRef(false);
+
+  const LONG_PRESS_MS = 1500;
+  const POPUP_LEAVE_DELAY_MS = 200;
+  const IGNORE_CLICK_AFTER_MODAL_MS = 400;
 
   // Filter images from media
   const images = post.media?.filter(m => m.type === "image") || [];
   const hasMultipleImages = images.length > 1;
 
-  // Generate mock users who glowed (based on glow count)
-  const getUsersWhoGlowed = (): Author[] => {
-    const mockUsers: Author[] = [
-      {
-        name: "Alice Johnson",
-        username: "@alicej",
-        avatar: "/diverse-user-avatars.png",
-        verified: true,
-        badges: ["Creator"],
-      },
-      {
-        name: "Bob Smith",
-        username: "@bobsmith",
-        avatar: "/developer-avatar.png",
-        verified: false,
-        badges: ["Developer"],
-      },
-      {
-        name: "Charlie Brown",
-        username: "@charlieb",
-        avatar: "/diverse-female-avatar.png",
-        verified: true,
-        badges: ["Designer"],
-      },
-      {
-        name: "Diana Prince",
-        username: "@dianap",
-        avatar: "/diverse-user-avatars.png",
-        verified: false,
-        badges: [],
-      },
-      {
-        name: "Eve Wilson",
-        username: "@evew",
-        avatar: "/developer-avatar.png",
-        verified: true,
-        badges: ["Artist"],
-      },
-    ];
-    // Return a subset based on glow count, but limit to available users
-    return mockUsers.slice(0, Math.min(post.glows, mockUsers.length));
+  const mockGlowUsers: Author[] = [
+    { name: "Alice Johnson", username: "@alicej", avatar: "/diverse-user-avatars.png", verified: true, badges: ["Creator"] },
+    { name: "Bob Smith", username: "@bobsmith", avatar: "/developer-avatar.png", verified: false, badges: ["Developer"] },
+    { name: "Charlie Brown", username: "@charlieb", avatar: "/diverse-female-avatar.png", verified: true, badges: ["Designer"] },
+    { name: "Diana Prince", username: "@dianap", avatar: "/diverse-user-avatars.png", verified: false, badges: [] },
+    { name: "Eve Wilson", username: "@evew", avatar: "/developer-avatar.png", verified: true, badges: ["Artist"] },
+  ];
+  const mockTipTimestamps = ["2h ago", "1h ago", "45m ago", "30m ago", "15m ago"];
+  const mockGlowTimestamps = ["2h ago", "1h ago", "50m ago", "40m ago", "25m ago"];
+
+  const getGlowItems = (): UserWithTimestamp[] => {
+    const n = Math.min(post.glows, mockGlowUsers.length);
+    return mockGlowUsers.slice(0, n).map((user, i) => ({
+      user,
+      timestamp: mockGlowTimestamps[i] ?? `${n - i}m ago`,
+    }));
   };
 
-  // Get users who commented (from actual comments)
-  const getUsersWhoCommented = (): Author[] => {
+  const getTipItems = (): UserWithTimestamp[] => {
+    const tipUsers = mockGlowUsers.slice(0, 3).map((u, i) => ({ ...u, name: u.name.replace("Alice", "Alex") }));
+    const n = Math.min(post.tips, tipUsers.length);
+    return tipUsers.slice(0, n).map((user, i) => ({
+      user,
+      timestamp: mockTipTimestamps[i] ?? `${n - i}m ago`,
+    }));
+  };
+
+  const getCommentItems = (): UserWithTimestamp[] => {
     const comments = getCommentsForPost(post.id);
-    // Extract unique authors from comments
-    const uniqueAuthors = new Map<string, Author>();
-    comments.forEach((comment) => {
-      if (!uniqueAuthors.has(comment.author.username)) {
-        uniqueAuthors.set(comment.author.username, comment.author);
-      }
-    });
-    return Array.from(uniqueAuthors.values());
+    return comments.map((c) => ({ user: c.author, timestamp: c.timestamp }));
   };
 
   // Reset image index when post changes
@@ -103,9 +103,27 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip, href }) => {
   }, [post.id]);
 
   const handleNavigate = () => {
-    if (href) {
-      router.push(href);
+    if (!href) return;
+    // On mobile, closing the user-list modal can fire a delayed synthetic click
+    // that hits the card; ignore that click to avoid navigating to the post.
+    if (ignoreNextCardClickRef.current) {
+      ignoreNextCardClickRef.current = false;
+      if (ignoreCardClickTimerRef.current) {
+        clearTimeout(ignoreCardClickTimerRef.current);
+        ignoreCardClickTimerRef.current = null;
+      }
+      return;
     }
+    router.push(href);
+  };
+
+  const scheduleIgnoreNextCardClick = () => {
+    ignoreNextCardClickRef.current = true;
+    if (ignoreCardClickTimerRef.current) clearTimeout(ignoreCardClickTimerRef.current);
+    ignoreCardClickTimerRef.current = setTimeout(() => {
+      ignoreCardClickTimerRef.current = null;
+      ignoreNextCardClickRef.current = false;
+    }, IGNORE_CLICK_AFTER_MODAL_MS);
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -571,14 +589,48 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip, href }) => {
           <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0 justify-end flex-wrap sm:flex-nowrap">
               <div 
                 className="relative"
-                onMouseEnter={() => setGlowHovered(true)}
-                onMouseLeave={() => setGlowHovered(false)}
+                onMouseEnter={() => {
+                  if (glowLeaveTimerRef.current) {
+                    clearTimeout(glowLeaveTimerRef.current);
+                    glowLeaveTimerRef.current = null;
+                  }
+                  setGlowHovered(true);
+                }}
+                onMouseLeave={() => {
+                  glowLeaveTimerRef.current = setTimeout(() => {
+                    glowLeaveTimerRef.current = null;
+                    setGlowHovered(false);
+                  }, POPUP_LEAVE_DELAY_MS);
+                }}
               >
                 <button
                   ref={glowButtonRef}
                   onClick={(e: MouseEvent<HTMLButtonElement>) => {
                     e.stopPropagation();
+                    if (glowLongPressTriggeredRef.current) {
+                      glowLongPressTriggeredRef.current = false;
+                      return;
+                    }
                     onGlow(post.id);
+                  }}
+                  onTouchStart={() => {
+                    glowLongPressTimerRef.current = setTimeout(() => {
+                      glowLongPressTimerRef.current = null;
+                      glowLongPressTriggeredRef.current = true;
+                      setGlowModalOpen(true);
+                    }, LONG_PRESS_MS);
+                  }}
+                  onTouchEnd={() => {
+                    if (glowLongPressTimerRef.current) {
+                      clearTimeout(glowLongPressTimerRef.current);
+                      glowLongPressTimerRef.current = null;
+                    }
+                  }}
+                  onTouchCancel={() => {
+                    if (glowLongPressTimerRef.current) {
+                      clearTimeout(glowLongPressTimerRef.current);
+                      glowLongPressTimerRef.current = null;
+                    }
                   }}
                   className={cn(
                     "flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-1.5 sm:py-2 rounded-[20px] cursor-pointer transition-colors flex-shrink-0",
@@ -609,71 +661,197 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip, href }) => {
                   {post.glows}
                 </span>
                 </button>
-                <UserListPopup
-                  users={getUsersWhoGlowed()}
-                  isVisible={glowHovered && post.glows > 0}
+                <UserListPreviewPopup
+                  firstUserName={getGlowItems()[0]?.user.name ?? ""}
+                  othersCount={Math.max(0, post.glows - 1)}
+                  isVisible={(glowHovered || glowPreviewHovered) && post.glows > 0 && !glowModalOpen}
                   buttonRef={glowButtonRef}
                   align="right"
+                  onOpenModal={() => setGlowModalOpen(true)}
+                  onMouseEnter={() => {
+                    if (glowLeaveTimerRef.current) {
+                      clearTimeout(glowLeaveTimerRef.current);
+                      glowLeaveTimerRef.current = null;
+                    }
+                    setGlowPreviewHovered(true);
+                  }}
+                  onMouseLeave={() => setGlowPreviewHovered(false)}
+                />
+                <UserListModal
+                  open={glowModalOpen}
+                  onOpenChange={(open) => {
+                    setGlowModalOpen(open);
+                    if (!open) {
+                      setGlowHovered(false);
+                      setGlowPreviewHovered(false);
+                      scheduleIgnoreNextCardClick();
+                    }
+                  }}
+                  title="Who glowed"
+                  items={getGlowItems()}
                 />
               </div>
 
-              <button
-                onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                  e.stopPropagation();
-                  onTip(post.id);
+              <div 
+                className="relative"
+                onMouseEnter={() => {
+                  if (tipLeaveTimerRef.current) {
+                    clearTimeout(tipLeaveTimerRef.current);
+                    tipLeaveTimerRef.current = null;
+                  }
+                  setTipHovered(true);
                 }}
-                className={cn(
-                  "flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-1.5 sm:py-2 rounded-[20px] cursor-pointer transition-colors flex-shrink-0",
-                  post.hasTipped 
-                    ? "border" 
-                    : ""
-                )}
-                style={
-                  post.hasTipped
-                    ? {
-                        backgroundColor: "#FADEFD33",
-                        borderColor: "#FADEFD66",
-                        borderWidth: "1px",
-                      }
-                    : {}
-                }
+                onMouseLeave={() => {
+                  tipLeaveTimerRef.current = setTimeout(() => {
+                    tipLeaveTimerRef.current = null;
+                    setTipHovered(false);
+                  }, POPUP_LEAVE_DELAY_MS);
+                }}
               >
-                {isMounted && (
-                  <svg
-                    className="w-4 h-4"
-                    style={{ color: post.hasTipped ? "#FADEFD" : "#9BB6CC" }}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 10 12" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" style={{ color: post.hasTipped ? "#FADEFD" : "#9BB6CC" }}>
-                      <path d="M9.08333 4.91667L4.91667 0.75L0.75 4.91667M9.08333 10.75L4.91667 6.58333L0.75 10.75" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-
-                  </svg>
-                )}
-                <span
-                  className="text-sm sm:text-[16px] font-light"
-                  style={{ color: post.hasTipped ? "#FADEFD" : "#9BB6CC" }}
+                <button
+                  ref={tipButtonRef}
+                  onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                    e.stopPropagation();
+                    if (tipLongPressTriggeredRef.current) {
+                      tipLongPressTriggeredRef.current = false;
+                      return;
+                    }
+                    onTip(post.id);
+                  }}
+                  onTouchStart={() => {
+                    tipLongPressTimerRef.current = setTimeout(() => {
+                      tipLongPressTimerRef.current = null;
+                      tipLongPressTriggeredRef.current = true;
+                      setTipModalOpen(true);
+                    }, LONG_PRESS_MS);
+                  }}
+                  onTouchEnd={() => {
+                    if (tipLongPressTimerRef.current) {
+                      clearTimeout(tipLongPressTimerRef.current);
+                      tipLongPressTimerRef.current = null;
+                    }
+                  }}
+                  onTouchCancel={() => {
+                    if (tipLongPressTimerRef.current) {
+                      clearTimeout(tipLongPressTimerRef.current);
+                      tipLongPressTimerRef.current = null;
+                    }
+                  }}
+                  className={cn(
+                    "flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-1.5 sm:py-2 rounded-[20px] cursor-pointer transition-colors flex-shrink-0",
+                    post.hasTipped 
+                      ? "border" 
+                      : ""
+                  )}
+                  style={
+                    post.hasTipped
+                      ? {
+                          backgroundColor: "#FADEFD33",
+                          borderColor: "#FADEFD66",
+                          borderWidth: "1px",
+                        }
+                      : {}
+                  }
                 >
-                  {post.tips}
-                </span>
-              </button>
+                  {isMounted && (
+                    <svg
+                      className="w-4 h-4"
+                      style={{ color: post.hasTipped ? "#FADEFD" : "#9BB6CC" }}
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 10 12" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" style={{ color: post.hasTipped ? "#FADEFD" : "#9BB6CC" }}>
+                        <path d="M9.08333 4.91667L4.91667 0.75L0.75 4.91667M9.08333 10.75L4.91667 6.58333L0.75 10.75" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </svg>
+                  )}
+                  <span
+                    className="text-sm sm:text-[16px] font-light"
+                    style={{ color: post.hasTipped ? "#FADEFD" : "#9BB6CC" }}
+                  >
+                    {post.tips}
+                  </span>
+                </button>
+                <UserListPreviewPopup
+                  firstUserName={getTipItems()[0]?.user.name ?? ""}
+                  othersCount={Math.max(0, post.tips - 1)}
+                  isVisible={(tipHovered || tipPreviewHovered) && post.tips > 0 && !tipModalOpen}
+                  buttonRef={tipButtonRef}
+                  align="right"
+                  onOpenModal={() => setTipModalOpen(true)}
+                  onMouseEnter={() => {
+                    if (tipLeaveTimerRef.current) {
+                      clearTimeout(tipLeaveTimerRef.current);
+                      tipLeaveTimerRef.current = null;
+                    }
+                    setTipPreviewHovered(true);
+                  }}
+                  onMouseLeave={() => setTipPreviewHovered(false)}
+                />
+                <UserListModal
+                  open={tipModalOpen}
+                  onOpenChange={(open) => {
+                    setTipModalOpen(open);
+                    if (!open) {
+                      setTipHovered(false);
+                      setTipPreviewHovered(false);
+                      scheduleIgnoreNextCardClick();
+                    }
+                  }}
+                  title="Who tipped"
+                  items={getTipItems()}
+                />
+              </div>
 
               <div 
                 className="relative"
-                onMouseEnter={() => setCommentHovered(true)}
-                onMouseLeave={() => setCommentHovered(false)}
+                onMouseEnter={() => {
+                  if (commentLeaveTimerRef.current) {
+                    clearTimeout(commentLeaveTimerRef.current);
+                    commentLeaveTimerRef.current = null;
+                  }
+                  setCommentHovered(true);
+                }}
+                onMouseLeave={() => {
+                  commentLeaveTimerRef.current = setTimeout(() => {
+                    commentLeaveTimerRef.current = null;
+                    setCommentHovered(false);
+                  }, POPUP_LEAVE_DELAY_MS);
+                }}
               >
                 <button
                   ref={commentButtonRef}
                   onClick={(e: MouseEvent<HTMLButtonElement>) => {
                     e.stopPropagation();
+                    if (commentLongPressTriggeredRef.current) {
+                      commentLongPressTriggeredRef.current = false;
+                      return;
+                    }
                     setHasReplied(!hasReplied);
+                  }}
+                  onTouchStart={() => {
+                    commentLongPressTimerRef.current = setTimeout(() => {
+                      commentLongPressTimerRef.current = null;
+                      commentLongPressTriggeredRef.current = true;
+                      setCommentModalOpen(true);
+                    }, LONG_PRESS_MS);
+                  }}
+                  onTouchEnd={() => {
+                    if (commentLongPressTimerRef.current) {
+                      clearTimeout(commentLongPressTimerRef.current);
+                      commentLongPressTimerRef.current = null;
+                    }
+                  }}
+                  onTouchCancel={() => {
+                    if (commentLongPressTimerRef.current) {
+                      clearTimeout(commentLongPressTimerRef.current);
+                      commentLongPressTimerRef.current = null;
+                    }
                   }}
                   className={cn(
                     "flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-1.5 sm:py-2 rounded-[20px] cursor-pointer transition-colors flex-shrink-0",
@@ -706,8 +884,6 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip, href }) => {
                   <svg width="24" height="24" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg" style={{ color: hasReplied ? "#FADEFD" : "#9BB6CC" }}>
                     <path d="M15.75 8.25C15.75 12.3921 12.3921 15.75 8.25 15.75C7.25238 15.75 6.30025 15.5552 5.42958 15.2016C5.26294 15.1339 5.17962 15.1001 5.11227 15.085C5.04638 15.0702 4.99763 15.0648 4.93011 15.0648C4.86109 15.0648 4.78591 15.0773 4.63554 15.1024L1.67063 15.5966C1.36015 15.6483 1.20491 15.6742 1.09265 15.626C0.994402 15.5839 0.916108 15.5056 0.873967 15.4073C0.825819 15.2951 0.851692 15.1398 0.903439 14.8294L1.39759 11.8645C1.42265 11.7141 1.43518 11.6389 1.43517 11.5699C1.43516 11.5024 1.42976 11.4536 1.415 11.3877C1.3999 11.3204 1.36606 11.2371 1.29839 11.0704C0.94478 10.1997 0.75 9.24762 0.75 8.25C0.75 4.10786 4.10786 0.75 8.25 0.75C12.3921 0.75 15.75 4.10786 15.75 8.25Z"/>
                   </svg>
-
-
                   </svg>
                 )}
                 <span
@@ -717,11 +893,34 @@ export const PostCard = memo<PostCardProps>(({ post, onGlow, onTip, href }) => {
                   {post.replies}
                 </span>
                 </button>
-                <UserListPopup
-                  users={getUsersWhoCommented()}
-                  isVisible={commentHovered && post.replies > 0}
+                <UserListPreviewPopup
+                  firstUserName={getCommentItems()[0]?.user.name ?? ""}
+                  othersCount={Math.max(0, post.replies - 1)}
+                  isVisible={(commentHovered || commentPreviewHovered) && post.replies > 0 && !commentModalOpen}
                   buttonRef={commentButtonRef}
                   align="right"
+                  onOpenModal={() => setCommentModalOpen(true)}
+                  onMouseEnter={() => {
+                    if (commentLeaveTimerRef.current) {
+                      clearTimeout(commentLeaveTimerRef.current);
+                      commentLeaveTimerRef.current = null;
+                    }
+                    setCommentPreviewHovered(true);
+                  }}
+                  onMouseLeave={() => setCommentPreviewHovered(false)}
+                />
+                <UserListModal
+                  open={commentModalOpen}
+                  onOpenChange={(open) => {
+                    setCommentModalOpen(open);
+                    if (!open) {
+                      setCommentHovered(false);
+                      setCommentPreviewHovered(false);
+                      scheduleIgnoreNextCardClick();
+                    }
+                  }}
+                  title="Who commented"
+                  items={getCommentItems()}
                 />
               </div>
 

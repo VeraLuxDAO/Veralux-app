@@ -360,7 +360,7 @@ export function AIChat({ className = "" }: AIChatProps) {
         className={cn(
           "desktop-ai-chat-panel fixed bottom-6 right-6 z-40 flex flex-col",
           "w-96 h-[520px] rounded-2xl overflow-hidden",
-          "bg-[#0A1118]/20 backdrop-blur-[14px] border border-white/10",
+          "bg-[#0A1118]/60 backdrop-blur-[50px] border border-white/10",
           "shadow-[0_25px_60px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.03)]",
           "transition-all duration-300 ease-out transform-gpu"
         )}
@@ -371,7 +371,7 @@ export function AIChat({ className = "" }: AIChatProps) {
         }}
       >
         {/* Header */}
-        <div className="flex-shrink-0 p-4 border-b border-white/10 bg-[#080E11]/10 backdrop-blur-[18px]">
+        <div className="flex-shrink-0 p-4 border-b border-white/10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="relative">

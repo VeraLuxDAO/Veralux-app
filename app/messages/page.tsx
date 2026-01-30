@@ -396,7 +396,7 @@ function MessagesPageContent() {
                     <div className="flex-1 min-w-0 text-left flex flex-col gap-2">
                       <div className="flex items-center justify-between gap-2">
                         <span
-                          className="flex items-center text-sm leading-[18px] font-medium text-white truncate flex-1"
+                          className="flex items-center text-sm leading-[18px] font-light text-white truncate flex-1"
                           style={{ fontFamily: "'Geist'" }}
                         >
                           {room.name}

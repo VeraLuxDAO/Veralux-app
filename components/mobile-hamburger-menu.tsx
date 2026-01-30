@@ -312,15 +312,15 @@ export function MobileHamburgerMenu({
                   setIsAccountModalOpen(true);
                   onClose();
                 }}
-                className="flex w-full items-center justify-center gap-2 rounded-[18px] bg-white/5 px-4 py-3 text-sm transition-all duration-200 hover:bg-white/10"
+                className="flex w-full items-center justify-center gap-2 rounded-[18px] border border-white/10 px-4 py-3 text-sm transition-all duration-200 hover:opacity-90 bg-transparent"
                 style={{
                   fontFamily: "Manrope, sans-serif",
                   fontWeight: 500,
-                  color: "rgba(229, 247, 253, 0.9)",
+                  color: "#EDE0F4",
                 }}
               >
                 <Wallet className="h-4 w-4" />
-                <span>Manage wallet</span>
+                <span>Manage Wallet</span>
               </button>
             )}
             {auth.isAuthenticated ? (
@@ -329,11 +329,11 @@ export function MobileHamburgerMenu({
                   auth.signOut();
                   onClose();
                 }}
-                className="flex w-full items-center justify-center gap-2 rounded-[18px] bg-white/5 px-4 py-3 text-sm transition-all duration-200 hover:bg-white/10"
+                className="flex w-full items-center justify-center gap-2 rounded-[18px] border border-white/10 px-4 py-3 text-sm transition-all duration-200 hover:opacity-90 bg-transparent"
                 style={{
                   fontFamily: "Manrope, sans-serif",
                   fontWeight: 500,
-                  color: "rgba(229, 247, 253, 0.9)",
+                  color: "#EF5054",
                 }}
               >
                 <LogOut className="h-4 w-4" />
